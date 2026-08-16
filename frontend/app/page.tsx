@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import HeroText from "@/components/ui/hero-shutter-text";
 import API from "../services/api";
-
+import { useAuth } from "../context/AuthContext";
 
 
 type Band = "short" | "medium" | "long";
@@ -50,17 +50,26 @@ function formatDeadline(iso: string) {
 }
 
 export default function MarketplacePage() {
+  const { isAuthenticated } = useAuth();
 
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
     API.get("/tasks/")
       .then((res) => setTasks(res.data))
       .catch(() => setError("Failed to load tasks"))
       .finally(() => setLoading(false));
-  }, []);
+  }, [isAuthenticated]);
  
 const [showIntro, setShowIntro] = useState(true);
 
@@ -106,8 +115,28 @@ return (
           through GigHive&apos;s escrow system.
         </p>
 
-      </section>
+        {!isAuthenticated && (
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
+            <Link
+              href="/signup"
+              className="px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold transition-colors"
+            >
+              GET STARTED
+            </Link>
 
+            <Link
+              href="/login"
+              className="px-6 py-3 rounded-lg border border-white/10 hover:border-white/20 text-sm font-medium text-zinc-300 hover:text-white transition-colors"
+            >
+              LOGIN
+            </Link>
+          </div>
+        )}
+
+        </section>
+
+        {isAuthenticated && (
+    <>
       {/* AVAILABLE TASKS */}
       <section className="max-w-7xl mx-auto px-6 pb-28">
 
@@ -252,9 +281,31 @@ return (
 
         </div>
 
-      </section>
+          </section>
+  </>
+        )}
+          {!isAuthenticated && (
+  <section className="max-w-3xl mx-auto px-6 pb-28 text-center">
+    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-10">
+      <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">
+        Ready to get started?
+      </h2>
 
-      <style jsx>{`
+      <p className="text-zinc-400 text-sm sm:text-base mb-6">
+        Join GigHive and start completing campus tasks with a trusted system
+        for payments and commitments.
+      </p>
+
+      <Link
+        href="/signup"
+        className="inline-flex px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold transition-colors"
+      >
+        GET STARTED
+      </Link>
+    </div>
+  </section>
+)}
+        <style jsx>{`
         @keyframes heroIn {
           from {
             opacity: 0;
