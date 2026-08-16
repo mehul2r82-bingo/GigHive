@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { format } from 'date-fns';
 import StatusBadge from './StatusBadge';
 import type { Task } from '@/types';
 
@@ -21,7 +20,18 @@ export default function TaskCard({ task }: { task: Task }) {
           <Meta label="TYPE" value={task.task_type?.toString().toUpperCase()} />
           <Meta label="BAND" value={task.band?.toUpperCase()} />
           <Meta label="MODE" value={task.mode?.toUpperCase()} />
-          <Meta label="DUE" value={task.deadline ? format(new Date(task.deadline), 'MMM d, yy') : '—'} />
+          <Meta
+            label="DUE"
+            value={
+              task.deadline
+                ? new Intl.DateTimeFormat('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: '2-digit',
+                  }).format(new Date(task.deadline))
+                : '—'
+            }
+/>
         </div>
 
         <div className="flex items-center justify-between pt-3 border-t border-forge-border">
