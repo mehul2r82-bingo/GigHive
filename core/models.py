@@ -868,9 +868,14 @@ class Payment(models.Model):
   
 
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
+def create_user_profile_and_token_account(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
+        TokenAccount.objects.create(
+            user=instance,
+            total_tokens=5,
+            locked_tokens=0,
+        )
    
      
 
