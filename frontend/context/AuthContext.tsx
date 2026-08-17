@@ -106,8 +106,11 @@ const register = async (
 }
 
   const logout = () => {
-    setUser(null)
-  }
+  localStorage.removeItem("access")
+  localStorage.removeItem("refresh")
+  localStorage.removeItem("username")
+  setUser(null)
+}
 
   return (
     <AuthContext.Provider
