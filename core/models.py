@@ -175,7 +175,7 @@ class UserProfile(models.Model):
         related_name="profile"
     )
 
-    phone_number = models.CharField(max_length=20)
+    phone_number = models.CharField(max_length=20, blank=True, default="")
     phone_verified = models.BooleanField(default=False)
 
     upi_id = models.CharField(
