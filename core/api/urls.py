@@ -19,6 +19,7 @@ from .views import (
     UserProfileView,
     TokenAccountView,
     MyTasksView,
+    TaskTypeListView,
 )
 
 urlpatterns = [
@@ -35,6 +36,7 @@ urlpatterns = [
     UserProfileView.as_view(),
     name="profile",
 ),
+    path("task-types/", TaskTypeListView.as_view(), name="task-types"),
     path(
     "token-account/",
     TokenAccountView.as_view(),

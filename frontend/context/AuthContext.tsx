@@ -26,18 +26,40 @@ const AuthContext = createContext<AuthContextType | null>(null)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
 
-  useEffect(() => {
-    const token = localStorage.getItem("access");
-    const username = localStorage.getItem("username");
+ useEffect(() => {
+  const token = localStorage.getItem("access");
+  const username = localStorage.getItem("username");
 
-    if (token && username) {
-        setUser({
-            id: 1,
-            username,
-            email: "",
-            name: username,
-        });
-    }
+  if (!token || !username) {
+    return;
+  }
+
+  fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/token-account/`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Invalid or expired session");
+      }
+
+      return response.json();
+    })
+    .then(() => {
+      setUser({
+        id: 1,
+        username,
+        email: "",
+        name: username,
+      });
+    })
+    .catch(() => {
+      localStorage.removeItem("access");
+      localStorage.removeItem("refresh");
+      localStorage.removeItem("username");
+      setUser(null);
+    });
 }, []);
 
   const login = async (

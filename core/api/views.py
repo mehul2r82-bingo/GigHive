@@ -7,7 +7,7 @@ from django.utils import timezone
 from .serializers import RegisterSerializer
 from rest_framework.permissions import IsAuthenticated
 
-from core.models import Payment, Task, TaskState
+from core.models import Payment, Task, TaskState, TaskType
 from .serializers import (
     TaskSerializer,
     TaskPublishSerializer,
@@ -337,3 +337,19 @@ class TokenAccountView(generics.GenericAPIView):
             "available_tokens": token_account.available_tokens,
             "locked_tokens": token_account.locked_tokens,
         })        
+        
+class TaskTypeListView(generics.GenericAPIView):
+    permission_classes = []
+
+    def get(self, request):
+        task_types = TaskType.objects.filter(
+            is_active=True
+        ).order_by("id")
+
+        return Response([
+            {
+                "id": task_type.id,
+                "name": task_type.name,
+            }
+            for task_type in task_types
+        ])
