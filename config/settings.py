@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 from pathlib import Path
 from datetime import timedelta
 import dj_database_url
@@ -7,10 +8,8 @@ import dj_database_url
 # BASE
 # -------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-from dotenv import load_dotenv
-
 load_dotenv(BASE_DIR / ".env")
+
 
 # -------------------------------
 # ENVIRONMENT
@@ -129,14 +128,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -177,8 +169,35 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+# -------------------------------
+# BACKBLAZE B2 STORAGE
+# -------------------------------
+
+B2_KEY_ID = os.environ.get("B2_KEY_ID")
+B2_APPLICATION_KEY = os.environ.get("B2_APPLICATION_KEY")
+B2_BUCKET_NAME = os.environ.get("B2_BUCKET_NAME")
+B2_ENDPOINT = os.environ.get("B2_ENDPOINT")
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+AWS_ACCESS_KEY_ID = B2_KEY_ID
+AWS_SECRET_ACCESS_KEY = B2_APPLICATION_KEY
+AWS_STORAGE_BUCKET_NAME = B2_BUCKET_NAME
+AWS_S3_ENDPOINT_URL = B2_ENDPOINT
+
+AWS_S3_REGION_NAME = "us-east-005"
+AWS_S3_SIGNATURE_VERSION = "s3v4"
+
+AWS_DEFAULT_ACL = None
+AWS_QUERYSTRING_AUTH = True
+AWS_S3_FILE_OVERWRITE = False
 
 # -------------------------------
 # -------------------------------
