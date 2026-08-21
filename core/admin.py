@@ -99,7 +99,12 @@ class TaskAdmin(admin.ModelAdmin):
      return obj.payment.status if hasattr(obj, "payment") else "-"
     payment_status.short_description = "Payment Status"
     
-    list_display = ("id", "title", "giver", "state", "created_at", "payment_status")
+    def payment_amount(self, obj):
+     return obj.payment.amount if hasattr(obj, "payment") else "-"
+    payment_amount.short_description = "Payment Amount"
+    
+    
+    list_display = ("id", "title", "giver", "state", "created_at", "payment_status", "payment_amount")
     list_filter = ("state", "band", "mode")
     search_fields = ("title",)
     exclude = ("taker",)
