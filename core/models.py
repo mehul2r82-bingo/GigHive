@@ -664,16 +664,17 @@ class Task(models.Model):
         taker_token.save()
 
         old_state = task.state
+        task.state = TaskState.COMPLETED
 
         task.payment.status = Payment.Status.PENDING_VERIFICATION
         task.payment.save(update_fields=["status"])
         task.save(
-        update_fields=[
-            "state",
-            "payment.status",
-            "updated_at",
-        ]
+    update_fields=[
+        "state",
+        "updated_at",
+    ]
 )
+ 
 
         task._log_event(
             actor=actor,
