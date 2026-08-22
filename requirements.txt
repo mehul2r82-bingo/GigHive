@@ -20,4 +20,5 @@ uvicorn==0.52.3
 whitenoise==6.12.0
 boto3
 django-storages
+requests
 
