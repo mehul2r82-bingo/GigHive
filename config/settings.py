@@ -10,6 +10,8 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
+CRON_SECRET = os.environ.get("CRON_SECRET")
+
 
 # -------------------------------
 # ENVIRONMENT

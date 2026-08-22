@@ -6,6 +6,9 @@ from django.db.models import Q
 from django.utils import timezone
 from .serializers import RegisterSerializer
 from core.telegram import send_telegram_message
+from django.http import JsonResponse
+import secrets
+import os
 from rest_framework.permissions import IsAuthenticated
 
 from core.models import Payment, Task, TaskState, TaskType
@@ -376,3 +379,49 @@ class TaskTypeListView(generics.GenericAPIView):
             }
             for task_type in task_types
         ])
+        
+        
+
+def fail_expired_tasks_api(request):
+    if request.method != "GET":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+
+    cron_secret = request.headers.get("X-Cron-Secret")
+
+    if not cron_secret or not secrets.compare_digest(
+        cron_secret,
+        os.environ.get("CRON_SECRET", "")
+    ):
+        return JsonResponse({"error": "Unauthorized"}, status=401)
+
+    now = timezone.now()
+
+    expired_tasks = Task.objects.filter(
+        state=TaskState.ACCEPTED,
+        deadline__lt=now,
+    )
+
+    processed = 0
+
+    for task in expired_tasks:
+        try:
+            task.fail()
+            processed += 1
+
+            send_telegram_message(
+                f"⚠️ GigHive — Deadline Failure\n\n"
+                f"Task ID: #{task.id}\n"
+                f"Task: {task.title}\n"
+                f"Taker: {task.taker.username}\n"
+                f"Payment: Refund Pending\n\n"
+                f"Action required: Refund the giver in Django Admin."
+            )
+
+        except Exception as e:
+            print(f"[CRON] Failed task #{task.id}: {e}")
+
+    return JsonResponse({
+        "success": True,
+        "processed": processed,
+        "checked_at": now.isoformat(),
+    })

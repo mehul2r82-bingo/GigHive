@@ -20,6 +20,7 @@ from .views import (
     TokenAccountView,
     MyTasksView,
     TaskTypeListView,
+    fail_expired_tasks_api,
 )
 
 urlpatterns = [
@@ -87,6 +88,11 @@ urlpatterns = [
         "payments/<int:task_id>/refund/",
         PaymentRefundView.as_view(),
         name="payment-refund"
+    ),
+    path(
+        "internal/fail-expired/",
+        fail_expired_tasks_api,
+        name="fail-expired-tasks-api",
     ),
 ]
 
