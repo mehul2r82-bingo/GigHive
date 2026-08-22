@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.utils import timezone
 from .serializers import RegisterSerializer
+from core.telegram import send_telegram_message
 from rest_framework.permissions import IsAuthenticated
 
 from core.models import Payment, Task, TaskState, TaskType
@@ -153,6 +154,19 @@ class TaskCompleteView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
+        task.refresh_from_db()
+
+        send_telegram_message(
+            f"💰 GigHive — Payout Required\n\n"
+            f"Task ID: #{task.id}\n"
+            f"Task: {task.title}\n"
+            f"Giver: {task.giver.username}\n"
+            f"Taker: {task.taker.username}\n"
+            f"Amount: ₹{task.payment.amount}\n\n"
+            f"Task completed successfully.\n"
+            f"Action required: Pay the tasker."
+        )
+
         return Response(
             {"detail": "Task completed successfully."},
             status=status.HTTP_200_OK,
@@ -207,7 +221,6 @@ class TaskCancelView(generics.GenericAPIView):
         )
 
 class PaymentSubmitView(generics.GenericAPIView):
-
     permission_classes = [IsAuthenticated]
 
     def post(self, request, task_id):
@@ -218,9 +231,19 @@ class PaymentSubmitView(generics.GenericAPIView):
         payment.status = Payment.Status.PENDING_VERIFICATION
         payment.save()
 
+        send_telegram_message(
+            f"🔔 GigHive — Payment Verification Required\n\n"
+            f"Task ID: #{task.id}\n"
+            f"Task: {task.title}\n"
+            f"Giver: {task.giver.username}\n"
+            f"Amount: ₹{payment.amount}\n"
+            f"UTR: {payment.utr or 'Not provided'}\n\n"
+            f"Action required: Verify payment in Django Admin."
+        )
+
         return Response({
-    "message": "Payment submitted for verification"
-}, status=status.HTTP_200_OK)
+            "message": "Payment submitted for verification"
+        }, status=status.HTTP_200_OK)
         
 class PaymentStatusView(generics.GenericAPIView):
 

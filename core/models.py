@@ -677,15 +677,30 @@ class Task(models.Model):
  
 
         task._log_event(
-            actor=actor,
-            event="COMPLETE",
-            from_state=old_state,
-            to_state=TaskState.COMPLETED,
-        )
+        actor=actor,
+        event="COMPLETE",
+        from_state=old_state,
+        to_state=TaskState.COMPLETED,
+    )
 
+        # Telegram admin notification
+        from .telegram import send_telegram_message
+
+        transaction.on_commit(
+            lambda: send_telegram_message(
+                f"💰 GigHive — Payout Required\n\n"
+                f"Task ID: #{task.id}\n"
+                f"Task: {task.title}\n"
+                f"Giver: {task.giver.username}\n"
+                f"Taker: {task.taker.username}\n"
+                f"Amount: ₹{task.payment.amount}\n\n"
+                f"Action: Complete payout in Django Admin."
+            )
+        )
+        
         return task
 
-
+    
 
     @transaction.atomic
     def cancel(self, actor):
@@ -753,16 +768,37 @@ class Task(models.Model):
             task.payment.status = Payment.Status.REFUND_PENDING
             task.payment.save(update_fields=["status"])
 
-        # Log cancellation event
-        self._log_event(
-            actor=actor,
-            event=event,
-            from_state=prev_state,
-            to_state=TaskState.CANCELLED,
+        
+            self._log_event(
+        actor=actor,
+        event=event,
+        from_state=prev_state,
+        to_state=TaskState.CANCELLED,
+    )
+
+    # Telegram admin notification
+        from .telegram import send_telegram_message
+
+        cancelled_by = (
+            f"Giver ({task.giver.username})"
+            if event in ["giver_cancelled", "cancelled_before_accept"]
+            else f"Taker ({task.taker.username})"
+        )
+
+        transaction.on_commit(
+            lambda: send_telegram_message(
+                f"🔄 GigHive — Refund Required\n\n"
+                f"Task ID: #{task.id}\n"
+                f"Task: {task.title}\n"
+                f"Cancelled by: {cancelled_by}\n"
+                f"Giver: {task.giver.username}\n"
+                f"Amount: ₹{task.payment.amount}\n\n"
+                f"Action: Refund giver in Django Admin."
+            )
         )
 
         return task
-    
+        
 
 
 
