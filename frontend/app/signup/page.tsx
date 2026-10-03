@@ -119,103 +119,79 @@ export default function SignupPage() {
         )}
 
         {/* Username */}
-        <div className="mb-5">
+        <div className="mb-4">
           <label className="block text-sm font-semibold text-zinc-200 mb-1.5">
             Username
           </label>
-
-          <p className="text-xs text-zinc-500 mb-2">
-            Choose the username you'll use to log in to GigHive.
-          </p>
-
           <input
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Choose a username"
-            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-zinc-700 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
+            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
             required
           />
         </div>
 
         {/* Student Registration Number */}
-        <div className="mb-5">
+        <div className="mb-4">
           <label className="block text-sm font-semibold text-zinc-200 mb-1.5">
-            Student Registration Number
+            Student Registration Number <span className="text-xs text-zinc-500 font-normal ml-1">(UID / Reg No.)</span>
           </label>
-
-          <p className="text-xs text-zinc-500 mb-2">
-            Your unique university ID number (e.g. 12408281).
-          </p>
-
           <input
             type="text"
             value={registrationNumber}
             onChange={(e) => setRegistrationNumber(e.target.value)}
             placeholder="e.g. 12408281"
-            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-zinc-700 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
+            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
             required
           />
         </div>
 
         {/* Email Address */}
-        <div className="mb-5">
+        <div className="mb-4">
           <label className="block text-sm font-semibold text-zinc-200 mb-1.5">
             Email Address
           </label>
-
-          <p className="text-xs text-zinc-500 mb-2">
-            Used to receive task alerts and payment updates.
-          </p>
-
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="name@gmail.com"
-            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-zinc-700 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
+            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
             required
           />
         </div>
 
-        {/* Password */}
-        <div className="mb-5">
-          <label className="block text-sm font-semibold text-zinc-200 mb-1.5">
-            Password
-          </label>
+        {/* Password & Confirm Password (2-column grid) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-6">
+          <div>
+            <label className="block text-sm font-semibold text-zinc-200 mb-1.5">
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
+              required
+            />
+          </div>
 
-          <p className="text-xs text-zinc-500 mb-2">
-            Create a password you'll use to access your account.
-          </p>
-
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Create a password"
-            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-zinc-700 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
-            required
-          />
-        </div>
-
-        {/* Confirm Password */}
-        <div className="mb-7">
-          <label className="block text-sm font-semibold text-zinc-200 mb-1.5">
-            Confirm Password
-          </label>
-
-          <p className="text-xs text-zinc-500 mb-2">
-            Re-enter your password to make sure both match.
-          </p>
-
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm your password"
-            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-zinc-700 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
-            required
-          />
+          <div>
+            <label className="block text-sm font-semibold text-zinc-200 mb-1.5">
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
+              required
+            />
+          </div>
         </div>
 
         {/* Signup */}
