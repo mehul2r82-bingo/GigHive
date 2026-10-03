@@ -175,6 +175,15 @@ class UserProfile(models.Model):
         related_name="profile"
     )
 
+    registration_number = models.CharField(
+        max_length=30,
+        unique=True,
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="Unique student registration number (e.g. 12408281)"
+    )
+
     phone_number = models.CharField(max_length=20, blank=True, default="")
     phone_verified = models.BooleanField(default=False)
 
@@ -288,6 +297,12 @@ class PaymentStatus(models.TextChoices):
     PROCESSING = "PROCESSING", "Processing"
     COMPLETED = "COMPLETED", "Completed"
     REFUND_PENDING = "refund_pending", "Refund Pending"
+
+def validate_submission_file_size(file):
+    max_size_mb = 5
+    if file and hasattr(file, "size") and file.size > max_size_mb * 1024 * 1024:
+        raise ValidationError(f"File size exceeds the {max_size_mb} MB limit. Please compress your file.")
+
 
 class Task(models.Model):
     """
@@ -460,10 +475,11 @@ class Task(models.Model):
     
     
     submission_file = models.FileField(
-    upload_to="submissions/",
-    blank=True,
-    null=True,
-)
+        upload_to="submissions/",
+        blank=True,
+        null=True,
+        validators=[validate_submission_file_size],
+    )
 
     submission_note = models.TextField(
         blank=True,
@@ -578,7 +594,11 @@ class Task(models.Model):
 
         # Step 7 — require payout address
         if not actor.profile.earnings_upi_id:
-         raise ValidationError("Add your Earnings UPI to receive payments")
+            raise ValidationError("Add your Earnings UPI to receive payments")
+
+        # Step 8 — require student registration number
+        if not actor.profile.registration_number:
+            raise ValidationError("Add your Student Registration Number to your profile before accepting tasks")
 
         if actor == task.giver:
             raise ValidationError("Giver cannot accept own task")

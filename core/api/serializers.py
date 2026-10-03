@@ -68,24 +68,42 @@ class UserSerializer(serializers.ModelSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
+    registration_number = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = User
-        fields = ["username", "email", "password", "confirm_password"]
+        fields = ["username", "email", "password", "confirm_password", "registration_number"]
+
+    def validate_registration_number(self, value):
+        value = str(value).strip()
+        if not value:
+            raise serializers.ValidationError("Registration number is required.")
+        if UserProfile.objects.filter(registration_number__iexact=value).exists():
+            raise serializers.ValidationError("An account with this student registration number already exists.")
+        return value
 
     def validate(self, data):
         if data["password"] != data["confirm_password"]:
             raise serializers.ValidationError("Passwords do not match")
+        if not data.get("email"):
+            raise serializers.ValidationError("Email is required.")
         return data
 
     def create(self, validated_data):
         validated_data.pop("confirm_password")  # 🔥 THIS IS CRITICAL
+        reg_no = validated_data.pop("registration_number").strip()
 
         user = User.objects.create_user(
             username=validated_data.get("username"),
             email=validated_data.get("email"),
             password=validated_data.get("password"),
         )
+
+        # Update profile created by signal with the unique registration number
+        if hasattr(user, "profile"):
+            profile = user.profile
+            profile.registration_number = reg_no
+            profile.save(update_fields=["registration_number"])
 
         return user
         
@@ -183,6 +201,11 @@ class TaskAcceptSerializer(serializers.Serializer):
 class TaskSubmitSerializer(serializers.Serializer):
     submission_file = serializers.FileField(required=False)
     submission_note = serializers.CharField(required=False, allow_blank=True)
+
+    def validate_submission_file(self, file):
+        if file and hasattr(file, "size") and file.size > 5 * 1024 * 1024:
+            raise serializers.ValidationError("File size cannot exceed 5 MB. Please compress your file.")
+        return file
 
     def save(self, **kwargs):
         task = self.context["task"]
@@ -310,9 +333,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = [
-    "upi_id",
-    "earnings_upi_id",
-    "earnings_upi_verified",
-    "refund_upi_id",
-    "refund_upi_verified",
-]
+            "registration_number",
+            "college_verified",
+            "upi_id",
+            "earnings_upi_id",
+            "earnings_upi_verified",
+            "refund_upi_id",
+            "refund_upi_verified",
+        ]

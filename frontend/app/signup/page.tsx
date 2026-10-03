@@ -11,6 +11,8 @@ export default function SignupPage() {
   const { register } = useAuth();
 
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [registrationNumber, setRegistrationNumber] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -33,6 +35,8 @@ export default function SignupPage() {
 
     await register(
       username,
+      email,
+      registrationNumber,
       password,
       confirmPassword
     );
@@ -129,6 +133,46 @@ export default function SignupPage() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Choose a username"
+            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-zinc-700 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
+            required
+          />
+        </div>
+
+        {/* Student Registration Number */}
+        <div className="mb-5">
+          <label className="block text-sm font-semibold text-zinc-200 mb-1.5">
+            Student Registration Number
+          </label>
+
+          <p className="text-xs text-zinc-500 mb-2">
+            Your unique university ID number (e.g. 12408281).
+          </p>
+
+          <input
+            type="text"
+            value={registrationNumber}
+            onChange={(e) => setRegistrationNumber(e.target.value)}
+            placeholder="e.g. 12408281"
+            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-zinc-700 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
+            required
+          />
+        </div>
+
+        {/* Email Address */}
+        <div className="mb-5">
+          <label className="block text-sm font-semibold text-zinc-200 mb-1.5">
+            Email Address
+          </label>
+
+          <p className="text-xs text-zinc-500 mb-2">
+            Used to receive task alerts and payment updates.
+          </p>
+
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="name@gmail.com"
             className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-zinc-700 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
             required
           />

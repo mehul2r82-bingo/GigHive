@@ -14,6 +14,8 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>
   register: (
     username: string,
+    email: string,
+    registrationNumber: string,
     password: string,
     confirmPassword: string
   ) => Promise<void>
@@ -100,10 +102,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 const register = async (
   username: string,
+  email: string,
+  registrationNumber: string,
   password: string,
   confirmPassword: string
 ) => {
-
   console.log("BEFORE FETCH");
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/register/`,
@@ -114,6 +117,8 @@ const register = async (
       },
       body: JSON.stringify({
         username,
+        email,
+        registration_number: registrationNumber,
         password,
         confirm_password: confirmPassword,
       }),
@@ -123,6 +128,12 @@ const register = async (
   const data = await response.json()
 
   if (!response.ok) {
+    if (typeof data === "object") {
+      const messages = Object.entries(data)
+        .map(([k, v]) => `${Array.isArray(v) ? v.join(", ") : v}`)
+        .join(" | ");
+      throw new Error(messages || "Registration failed");
+    }
     throw new Error(JSON.stringify(data))
   }
 }
