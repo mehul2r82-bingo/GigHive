@@ -78,7 +78,7 @@ class TokenAccount(models.Model):
         related_name="token_account",
     )
 
-    total_tokens = models.PositiveSmallIntegerField(default=5)
+    total_tokens = models.PositiveSmallIntegerField(default=2)
     locked_tokens = models.PositiveSmallIntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -1006,7 +1006,7 @@ def create_user_profile_and_token_account(sender, instance, created, **kwargs):
         UserProfile.objects.create(user=instance)
         TokenAccount.objects.create(
             user=instance,
-            total_tokens=5,
+            total_tokens=2,
             locked_tokens=0,
         )
    

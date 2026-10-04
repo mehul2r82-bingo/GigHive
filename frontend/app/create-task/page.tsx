@@ -278,10 +278,13 @@ return(
           </div>
         </div>
 
-        {/* CARD 2 — DURATION BAND */}
+        {/* CARD 2 — DURATION & REWARD (FUSED) */}
         <div className="fade-up rounded-2xl border border-white/10 bg-white/[0.02] p-6 sm:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.3)] transition-shadow duration-300 hover:shadow-[0_8px_30px_-8px_rgba(99,102,241,0.15)]">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
-            <h2 className="text-lg font-semibold tracking-tight">Duration Band</h2>
+            <div>
+              <h2 className="text-lg font-semibold tracking-tight">Duration & Reward</h2>
+              <p className="text-xs text-zinc-500 mt-0.5">Select effort level and set your reward amount.</p>
+            </div>
             {isGoldPatron ? (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/40 shadow-[0_0_12px_rgba(245,158,11,0.2)]">
                 <Crown size={13} className="text-amber-400 animate-pulse" />
@@ -294,7 +297,7 @@ return(
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
             {BANDS.map(b => {
               const info = BAND_INFO[b.value]
               const isSelected = form.band === b.value
@@ -302,64 +305,68 @@ return(
                 <button
                   key={b.value}
                   type="button"
-                  onClick={()=>updateField("band", b.value)}
-                  className={`text-left rounded-2xl border p-5 transition-all duration-200 hover:scale-[1.02] ${
+                  onClick={() => {
+                    updateField("band", b.value);
+                    if (!form.price || form.price < b.min) {
+                      updateField("price", b.min);
+                    }
+                  }}
+                  className={`text-left rounded-xl border p-4 transition-all duration-200 hover:scale-[1.01] ${
                     isSelected
-                      ? "border-indigo-500 bg-indigo-500/[0.08] shadow-[0_0_0_1px_rgba(99,102,241,0.5),0_8px_30px_-8px_rgba(99,102,241,0.5)]"
-                      : "border-white/10 hover:border-white/20"
+                      ? "border-indigo-500 bg-indigo-500/[0.1] shadow-[0_0_0_1px_rgba(99,102,241,0.5),0_8px_20px_-8px_rgba(99,102,241,0.4)]"
+                      : "border-white/10 hover:border-white/20 bg-black/20"
                   }`}
                 >
-                  <p className="text-base font-semibold text-white mb-1">{info.title}</p>
-                  <p className="text-sm text-indigo-300 mb-3">{info.range}</p>
-                  <p className="text-xs text-zinc-500 mb-4 leading-relaxed">{info.examples}</p>
-                  <p className="text-xs text-zinc-500">
-                    Minimum Price: <span className="text-emerald-400 font-semibold">₹{info.displayMin}</span>
-                  </p>
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-sm font-semibold text-white">{info.title}</p>
+                    <span className="text-xs font-mono font-bold text-emerald-400">min ₹{info.displayMin}</span>
+                  </div>
+                  <p className="text-xs text-indigo-300 mb-2">{info.range}</p>
+                  <p className="text-[11px] text-zinc-500 leading-snug">{info.examples}</p>
                 </button>
               )
             })}
           </div>
 
-          <p className="text-xs text-zinc-500 mt-4">
-            Select the duration that best represents the expected effort. This automatically determines the minimum allowed reward.
-          </p>
-        </div>
-
-        {/* CARD 3 — PRICE */}
-        <div className="fade-up rounded-2xl border border-indigo-500/20 bg-gradient-to-b from-indigo-500/[0.06] to-transparent p-6 sm:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.3)] transition-shadow duration-300 hover:shadow-[0_8px_30px_-8px_rgba(99,102,241,0.2)]">
-          <h2 className="text-lg font-semibold tracking-tight mb-5">Price</h2>
-
-          <label className="block text-xs text-zinc-500 mb-2">Task Price</label>
-          <div className="relative mb-0">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 text-lg">₹</span>
-            <input
-              type="text"
-              inputMode="numeric"
-              placeholder="0"
-              className="w-full p-4 pl-9 bg-black/40 border border-white/10 rounded-xl text-2xl font-semibold outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
-              value={form.price || ""}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, "");
-                updateField("price", value === "" ? 0 : Number(value));
-              }}
-            />
-          </div>
-
-        
-
-          {showElegantWarning && (
-            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 flex items-start gap-2.5">
-              <span className="text-amber-300">✨</span>
-              <p className="text-sm text-amber-200">
-                For the {selectedBand ? BAND_INFO[selectedBand.value].title : ""} band, the minimum reward is{" "}
-                <span className="font-semibold">₹{selectedBand?.min}</span>. You can still submit,
-                but you may be asked to raise the price.
-              </p>
+          {/* Embedded Task Price */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-xs text-zinc-400 font-medium">Task Reward Amount (₹)</label>
+              {selectedBand && (
+                <span className="text-[11px] font-mono text-zinc-500">
+                  Minimum: <strong className="text-emerald-400">₹{selectedBand.min}</strong>
+                </span>
+              )}
             </div>
-          )}
+
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 text-lg">₹</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder={selectedBand ? String(selectedBand.min) : "0"}
+                className="w-full p-3.5 pl-9 bg-black/40 border border-white/10 rounded-xl text-xl font-semibold outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
+                value={form.price || ""}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "");
+                  updateField("price", value === "" ? 0 : Number(value));
+                }}
+              />
+            </div>
+
+            {showElegantWarning && (
+              <div className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-2.5 flex items-center gap-2">
+                <span className="text-amber-300 text-xs">⚠️</span>
+                <p className="text-xs text-amber-200">
+                  Minimum price for this duration is{" "}
+                  <span className="font-semibold">₹{selectedBand?.min}</span>.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* CARD 4 — DEADLINE */}
+        {/* CARD 3 — DEADLINE */}
         <div className="fade-up rounded-2xl border border-white/10 bg-white/[0.02] p-6 sm:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.3)] transition-shadow duration-300 hover:shadow-[0_8px_30px_-8px_rgba(99,102,241,0.15)]">
           <h2 className="text-lg font-semibold tracking-tight mb-5">Deadline</h2>
 
@@ -380,32 +387,6 @@ return(
           <p className="text-xs text-zinc-500 mt-3">
             Choose the final date and time before which the task must be completed. Only future dates are allowed.
           </p>
-        </div>
-
-        {/* CARD 5 — BONUS TOKEN */}
-        <div className="fade-up rounded-2xl border border-white/10 bg-white/[0.02] p-6 sm:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.3)] transition-shadow duration-300 hover:shadow-[0_8px_30px_-8px_rgba(99,102,241,0.15)]">
-          <h2 className="text-lg font-semibold tracking-tight mb-1">Bonus Token (Optional)</h2>
-          <p className="text-sm text-zinc-500 mb-5">
-            Reward exceptional work with extra Commitment Tokens.
-          </p>
-
-          <label className="block text-xs text-zinc-500 mb-2">Bonus Tokens</label>
-          <input
-            type="number"
-            placeholder="0"
-            className="w-full p-4 bg-black/40 border border-white/10 rounded-xl text-base placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 mb-4"
-            value={form.bonus_tokens}
-            onChange={(e)=>updateField("bonus_tokens",Number(e.target.value))}
-          />
-
-          <div className="rounded-xl border border-white/5 bg-black/20 px-4 py-3.5">
-            <p className="text-xs text-zinc-400 font-medium mb-2">Why give Bonus Tokens?</p>
-            <ul className="space-y-1 text-xs text-zinc-500">
-              <li>• Motivate better quality work</li>
-              <li>• Reward fast completion</li>
-              <li>• Appreciate extra effort</li>
-            </ul>
-          </div>
         </div>
 
         {/* PUBLISH TASK */}
