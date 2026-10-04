@@ -101,6 +101,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = ["username", "email", "password", "confirm_password", "registration_number"]
 
+    def validate_username(self, value):
+        value = str(value).strip().replace(" ", "_")
+        return value
+
     def validate_registration_number(self, value):
         value = str(value).strip()
         if not value:

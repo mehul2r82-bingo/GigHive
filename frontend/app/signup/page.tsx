@@ -121,13 +121,13 @@ export default function SignupPage() {
         {/* Username */}
         <div className="mb-4">
           <label className="block text-sm font-semibold text-zinc-200 mb-1.5">
-            Username
+            Username <span className="text-xs text-zinc-500 font-normal ml-1">(no spaces, e.g. ajay_kumar)</span>
           </label>
           <input
             type="text"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Choose a username"
+            onChange={(e) => setUsername(e.target.value.replace(/\s+/g, '_'))}
+            placeholder="e.g. ajay_kumar"
             className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
             required
           />
