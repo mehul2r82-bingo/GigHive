@@ -20,6 +20,7 @@ from .views import (
     TokenAccountView,
     MyTasksView,
     TaskTypeListView,
+    LeaderboardView,
     fail_expired_tasks_api,
 )
 
@@ -37,6 +38,7 @@ urlpatterns = [
     UserProfileView.as_view(),
     name="profile",
 ),
+    path("leaderboard/", LeaderboardView.as_view(), name="leaderboard"),
     path("task-types/", TaskTypeListView.as_view(), name="task-types"),
     path(
     "token-account/",

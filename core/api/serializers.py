@@ -18,6 +18,10 @@ class TaskSerializer(serializers.ModelSerializer):
 
     refund_upi_id = serializers.SerializerMethodField()
     earnings_upi_id = serializers.SerializerMethodField()
+    giver_badge = serializers.SerializerMethodField()
+    giver_streak = serializers.SerializerMethodField()
+    taker_badge = serializers.SerializerMethodField()
+    taker_streak = serializers.SerializerMethodField()
 
     class Meta:
             model = Task
@@ -44,7 +48,11 @@ class TaskSerializer(serializers.ModelSerializer):
                 "revision_count",
                 "payment_status",
                 "refund_upi_id",
-                "earnings_upi_id"
+                "earnings_upi_id",
+                "giver_badge",
+                "giver_streak",
+                "taker_badge",
+                "taker_streak",
                 ]
             
     def get_refund_upi_id(self, obj):
@@ -52,11 +60,30 @@ class TaskSerializer(serializers.ModelSerializer):
            return obj.giver.profile.refund_upi_id
         return None
 
-
     def get_earnings_upi_id(self, obj):
         if obj.taker and hasattr(obj.taker, "profile"):
          return obj.taker.profile.earnings_upi_id
-        return None     
+        return None
+
+    def get_giver_badge(self, obj):
+        if obj.giver and hasattr(obj.giver, "profile"):
+            return obj.giver.profile.badge_type
+        return None
+
+    def get_giver_streak(self, obj):
+        if obj.giver and hasattr(obj.giver, "profile"):
+            return obj.giver.profile.speed_streak
+        return 0
+
+    def get_taker_badge(self, obj):
+        if obj.taker and hasattr(obj.taker, "profile"):
+            return obj.taker.profile.badge_type
+        return None
+
+    def get_taker_streak(self, obj):
+        if obj.taker and hasattr(obj.taker, "profile"):
+            return obj.taker.profile.speed_streak
+        return 0     
 
 class UserSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source="username", read_only=True)
@@ -114,6 +141,11 @@ class TaskListSerializer(serializers.ModelSerializer):
     state = serializers.CharField(source="get_state_display", read_only=True)
     giver = serializers.StringRelatedField()
     taker = serializers.StringRelatedField()
+    bonus_tokens = serializers.IntegerField(read_only=True)
+    giver_badge = serializers.SerializerMethodField()
+    giver_streak = serializers.SerializerMethodField()
+    taker_badge = serializers.SerializerMethodField()
+    taker_streak = serializers.SerializerMethodField()
 
     class Meta:
         model = Task
@@ -125,9 +157,14 @@ class TaskListSerializer(serializers.ModelSerializer):
             "mode",
             "price",
             "deadline",
+            "bonus_tokens",
             "state",
             "giver",
             "taker",
+            "giver_badge",
+            "giver_streak",
+            "taker_badge",
+            "taker_streak",
             "created_at",
         )
         read_only_fields = (
@@ -138,11 +175,36 @@ class TaskListSerializer(serializers.ModelSerializer):
             "mode",
             "price",
             "deadline",
+            "bonus_tokens",
             "state",
             "giver",
             "taker",
+            "giver_badge",
+            "giver_streak",
+            "taker_badge",
+            "taker_streak",
             "created_at",
         )
+
+    def get_giver_badge(self, obj):
+        if obj.giver and hasattr(obj.giver, "profile"):
+            return obj.giver.profile.badge_type
+        return None
+
+    def get_giver_streak(self, obj):
+        if obj.giver and hasattr(obj.giver, "profile"):
+            return obj.giver.profile.speed_streak
+        return 0
+
+    def get_taker_badge(self, obj):
+        if obj.taker and hasattr(obj.taker, "profile"):
+            return obj.taker.profile.badge_type
+        return None
+
+    def get_taker_streak(self, obj):
+        if obj.taker and hasattr(obj.taker, "profile"):
+            return obj.taker.profile.speed_streak
+        return 0
         
         
         
@@ -330,9 +392,14 @@ class TaskCancelSerializer(serializers.Serializer):
     
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source="user.username", read_only=True)
+    is_gold_patron = serializers.BooleanField(read_only=True)
+    badge_type = serializers.CharField(read_only=True)
+
     class Meta:
         model = UserProfile
         fields = [
+            "username",
             "registration_number",
             "college_verified",
             "upi_id",
@@ -340,4 +407,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "earnings_upi_verified",
             "refund_upi_id",
             "refund_upi_verified",
+            "tasks_posted_count",
+            "tasks_completed_count",
+            "speed_streak",
+            "fast_tasks_counter",
+            "is_gold_patron",
+            "badge_type",
         ]

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import StatusBadge from './StatusBadge';
+import GamificationBadge from './GamificationBadge';
 import type { Task } from '@/types';
 
 export default function TaskCard({ task }: { task: Task }) {
@@ -10,9 +11,19 @@ export default function TaskCard({ task }: { task: Task }) {
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-forge-accent/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
         <div className="flex items-start justify-between gap-3 mb-3">
-          <h3 className="font-mono text-forge-text font-semibold text-sm leading-snug group-hover:text-forge-accent transition-colors line-clamp-2">
-            {task.title}
-          </h3>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-mono text-forge-text font-semibold text-sm leading-snug group-hover:text-forge-accent transition-colors line-clamp-2">
+              {task.title}
+            </h3>
+            {task.giver_badge && (
+              <div className="mt-1.5 flex items-center gap-1.5">
+                <GamificationBadge type={task.giver_badge} size="sm" />
+                {task.giver_streak && task.giver_streak > 0 ? (
+                  <GamificationBadge type="STREAK" streakCount={task.giver_streak} size="sm" />
+                ) : null}
+              </div>
+            )}
+          </div>
           <StatusBadge status={task.status} />
         </div>
 
@@ -35,9 +46,16 @@ export default function TaskCard({ task }: { task: Task }) {
         </div>
 
         <div className="flex items-center justify-between pt-3 border-t border-forge-border">
-          <span className="font-mono text-forge-accent text-lg font-bold">
-            ${Number(task.price).toLocaleString()}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-forge-accent text-lg font-bold">
+              ₹{Number(task.price).toLocaleString()}
+            </span>
+            {task.bonus_tokens && task.bonus_tokens > 0 ? (
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                +{task.bonus_tokens} 🪙
+              </span>
+            ) : null}
+          </div>
           <span className="text-forge-sub text-[11px] font-mono tracking-wider group-hover:text-forge-accent/70 transition-colors">
             VIEW →
           </span>

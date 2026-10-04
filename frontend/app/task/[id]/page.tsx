@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import API from "../../../services/api";
+import GamificationBadge, { BadgeType } from "@/components/GamificationBadge";
 
 /* ---------- Types ---------- */
 
@@ -25,6 +26,12 @@ interface Task {
   availability_window?: string;
   bonus_tokens?: number;
   state?: string;
+  giver?: string;
+  giver_badge?: BadgeType;
+  giver_streak?: number;
+  taker?: string;
+  taker_badge?: BadgeType;
+  taker_streak?: number;
 }
 
 /* ---------- UI Config ---------- */
@@ -443,6 +450,18 @@ setUpiMode(savedUpi ? "view" : "edit");
                   <div className="flex justify-between items-start gap-4 pt-4 border-t border-white/5">
                     <span className="text-zinc-500">Location</span>
                     <span className="text-zinc-300 text-right">{task.location_hint}</span>
+                  </div>
+                )}
+                {task.giver && (
+                  <div className="flex justify-between items-center gap-4 pt-4 border-t border-white/5">
+                    <span className="text-zinc-500">Posted by</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-zinc-300 font-mono font-medium">{task.giver}</span>
+                      {task.giver_badge && <GamificationBadge type={task.giver_badge} size="sm" />}
+                      {task.giver_streak && task.giver_streak > 0 ? (
+                        <GamificationBadge type="STREAK" streakCount={task.giver_streak} size="sm" />
+                      ) : null}
+                    </div>
                   </div>
                 )}
               </div>

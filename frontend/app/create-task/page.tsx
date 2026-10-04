@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import API from "../../services/api"
+import { Crown } from "lucide-react"
 
 type FormState = {
   title: string
@@ -24,7 +25,21 @@ const router = useRouter()
 const [error,setError] = useState("")
 const [loading,setLoading] = useState(false)
 const [nowLocal, setNowLocal] = useState("");
+const [isGoldPatron, setIsGoldPatron] = useState(false);
+const [tasksPostedCount, setTasksPostedCount] = useState(0);
 
+useEffect(() => {
+  API.get('/profile/')
+    .then((res) => {
+      if (res.data) {
+        setIsGoldPatron(Boolean(res.data.is_gold_patron));
+        setTasksPostedCount(res.data.tasks_posted_count || 0);
+      }
+    })
+    .catch((err) => {
+      console.warn('Failed to load profile for tier check:', err);
+    });
+}, []);
 
 const [form, setForm] = useState<FormState>({
   title: "",
@@ -58,8 +73,10 @@ const TASK_TYPES = [
 
 /* ---------- BANDS (your requested pricing) ---------- */
 
+const shortMin = isGoldPatron ? 50 : 60;
+
 const BANDS = [
-  { value: "short", label: "Short (min 60)", min: 60 },
+  { value: "short", label: isGoldPatron ? "Short (min 50 👑 Gold)" : "Short (min 60)", min: shortMin },
   { value: "medium", label: "Medium (min 120)", min: 120 },
   { value: "long", label: "Long (min 250)", min: 250 }
 ]
@@ -73,10 +90,10 @@ const MODES = [
 ]
 
 /* ---------- DISPLAY-ONLY HELPERS (no state, no logic change) ----------
-   Display copy per your brief. displayMin matches BANDS[].min exactly (60/120/250). */
+   Display copy per your brief. displayMin matches BANDS[].min exactly (50/60/120/250). */
 
 const BAND_INFO: Record<string, { title: string; range: string; examples: string; displayMin: number }> = {
-  short: { title: "Short", range: "Up to 2 hours", examples: "Notes, Assignments, Quick edits", displayMin: 60 },
+  short: { title: "Short", range: "Up to 2 hours", examples: "Notes, Assignments, Quick edits", displayMin: shortMin },
   medium: { title: "Medium", range: "2–6 hours", examples: "Presentation, Website edits, Research", displayMin: 120 },
   long: { title: "Long", range: "1–3 days", examples: "Large projects, Design work, Development", displayMin: 250 },
 }
@@ -263,7 +280,19 @@ return(
 
         {/* CARD 2 — DURATION BAND */}
         <div className="fade-up rounded-2xl border border-white/10 bg-white/[0.02] p-6 sm:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.3)] transition-shadow duration-300 hover:shadow-[0_8px_30px_-8px_rgba(99,102,241,0.15)]">
-          <h2 className="text-lg font-semibold tracking-tight mb-5">Duration Band</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
+            <h2 className="text-lg font-semibold tracking-tight">Duration Band</h2>
+            {isGoldPatron ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/40 shadow-[0_0_12px_rgba(245,158,11,0.2)]">
+                <Crown size={13} className="text-amber-400 animate-pulse" />
+                Gold Tier: ₹50 Short Base Unlocked!
+              </span>
+            ) : (
+              <span className="text-[11px] font-mono text-zinc-400">
+                Gold Tier unlocks at 5 tasks ({tasksPostedCount}/5)
+              </span>
+            )}
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {BANDS.map(b => {

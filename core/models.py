@@ -197,6 +197,39 @@ class UserProfile(models.Model):
 
     reputation_score = models.IntegerField(default=0)
 
+    tasks_posted_count = models.PositiveIntegerField(
+        default=0,
+        help_text="Number of completed tasks posted as giver"
+    )
+    tasks_completed_count = models.PositiveIntegerField(
+        default=0,
+        help_text="Number of completed tasks finished as taker"
+    )
+    speed_streak = models.PositiveIntegerField(
+        default=0,
+        help_text="Consecutive same-day (<= 24 hr) completions"
+    )
+    fast_tasks_counter = models.PositiveIntegerField(
+        default=0,
+        help_text="Total same-day completions"
+    )
+
+    @property
+    def is_gold_patron(self):
+        return self.tasks_posted_count >= 5
+
+    @property
+    def badge_type(self):
+        if self.tasks_posted_count >= 5:
+            return "GOLD_PATRON"
+        if self.speed_streak >= 3:
+            return "SPEED_DEMON"
+        if self.speed_streak >= 1:
+            return "FAST_RESPONDER"
+        if self.tasks_completed_count >= 1:
+            return "VERIFIED_RUNNER"
+        return None
+
     college_verified = models.BooleanField(default=False)
 
     college_email = models.EmailField(
@@ -332,16 +365,15 @@ class Task(models.Model):
         "long": 250,
     }
 
-    def clean(self):
-        minimum = self.MIN_PRICE_BY_BAND.get(self.band)
+    def get_min_price(self):
+        # Gold Patron tier: if giver has 5+ completed posted tasks, short base is ₹50
+        if self.band == "short" and self.giver and hasattr(self.giver, "profile") and self.giver.profile.tasks_posted_count >= 5:
+            return 50
+        return self.MIN_PRICE_BY_BAND.get(self.band, 60)
 
-        if minimum and self.price < minimum:
-            raise ValidationError({
-                "price": f"Minimum price for {self.band} tasks is {minimum}."
-            })
     def save(self, *args, **kwargs):
-     self.full_clean()
-     super().save(*args, **kwargs)
+        self.full_clean()
+        super().save(*args, **kwargs)
 
        # ---------- State Guards ----------
 
@@ -506,11 +538,18 @@ class Task(models.Model):
     
     
     def clean(self):
+        # Enforce minimum pricing
+        minimum = self.get_min_price()
+        if minimum and self.price is not None and self.price < minimum:
+            raise ValidationError({
+                "price": f"Minimum price for {self.band} tasks is ₹{minimum}."
+            })
+
         # Giver and taker cannot be same
         if self.taker and self.taker == self.giver:
             raise ValidationError("Giver and taker cannot be the same")
         if self.state in [TaskState.DRAFT, TaskState.OPEN] and self.taker:
-         raise ValidationError("Taker cannot be assigned before acceptance")
+            raise ValidationError("Taker cannot be assigned before acceptance")
 
         # Immutability after publish
         if self.pk and self.published_at:
@@ -563,7 +602,7 @@ class Task(models.Model):
                 raise ValidationError(f"{field} is required before publishing")
 
         # enforce minimum price by band
-        minimum = Task.MIN_PRICE_BY_BAND.get(task.band)
+        minimum = task.get_min_price()
 
         if minimum and task.price < minimum:
             raise ValidationError(
@@ -697,11 +736,48 @@ class Task(models.Model):
  
 
         task._log_event(
-        actor=actor,
-        event="COMPLETE",
-        from_state=old_state,
-        to_state=TaskState.COMPLETED,
-    )
+            actor=actor,
+            event="COMPLETE",
+            from_state=old_state,
+            to_state=TaskState.COMPLETED,
+        )
+
+        # Gamification: Update Giver Stats (Gold Tier progress)
+        if hasattr(task.giver, "profile"):
+            giver_prof = task.giver.profile
+            giver_prof.tasks_posted_count = Task.objects.filter(giver=task.giver, state=TaskState.COMPLETED).count()
+            giver_prof.save(update_fields=["tasks_posted_count"])
+
+        # Gamification: Update Taker Stats (Speed Streak & Rewards)
+        if task.taker and hasattr(task.taker, "profile"):
+            taker_prof = task.taker.profile
+            taker_prof.tasks_completed_count = Task.objects.filter(taker=task.taker, state=TaskState.COMPLETED).count()
+
+            is_same_day = False
+            if task.submitted_at:
+                accept_ev = task.events.filter(event="ACCEPT").order_by("-created_at").first()
+                start_t = accept_ev.created_at if accept_ev else task.created_at
+                elapsed_seconds = (task.submitted_at - start_t).total_seconds()
+                if elapsed_seconds <= 86400:  # <= 24 hours
+                    is_same_day = True
+
+            if is_same_day:
+                taker_prof.fast_tasks_counter += 1
+                taker_prof.speed_streak += 1
+
+                # Rule: +1 bonus token on every 2nd task in speed streak
+                if taker_prof.speed_streak % 2 == 0 and hasattr(task.taker, "token_account"):
+                    task.taker.token_account.credit(1)
+                    task.taker.token_account.save()
+
+                # Rule: +₹10 platform cash bonus on every 3rd task in speed streak
+                if taker_prof.speed_streak % 3 == 0 and hasattr(task, "payment"):
+                    task.payment.amount += 10
+                    task.payment.save(update_fields=["amount"])
+            else:
+                taker_prof.speed_streak = 0
+
+            taker_prof.save(update_fields=["tasks_completed_count", "fast_tasks_counter", "speed_streak"])
 
         # Telegram admin notification
         from .telegram import send_telegram_message

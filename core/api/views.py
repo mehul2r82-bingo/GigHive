@@ -1,4 +1,5 @@
 from rest_framework import generics, status
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError, PermissionDenied
 from django.shortcuts import get_object_or_404
@@ -9,7 +10,7 @@ from core.telegram import send_telegram_message
 from django.http import JsonResponse
 import secrets
 import os
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from core.models import Payment, Task, TaskState, TaskType
 from .serializers import (
@@ -379,8 +380,80 @@ class TaskTypeListView(generics.GenericAPIView):
             }
             for task_type in task_types
         ])
-        
-        
+
+
+class LeaderboardView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        from core.models import UserProfile
+
+        taker_qs = (
+            UserProfile.objects.filter(
+                Q(tasks_completed_count__gt=0) | Q(speed_streak__gt=0) | Q(fast_tasks_counter__gt=0)
+            )
+            .select_related("user")
+            .order_by("-speed_streak", "-fast_tasks_counter", "-tasks_completed_count")[:25]
+        )
+
+        speed_runners = []
+        for idx, profile in enumerate(taker_qs, start=1):
+            reg = profile.registration_number or ""
+            masked_reg = f"{reg[:4]}****" if len(reg) >= 4 else (reg if reg else "Verified")
+
+            if profile.speed_streak >= 3:
+                badge = "SPEED_DEMON"
+            elif profile.speed_streak >= 1:
+                badge = "FAST_RESPONDER"
+            elif profile.tasks_completed_count >= 1:
+                badge = "VERIFIED_RUNNER"
+            else:
+                badge = None
+
+            speed_runners.append({
+                "rank": idx,
+                "username": profile.user.username,
+                "reg_no": masked_reg,
+                "speed_streak": profile.speed_streak,
+                "fast_tasks": profile.fast_tasks_counter,
+                "tasks_completed": profile.tasks_completed_count,
+                "badge_type": badge,
+            })
+
+        giver_qs = (
+            UserProfile.objects.filter(tasks_posted_count__gt=0)
+            .select_related("user")
+            .order_by("-tasks_posted_count")[:25]
+        )
+
+        gold_patrons = []
+        for idx, profile in enumerate(giver_qs, start=1):
+            reg = profile.registration_number or ""
+            masked_reg = f"{reg[:4]}****" if len(reg) >= 4 else (reg if reg else "Verified")
+
+            if profile.tasks_posted_count >= 5:
+                badge = "GOLD_PATRON"
+            elif profile.tasks_posted_count >= 3:
+                badge = "SILVER_PATRON"
+            elif profile.tasks_posted_count >= 1:
+                badge = "BRONZE_PATRON"
+            else:
+                badge = None
+
+            gold_patrons.append({
+                "rank": idx,
+                "username": profile.user.username,
+                "reg_no": masked_reg,
+                "tasks_posted": profile.tasks_posted_count,
+                "is_gold_patron": profile.is_gold_patron,
+                "badge_type": badge,
+            })
+
+        return Response({
+            "speed_runners": speed_runners,
+            "gold_patrons": gold_patrons,
+        })
+
 
 def fail_expired_tasks_api(request):
     if request.method != "GET":

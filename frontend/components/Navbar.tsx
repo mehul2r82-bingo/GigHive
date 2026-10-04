@@ -9,6 +9,7 @@ import API from '../services/api';
 
   const NAV_AUTH = [
   { href: '/', label: 'MARKETPLACE' },
+  { href: '/leaderboard', label: 'LEADERBOARD' },
   { href: '/create-task', label: 'CREATE TASK' },
   { href: '/my-tasks', label: 'MY TASKS' },
 ];
@@ -241,6 +242,9 @@ export default function Navbar() {
               </>
             ) : (
               <>
+                <Link href="/leaderboard" className="px-3 py-1.5 text-[11px] font-mono tracking-widest text-forge-sub hover:text-forge-text transition-colors">
+                  LEADERBOARD
+                </Link>
                 <Link href="/login" className="px-3 py-1.5 text-[11px] font-mono tracking-widest text-forge-sub hover:text-forge-text transition-colors">
                   LOGIN
                 </Link>
@@ -278,8 +282,9 @@ export default function Navbar() {
               </>
             ) : (
               <>
+                <Link href="/leaderboard" onClick={() => setOpen(false)} className="block px-2 py-2 text-[11px] font-mono tracking-widest text-forge-sub">LEADERBOARD</Link>
                 <Link href="/login" onClick={() => setOpen(false)} className="block px-2 py-2 text-[11px] font-mono tracking-widest text-forge-sub">LOGIN</Link>
-                <Link href="/register" onClick={() => setOpen(false)} className="block px-2 py-2 text-[11px] font-mono tracking-widest text-forge-accent">SIGNUP</Link>
+                <Link href="/signup" onClick={() => setOpen(false)} className="block px-2 py-2 text-[11px] font-mono tracking-widest text-forge-accent">SIGNUP</Link>
               </>
             )}
           </div>
