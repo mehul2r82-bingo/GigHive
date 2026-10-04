@@ -293,6 +293,21 @@ export default function MyTasksPage() {
           <p className="text-zinc-500 text-xs mb-1">{personLabel}</p>
           <p className="text-zinc-200">{personValue}</p>
         </div>
+        {task.attachment && (
+          <div className="col-span-2 pt-3 mt-1 border-t border-zinc-800/60">
+            <a
+              href={task.attachment}
+              target="_blank"
+              rel="noopener noreferrer"
+              download
+              className="inline-flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+            >
+              <span>📎</span>
+              <span className="underline underline-offset-2">Download Attached Assignment File</span>
+              <span>↓</span>
+            </a>
+          </div>
+        )}
       </div>
     );
   };

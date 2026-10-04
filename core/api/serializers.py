@@ -43,6 +43,7 @@ class TaskSerializer(serializers.ModelSerializer):
                 "taker",
                 "submission_file",
                 "submission_note",
+                "attachment",
 
                 "revision_note",
                 "revision_count",
@@ -169,6 +170,7 @@ class TaskListSerializer(serializers.ModelSerializer):
             "giver_streak",
             "taker_badge",
             "taker_streak",
+            "attachment",
             "created_at",
         )
         read_only_fields = (
@@ -187,6 +189,7 @@ class TaskListSerializer(serializers.ModelSerializer):
             "giver_streak",
             "taker_badge",
             "taker_streak",
+            "attachment",
             "created_at",
         )
 

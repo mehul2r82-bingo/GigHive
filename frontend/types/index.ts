@@ -45,6 +45,7 @@ export interface Task {
   giver_streak?: number;
   taker_badge?: BadgeType | null;
   taker_streak?: number;
+  attachment?: string | null;
   created_at?: string;
 }
 

@@ -41,11 +41,20 @@ useEffect(() => {
     });
 }, []);
 
+const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
+const [attachmentError, setAttachmentError] = useState<string>("");
+
+function formatFileSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 const [form, setForm] = useState<FormState>({
   title: "",
   task_type: 0,
   band: "",
-  mode: "",
+  mode: "online",
   deadline: "",
   price: 0,
   details: "",
@@ -57,6 +66,25 @@ const [form, setForm] = useState<FormState>({
 const updateField = (key: keyof FormState,value:any)=>{
 setForm(prev=>({...prev,[key]:value}))
 }
+
+const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  if (file.size > 5 * 1024 * 1024) {
+    setAttachmentError("File size exceeds 5MB limit. Please compress or choose a smaller file.");
+    setAttachmentFile(null);
+    return;
+  }
+
+  setAttachmentError("");
+  setAttachmentFile(file);
+};
+
+const removeFile = () => {
+  setAttachmentFile(null);
+  setAttachmentError("");
+};
 
 /* ---------- TASK TYPES (match your DB ids) ---------- */
 
@@ -131,6 +159,21 @@ useEffect(() => {
 const submit = async(e:any)=>{
 e.preventDefault()
 
+if (!form.title.trim()) {
+  alert("Please enter a task title")
+  return
+}
+
+if (!form.task_type) {
+  alert("Please select a task category")
+  return
+}
+
+if (!form.band) {
+  alert("Please select a duration band")
+  return
+}
+
 const band = BANDS.find(b => b.value === form.band)
 
 if (band && form.price < band.min) {
@@ -138,14 +181,64 @@ if (band && form.price < band.min) {
   return
 }
 
+if (!form.deadline) {
+  alert("Please select a deadline")
+  return
+}
+
+// Mode-specific validation
+if (form.mode === "online") {
+  if (!attachmentFile && !form.details.trim()) {
+    alert("Please upload your assignment document or provide task instructions.")
+    return
+  }
+} else {
+  if (!form.details.trim()) {
+    alert("Please provide a task description.")
+    return
+  }
+  if (!form.location_hint.trim()) {
+    alert("Please enter the campus location for this offline task.")
+    return
+  }
+}
+
+if (attachmentFile && attachmentFile.size > 5 * 1024 * 1024) {
+  alert("Attachment exceeds the 5MB size limit. Please compress or choose a smaller file.")
+  return
+}
+
 try{
 
 setLoading(true)
+setError("")
 
-const res = await API.post("/tasks/",{
-...form,
-location_hint: form.mode === "offline" ? form.location_hint : "",
-availability_window: form.mode === "offline" ? form.availability_window : ""
+const formData = new FormData()
+formData.append("title", form.title.trim())
+formData.append("task_type", String(form.task_type))
+formData.append("band", form.band)
+formData.append("mode", form.mode || "online")
+formData.append("deadline", form.deadline)
+formData.append("price", String(form.price))
+
+const finalDetails = form.details.trim() || (attachmentFile ? `Assignment Document: ${attachmentFile.name}` : "")
+formData.append("details", finalDetails)
+
+if (form.mode === "offline" || form.mode === "hybrid") {
+  formData.append("location_hint", form.location_hint.trim())
+  if (form.availability_window) {
+    formData.append("availability_window", form.availability_window.trim())
+  }
+}
+
+if (attachmentFile) {
+  formData.append("attachment", attachmentFile)
+}
+
+const res = await API.post("/tasks/", formData, {
+  headers: {
+    "Content-Type": "multipart/form-data",
+  },
 })
 
 const taskId = res.data.id
@@ -157,13 +250,13 @@ router.push(`/pay-escrow/${taskId}`)
 
 }catch(err:any){
 
-console.log(err.response?.data)
+console.error("Task creation failed:", err.response?.data)
+const errData = err.response?.data
+setError(typeof errData === "object" ? JSON.stringify(errData) : (errData || "Request failed"))
 
-setError(JSON.stringify(err.response?.data || "Request failed"))
-
-}
-
+}finally{
 setLoading(false)
+}
 
 }
 
@@ -229,50 +322,133 @@ return(
               </select>
             </div>
 
+            {/* MODE SELECTION (FIRST) */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-xs text-zinc-500">Task description</label>
-                <span className="text-xs text-zinc-600">{form.details.length} characters</span>
-              </div>
-              <textarea
-                placeholder="Describe what needs to be done..."
-                rows={4}
-                className="w-full p-4 bg-black/40 border border-white/10 rounded-xl text-base placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 resize-none"
-                value={form.details}
-                onChange={(e)=>updateField("details",e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs text-zinc-500 mb-3">Mode</label>
-              <div className="flex flex-wrap gap-2">
+              <label className="block text-xs text-zinc-500 mb-2">Task Mode</label>
+              <div className="grid grid-cols-3 gap-2">
                 {MODES.map(m => (
                   <button
                     key={m.value}
                     type="button"
                     onClick={()=>updateField("mode", m.value)}
-                    className={`px-4 py-2.5 rounded-xl border text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+                    className={`px-4 py-3 rounded-xl border text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
                       form.mode === m.value
-                        ? "border-indigo-500 bg-indigo-500/15 text-white shadow-[0_0_0_1px_rgba(99,102,241,0.4),0_0_20px_-4px_rgba(99,102,241,0.5)] scale-[1.03]"
-                        : "border-white/10 text-zinc-400 hover:border-white/20 hover:text-white"
+                        ? "border-indigo-500 bg-indigo-500/15 text-white shadow-[0_0_0_1px_rgba(99,102,241,0.4),0_0_20px_-4px_rgba(99,102,241,0.5)] scale-[1.01]"
+                        : "border-white/10 text-zinc-400 hover:border-white/20 hover:text-white bg-black/20"
                     }`}
                   >
                     <span>{MODE_ICON[m.value]}</span>
-                    {m.label}
+                    <span>{m.label}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            {(form.mode === "offline" || form.mode === "hybrid") && (
-              <div>
-                <label className="block text-xs text-zinc-500 mb-2">Location</label>
-                <input
-                  placeholder="e.g. Block A, Library, 2nd floor"
-                  className="w-full p-4 bg-black/40 border border-white/10 rounded-xl text-base placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
-                  value={form.location_hint}
-                  onChange={(e)=>updateField("location_hint",e.target.value)}
-                />
+            {/* CONDITIONAL: ONLINE (FILE UPLOAD) vs OFFLINE / HYBRID (DESCRIPTION + LOCATION) */}
+            {form.mode === "online" ? (
+              <div className="space-y-5 pt-3 border-t border-white/5">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-xs text-zinc-400 font-medium">
+                      Assignment Document / Task File <span className="text-indigo-400">*</span>
+                    </label>
+                    <span className="text-[11px] text-zinc-500">Max 5 MB</span>
+                  </div>
+
+                  {!attachmentFile ? (
+                    <label className="flex flex-col items-center justify-center w-full h-36 px-4 transition bg-black/30 border-2 border-dashed border-white/15 rounded-xl cursor-pointer hover:border-indigo-500/50 hover:bg-indigo-500/[0.02] group">
+                      <div className="flex flex-col items-center justify-center pt-4 pb-4 text-center">
+                        <span className="text-2xl mb-1.5 text-zinc-400 group-hover:text-indigo-400 group-hover:scale-110 transition-all">📎</span>
+                        <p className="text-sm font-medium text-zinc-300 group-hover:text-white transition-colors">
+                          <span className="text-indigo-400 font-semibold">Click to upload assignment</span> or drag & drop
+                        </p>
+                        <p className="text-xs text-zinc-500 mt-1">
+                          PDF, Word (.docx), PPT, TXT, ZIP, Images (up to 5MB)
+                        </p>
+                      </div>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.zip,.png,.jpg,.jpeg"
+                        onChange={handleFileChange}
+                      />
+                    </label>
+                  ) : (
+                    <div className="flex items-center justify-between p-4 bg-indigo-500/10 border border-indigo-500/30 rounded-xl">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-lg bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-lg shrink-0">
+                          📄
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-white truncate max-w-[240px] sm:max-w-md">
+                            {attachmentFile.name}
+                          </p>
+                          <p className="text-xs text-indigo-300 font-mono">
+                            {formatFileSize(attachmentFile.size)}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={removeFile}
+                        className="p-2 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-xs font-semibold"
+                        title="Remove file"
+                      >
+                        ✕ Remove
+                      </button>
+                    </div>
+                  )}
+
+                  {attachmentError && (
+                    <p className="text-xs text-red-400 mt-2">{attachmentError}</p>
+                  )}
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-xs text-zinc-500">
+                      Additional notes or instructions (optional)
+                    </label>
+                    <span className="text-xs text-zinc-600">{form.details.length} chars</span>
+                  </div>
+                  <textarea
+                    placeholder="e.g. Please solve questions 1 to 5, format as requested in the PDF..."
+                    rows={3}
+                    className="w-full p-4 bg-black/40 border border-white/10 rounded-xl text-base placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 resize-none"
+                    value={form.details}
+                    onChange={(e)=>updateField("details",e.target.value)}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-5 pt-3 border-t border-white/5">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-xs text-zinc-500">
+                      Task description <span className="text-indigo-400">*</span>
+                    </label>
+                    <span className="text-xs text-zinc-600">{form.details.length} characters</span>
+                  </div>
+                  <textarea
+                    placeholder="Describe what needs to be done..."
+                    rows={4}
+                    className="w-full p-4 bg-black/40 border border-white/10 rounded-xl text-base placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 resize-none"
+                    value={form.details}
+                    onChange={(e)=>updateField("details",e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs text-zinc-500 mb-2">
+                    Campus Location <span className="text-indigo-400">*</span>
+                  </label>
+                  <input
+                    placeholder="e.g. Block 34, Central Library, 2nd floor"
+                    className="w-full p-4 bg-black/40 border border-white/10 rounded-xl text-base placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
+                    value={form.location_hint}
+                    onChange={(e)=>updateField("location_hint",e.target.value)}
+                  />
+                </div>
               </div>
             )}
           </div>

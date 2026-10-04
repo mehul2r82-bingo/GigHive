@@ -463,7 +463,17 @@ class Task(models.Model):
     )
 
     details = models.TextField(
+        blank=True,
+        default="",
         help_text="What needs to be done (clear description)"
+    )
+
+    attachment = models.FileField(
+        upload_to="task_attachments/",
+        blank=True,
+        null=True,
+        validators=[validate_submission_file_size],
+        help_text="Assignment PDF or instructions file uploaded by giver"
     )
 
     
@@ -593,13 +603,15 @@ class Task(models.Model):
             "mode",
             "deadline",
             "price",
-            "details",
         ]
 
         for field in REQUIRED_FIELDS:
             value = getattr(task, field)
             if value in (None, "", []):
                 raise ValidationError(f"{field} is required before publishing")
+
+        if not task.details and not task.attachment:
+            raise ValidationError("Either task description or an assignment attachment file is required before publishing")
 
         # enforce minimum price by band
         minimum = task.get_min_price()

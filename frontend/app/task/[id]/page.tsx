@@ -32,6 +32,7 @@ interface Task {
   taker?: string;
   taker_badge?: BadgeType;
   taker_streak?: number;
+  attachment?: string | null;
 }
 
 /* ---------- UI Config ---------- */
@@ -405,6 +406,39 @@ setUpiMode(savedUpi ? "view" : "edit");
                 {task.details || "No additional instructions provided."}
               </p>
             </motion.div>
+
+            {/* ATTACHMENT */}
+            {task.attachment && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.08 }}
+                className="rounded-2xl border border-indigo-500/20 bg-indigo-500/[0.04] p-5 sm:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-2xl shrink-0">
+                      📄
+                    </div>
+                    <div>
+                      <h3 className="text-base font-semibold text-white tracking-tight">Attached Assignment File</h3>
+                      <p className="text-xs text-zinc-400 mt-0.5">Assignment brief or document uploaded by the giver</p>
+                    </div>
+                  </div>
+
+                  <a
+                    href={task.attachment}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-all duration-200 hover:scale-[1.02] shadow-[0_4px_16px_rgba(99,102,241,0.35)] shrink-0"
+                  >
+                    <span>Download File</span>
+                    <span>↓</span>
+                  </a>
+                </div>
+              </motion.div>
+            )}
 
             {/* REQUIREMENTS — mapped from task.preferences, the closest real field */}
             {task.preferences && (
