@@ -998,16 +998,21 @@ export default function MyTasksPage() {
                 </span>
                 <input
                   type="file"
-                  onChange={(e) =>
-                    setSubmissionFile(
-                      e.target.files ? e.target.files[0] : null
-                    )
-                  }
+                  onChange={(e) => {
+                    const f = e.target.files ? e.target.files[0] : null;
+                    if (f && f.size > 10 * 1024 * 1024) {
+                      alert("File size exceeds 10MB limit. Please compress or choose a smaller file.");
+                      e.target.value = "";
+                      setSubmissionFile(null);
+                      return;
+                    }
+                    setSubmissionFile(f);
+                  }}
                   className="hidden"
                 />
               </label>
               <p className="text-xs text-zinc-600 mt-2">
-                Accepted: PDF · ZIP · DOCX · Images
+                Accepted: PDF · ZIP · DOCX · Images (Max 10MB)
               </p>
 
               <div className="flex gap-3 mt-5">

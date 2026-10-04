@@ -332,7 +332,7 @@ class PaymentStatus(models.TextChoices):
     REFUND_PENDING = "refund_pending", "Refund Pending"
 
 def validate_submission_file_size(file):
-    max_size_mb = 5
+    max_size_mb = 10
     if file and hasattr(file, "size") and file.size > max_size_mb * 1024 * 1024:
         raise ValidationError(f"File size exceeds the {max_size_mb} MB limit. Please compress your file.")
 

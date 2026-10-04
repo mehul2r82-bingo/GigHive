@@ -71,8 +71,8 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (!file) return;
 
-  if (file.size > 5 * 1024 * 1024) {
-    setAttachmentError("File size exceeds 5MB limit. Please compress or choose a smaller file.");
+  if (file.size > 10 * 1024 * 1024) {
+    setAttachmentError("File size exceeds 10MB limit. Please compress or choose a smaller file.");
     setAttachmentFile(null);
     return;
   }
@@ -203,8 +203,8 @@ if (form.mode === "online") {
   }
 }
 
-if (attachmentFile && attachmentFile.size > 5 * 1024 * 1024) {
-  alert("Attachment exceeds the 5MB size limit. Please compress or choose a smaller file.")
+if (attachmentFile && attachmentFile.size > 10 * 1024 * 1024) {
+  alert("Attachment exceeds the 10MB size limit. Please compress or choose a smaller file.")
   return
 }
 
@@ -352,7 +352,7 @@ return(
                     <label className="block text-xs text-zinc-400 font-medium">
                       Assignment Document / Task File <span className="text-indigo-400">*</span>
                     </label>
-                    <span className="text-[11px] text-zinc-500">Max 5 MB</span>
+                    <span className="text-[11px] text-zinc-500">Max 10 MB</span>
                   </div>
 
                   {!attachmentFile ? (
@@ -363,7 +363,7 @@ return(
                           <span className="text-indigo-400 font-semibold">Click to upload assignment</span> or drag & drop
                         </p>
                         <p className="text-xs text-zinc-500 mt-1">
-                          PDF, Word (.docx), PPT, TXT, ZIP, Images (up to 5MB)
+                          PDF, Word (.docx), PPT, TXT, ZIP, Images (up to 10MB)
                         </p>
                       </div>
                       <input
