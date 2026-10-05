@@ -394,7 +394,7 @@ export default function TaskDetailPage() {
             {task.title}
           </h1>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${MODE[task.mode].color}`}>
               {MODE[task.mode].icon} {MODE[task.mode].label}
             </span>
@@ -404,6 +404,26 @@ export default function TaskDetailPage() {
             {task.state && (
               <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset text-emerald-300 bg-emerald-500/10 ring-emerald-500/20">
                 {task.state.charAt(0).toUpperCase() + task.state.slice(1)}
+              </span>
+            )}
+            <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ring-white/10 bg-white/5 ${deadlineUrgencyColor(task.deadline)}`}>
+              📅 {formatDeadline(task.deadline)}
+            </span>
+            {task.giver && (
+              <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ring-white/10 bg-white/5 text-zinc-300">
+                <span>By</span> <span className="font-mono font-medium">{task.giver}</span>
+                {isOwnTask && (
+                  <span className="text-indigo-400 font-sans ml-0.5">(You)</span>
+                )}
+                {task.giver_badge && <GamificationBadge type={task.giver_badge} size="sm" />}
+                {task.giver_streak && task.giver_streak > 0 ? (
+                  <GamificationBadge type="STREAK" streakCount={task.giver_streak} size="sm" />
+                ) : null}
+              </span>
+            )}
+            {showLocation && task.location_hint && (
+              <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ring-white/10 bg-white/5 text-zinc-300">
+                📍 {task.location_hint}
               </span>
             )}
           </div>
@@ -474,56 +494,7 @@ export default function TaskDetailPage() {
               </motion.div>
             )}
 
-            {/* TASK INFORMATION */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.15 }}
-              className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 sm:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
-            >
-              <h3 className="text-lg font-semibold tracking-tight mb-5">Task Information</h3>
-              <div className="space-y-4 text-sm">
-                <div className="flex justify-between items-start gap-4">
-                  <span className="text-zinc-500">Reward</span>
-                  <span className="text-emerald-400 font-semibold">{formatPrice(task.price)}</span>
-                </div>
-                <div className="flex justify-between items-start gap-4 pt-4 border-t border-white/5">
-                  <span className="text-zinc-500 flex items-center gap-1.5"><span>📅</span> Deadline</span>
-                  <span className={`font-medium ${deadlineUrgencyColor(task.deadline)}`}>{formatDeadline(task.deadline)}</span>
-                </div>
-                <div className="flex justify-between items-start gap-4 pt-4 border-t border-white/5">
-                  <span className="text-zinc-500">Mode</span>
-                  <span className="text-zinc-300">{MODE[task.mode].label}</span>
-                </div>
-                <div className="flex justify-between items-start gap-4 pt-4 border-t border-white/5">
-                  <span className="text-zinc-500">Duration</span>
-                  <span className="text-zinc-300">{BAND[task.band].label}</span>
-                </div>
-                {showLocation && task.location_hint && (
-                  <div className="flex justify-between items-start gap-4 pt-4 border-t border-white/5">
-                    <span className="text-zinc-500">Location</span>
-                    <span className="text-zinc-300 text-right">{task.location_hint}</span>
-                  </div>
-                )}
-                {task.giver && (
-                  <div className="flex justify-between items-center gap-4 pt-4 border-t border-white/5">
-                    <span className="text-zinc-500">Posted by</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-zinc-300 font-mono font-medium">
-                        {task.giver}
-                        {isOwnTask && (
-                          <span className="text-xs text-indigo-400 font-sans ml-1.5 font-normal">(You)</span>
-                        )}
-                      </span>
-                      {task.giver_badge && <GamificationBadge type={task.giver_badge} size="sm" />}
-                      {task.giver_streak && task.giver_streak > 0 ? (
-                        <GamificationBadge type="STREAK" streakCount={task.giver_streak} size="sm" />
-                      ) : null}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </motion.div>
+
 
           </div>
 
