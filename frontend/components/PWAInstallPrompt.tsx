@@ -73,7 +73,7 @@ export default function PWAInstallPrompt() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
-          className="fixed bottom-5 left-4 right-4 sm:left-auto sm:right-6 sm:w-84 z-50 bg-[#121217]/95 backdrop-blur-md border border-amber-500/30 p-3.5 rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.7)] flex items-center justify-between gap-3"
+          className="fixed bottom-18 left-3 right-3 sm:bottom-5 sm:left-auto sm:right-6 sm:w-84 z-50 bg-[#121217]/95 backdrop-blur-md border border-amber-500/30 p-3.5 rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.7)] flex items-center justify-between gap-3"
         >
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center shrink-0 overflow-hidden">
@@ -115,7 +115,7 @@ export default function PWAInstallPrompt() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 30 }}
-          className="fixed bottom-3 left-3 right-3 sm:left-auto sm:right-6 sm:w-96 z-50 bg-[#121217]/95 backdrop-blur-xl border border-amber-500/40 p-4 rounded-3xl shadow-[0_15px_40px_rgba(0,0,0,0.8)] flex flex-col gap-3"
+          className="fixed bottom-18 left-3 right-3 sm:bottom-5 sm:left-auto sm:right-6 sm:w-96 z-50 bg-[#121217]/95 backdrop-blur-xl border border-amber-500/40 p-4 rounded-3xl shadow-[0_15px_40px_rgba(0,0,0,0.8)] flex flex-col gap-3"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

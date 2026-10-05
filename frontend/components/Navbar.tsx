@@ -5,10 +5,22 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { 
+  Compass, 
+  Trophy, 
+  Plus, 
+  ClipboardList, 
+  User, 
+  LogOut, 
+  Coins, 
+  X,
+  ChevronRight,
+  ShieldCheck
+} from 'lucide-react';
 import API from '../services/api';
 import NotificationBell from './NotificationBell';
 
-  const NAV_AUTH = [
+const NAV_DESKTOP = [
   { href: '/', label: 'MARKETPLACE' },
   { href: '/leaderboard', label: 'LEADERBOARD' },
   { href: '/create-task', label: 'CREATE TASK' },
@@ -19,15 +31,13 @@ export default function Navbar() {
   const { isAuthenticated, logout, user } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+
   const [scrolled, setScrolled] = useState(false);
   const [tokenOpen, setTokenOpen] = useState(false);
+  const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
   const [availableTokens, setAvailableTokens] = useState<number | null>(null);
   const [lockedTokens, setLockedTokens] = useState<number | null>(null);
   const tokenRef = useRef<HTMLDivElement>(null);
-
-
-
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -35,6 +45,7 @@ export default function Navbar() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
   useEffect(() => {
     if (!isAuthenticated) {
       setAvailableTokens(null);
@@ -45,7 +56,6 @@ export default function Navbar() {
     const loadTokens = async () => {
       try {
         const res = await API.get('/token-account/');
-
         setAvailableTokens(res.data.available_tokens);
         setLockedTokens(res.data.locked_tokens);
       } catch (err) {
@@ -54,247 +64,364 @@ export default function Navbar() {
     };
 
     loadTokens();
-
-    // Keep the navbar balance current after accept/cancel actions.
-    const interval = setInterval(loadTokens, 5000);
-
+    const interval = setInterval(loadTokens, 6000);
     return () => clearInterval(interval);
   }, [isAuthenticated, pathname]);
 
   useEffect(() => {
-  const handleOutsideClick = (event: MouseEvent) => {
-    if (
-      tokenRef.current &&
-      !tokenRef.current.contains(event.target as Node)
-    ) {
-      setTokenOpen(false);
-    }
-  };
-
-  document.addEventListener('mousedown', handleOutsideClick);
-
-  return () => {
-    document.removeEventListener('mousedown', handleOutsideClick);
-  };
-}, []);
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (tokenRef.current && !tokenRef.current.contains(event.target as Node)) {
+        setTokenOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
 
   const handleLogout = () => {
     logout();
+    setMobileProfileOpen(false);
     router.push('/');
   };
 
   return (
-    <nav
-      className={`sticky top-0 z-50 border-b transition-all duration-300 ${
-        scrolled
-          ? 'bg-forge-bg/80 backdrop-blur-xl border-forge-border shadow-[0_1px_0_rgba(255,255,255,0.04)]'
-          : 'bg-forge-bg/90 backdrop-blur-sm border-forge-border'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14">
-          {/* Brand + Token Balance */}
-<div className="flex items-center gap-3">
-  <Link href="/" className="flex items-center gap-2 group">
-    <svg
-      width="30"
-      height="30"
-      viewBox="0 0 24 24"
-      fill="none"
-      className="shrink-0"
-    >
-      <rect
-        width="30"
-        height="30"
-        rx="6"
-        className="fill-forge-accent"
-      />
-      <path
-        d="M12 5.5 L18 9 V15 L12 18.5 L6 15 V9 Z"
-        stroke="white"
-        strokeWidth="1.4"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <circle cx="12" cy="12" r="1.8" fill="white" />
-    </svg>
-
-    <span className="font-mono font-bold text-forge-text tracking-wider text-sm group-hover:text-forge-accent transition-colors">
-      GigHive
-    </span>
-  </Link>
-
-  {/* Token Balance */}
-  {isAuthenticated && (
-    <div ref={tokenRef} className="relative">
-      <motion.button
-        type="button"
-        onClick={() => setTokenOpen((prev) => !prev)}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.96 }}
-        className="flex items-center gap-7 px-8 py-5 rounded-lg hover:bg-white/[0.05] transition-colors"
-        aria-label="View commitment token balance"
+    <>
+      {/* ========================================================================= */}
+      {/* TOP NAVBAR (DESKTOP & MOBILE HEADER) */}
+      {/* ========================================================================= */}
+      <nav
+        className={`sticky top-0 z-40 border-b transition-all duration-200 ${
+          scrolled
+            ? 'bg-[#09090B]/90 backdrop-blur-xl border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]'
+            : 'bg-[#09090B]/95 backdrop-blur-md border-white/5'
+        }`}
       >
-        {/* Token coin */}
-        <motion.span
-          animate={{
-            y: [0, -1.5, 0],
-            rotate: [0, 3, 0],
-          }}
-          transition={{
-            duration: 2.8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="flex items-center justify-center w-6 h-6 rounded-full border border-amber-300/60 bg-gradient-to-br from-amber-300 via-yellow-500 to-amber-700 text-[9px] font-bold text-amber-950 shadow-[0_0_10px_rgba(245,158,11,0.18)]"
-        >
-          ◈
-        </motion.span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16">
 
-        <motion.span
-          key={availableTokens ?? "loading"}
-          initial={{ scale: 1.25, opacity: 0.6 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="text-[11px] font-mono font-semibold text-amber-300"
-        >
-          {availableTokens ?? "—"}
-        </motion.span>
-      </motion.button>
-
-      <AnimatePresence>
-        {tokenOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -5, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -5, scale: 0.96 }}
-            transition={{ duration: 0.15 }}
-            className="absolute left-0 top-full mt-3 w-56 rounded-xl border border-white/10 bg-[#111113]/95 backdrop-blur-xl shadow-2xl overflow-hidden"
-          >
-            <div className="px-4 py-3 border-b border-white/10">
-              <div className="flex items-center gap-2">
-                <span className="flex items-center justify-center w-6 h-6 rounded-full border border-amber-300/50 bg-amber-400/10 text-amber-300 text-[10px]">
-                  ◈
-                </span>
-
-                <div>
-                  <p className="text-sm font-semibold text-forge-text">
-                    Commitment Tokens
-                  </p>
-                  <p className="text-[10px] text-forge-sub mt-0.5">
-                    Your current token balance
-                  </p>
+            {/* Left: Brand + Token Balance */}
+            <div className="flex items-center gap-3 sm:gap-4">
+              <Link href="/" className="flex items-center gap-2 group">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M12 4 L19 8 V16 L12 20 L5 16 V8 Z"
+                      stroke="#FBBF24"
+                      strokeWidth="2"
+                      strokeLinejoin="round"
+                    />
+                    <circle cx="12" cy="12" r="2.5" fill="#FBBF24" />
+                  </svg>
                 </div>
-              </div>
-            </div>
+                <span className="font-mono font-bold text-white tracking-wider text-base sm:text-lg group-hover:text-amber-400 transition-colors">
+                  GigHive
+                </span>
+              </Link>
 
-            <div className="px-4 py-3 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-forge-sub">
-                  Available
-                </span>
-                <span className="text-sm font-mono font-semibold text-emerald-400">
-                  {availableTokens ?? "—"}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-forge-sub">
-                  Locked
-                </span>
-                <span className="text-sm font-mono font-semibold text-amber-300">
-                  {lockedTokens ?? "—"}
-                </span>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  )}
-</div>
-
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-1">
-            {isAuthenticated ? (
-              <>
-                {NAV_AUTH.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`px-5 py-3 text-[11px] font-mono tracking-widest transition-colors rounded ${
-                      pathname === item.href
-                        ? 'text-forge-accent bg-forge-accent/10'
-                        : 'text-forge-sub hover:text-forge-text'
-                    }`}
+              {/* Token Balance Pill */}
+              {isAuthenticated && (
+                <div ref={tokenRef} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setTokenOpen((prev) => !prev)}
+                    className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 hover:bg-amber-400/20 transition-all text-xs font-semibold"
+                    aria-label="View token balance"
                   >
-                    {item.label}
-                  </Link>
-                ))}
-                <NotificationBell />
-                <div className="w-px h-4 bg-forge-border mx-1" />
-                <span className="text-forge-sub text-[11px] font-mono mr-2">
-                  {user?.name}
-                </span>
-                <button
-                  onClick={handleLogout}
-                  className="px-3 py-1.5 text-[11px] font-mono tracking-widest text-forge-sub hover:text-red-400 transition-colors"
-                >
-                  LOGOUT
-                </button>
-              </>
-            ) : (
-              <>
-                <Link href="/leaderboard" className="px-3 py-1.5 text-[11px] font-mono tracking-widest text-forge-sub hover:text-forge-text transition-colors">
-                  LEADERBOARD
-                </Link>
-                <Link href="/login" className="px-3 py-1.5 text-[11px] font-mono tracking-widest text-forge-sub hover:text-forge-text transition-colors">
-                  LOGIN
-                </Link>
-                <Link href="/signup" className="px-3 py-1.5 text-[11px] font-mono tracking-widest bg-forge-accent text-white hover:bg-forge-accent-dim transition-colors rounded">
-                  SIGNUP
-                </Link>
-              </>
-            )}
-          </div>
+                    <span className="text-amber-400 font-bold">◈</span>
+                    <span className="font-mono">{availableTokens ?? '—'}</span>
+                    <span className="text-[10px] text-amber-400/70 hidden sm:inline">tokens</span>
+                  </button>
 
-          {/* Mobile actions */}
-          <div className="flex items-center gap-2 md:hidden">
-            <NotificationBell />
-            <button className="text-forge-sub p-1" onClick={() => setOpen(!open)} aria-label="Toggle navigation">
-              <div className="space-y-1">
-                <span className={`block w-5 h-px bg-current transition-transform ${open ? 'rotate-45 translate-y-1.5' : ''}`} />
-                <span className={`block w-5 h-px bg-current transition-opacity ${open ? 'opacity-0' : ''}`} />
-                <span className={`block w-5 h-px bg-current transition-transform ${open ? '-rotate-45 -translate-y-1.5' : ''}`} />
-              </div>
-            </button>
+                  <AnimatePresence>
+                    {tokenOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -5, scale: 0.96 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -5, scale: 0.96 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute left-0 top-full mt-2 w-60 rounded-2xl border border-white/10 bg-[#121217]/95 backdrop-blur-xl shadow-2xl p-3 z-50"
+                      >
+                        <div className="flex items-center gap-2 pb-2.5 mb-2.5 border-b border-white/10">
+                          <Coins size={16} className="text-amber-400" />
+                          <div>
+                            <p className="text-xs font-bold text-white">Commitment Tokens</p>
+                            <p className="text-[10px] text-zinc-400">Tokens protect accepted gigs</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1.5 text-xs font-mono">
+                          <div className="flex justify-between items-center py-1">
+                            <span className="text-zinc-400">Available:</span>
+                            <span className="text-emerald-400 font-bold">{availableTokens ?? '—'}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-1">
+                            <span className="text-zinc-400">Locked in Gigs:</span>
+                            <span className="text-amber-300 font-bold">{lockedTokens ?? '—'}</span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
+            </div>
+
+            {/* Right: Desktop Links */}
+            <div className="hidden md:flex items-center gap-1">
+              {isAuthenticated ? (
+                <>
+                  {NAV_DESKTOP.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`px-3 py-1.5 text-xs font-mono tracking-wider transition-colors rounded-lg ${
+                        pathname === item.href
+                          ? 'text-amber-400 bg-amber-400/10 font-bold'
+                          : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                  <NotificationBell />
+                  <div className="w-px h-4 bg-white/10 mx-2" />
+                  <span className="text-zinc-400 text-xs font-mono mr-2">
+                    {user?.name}
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="px-3 py-1.5 text-xs font-mono tracking-wider text-zinc-400 hover:text-rose-400 transition-colors"
+                  >
+                    LOGOUT
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/leaderboard"
+                    className="px-3 py-1.5 text-xs font-mono tracking-wider text-zinc-400 hover:text-white transition-colors"
+                  >
+                    LEADERBOARD
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="px-3 py-1.5 text-xs font-mono tracking-wider text-zinc-400 hover:text-white transition-colors"
+                  >
+                    LOGIN
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="px-3.5 py-1.5 text-xs font-mono tracking-wider bg-amber-400 text-black font-bold hover:bg-amber-300 transition-colors rounded-xl"
+                  >
+                    SIGN UP
+                  </Link>
+                </>
+              )}
+            </div>
+
+            {/* Right: Mobile Header Quick Actions */}
+            <div className="flex items-center gap-2 md:hidden">
+              <NotificationBell />
+              {isAuthenticated ? (
+                <button
+                  onClick={() => setMobileProfileOpen(true)}
+                  className="w-8 h-8 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300 flex items-center justify-center font-bold text-xs uppercase"
+                  aria-label="User profile"
+                >
+                  {user?.name ? user.name[0] : 'U'}
+                </button>
+              ) : (
+                <Link
+                  href="/login"
+                  className="px-3 py-1 rounded-xl bg-amber-400 text-black text-xs font-bold hover:bg-amber-300"
+                >
+                  Login
+                </Link>
+              )}
+            </div>
+
           </div>
         </div>
+      </nav>
 
-        {/* Mobile menu */}
-        {open && (
-          <div className="md:hidden border-t border-forge-border py-3 space-y-1 animate-fade-in">
-            {isAuthenticated ? (
-              <>
-                {NAV_AUTH.map((item) => (
-                  <Link key={item.href} href={item.href} onClick={() => setOpen(false)}
-                    className="block px-2 py-2 text-[11px] font-mono tracking-widest text-forge-sub hover:text-forge-text">
-                    {item.label}
-                  </Link>
-                ))}
-                <button onClick={handleLogout} className="block w-full text-left px-2 py-2 text-[11px] font-mono tracking-widest text-red-400">
-                  LOGOUT
+      {/* ========================================================================= */}
+      {/* MOBILE BOTTOM NAVIGATION BAR (FIXED AT BOTTOM FOR PHONES) */}
+      {/* ========================================================================= */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0c0c11]/95 backdrop-blur-xl border-t border-white/10 px-2 py-1.5 safe-bottom shadow-[0_-4px_25px_rgba(0,0,0,0.8)]">
+        <div className="flex items-center justify-around max-w-md mx-auto">
+
+          {/* 1. Marketplace */}
+          <Link
+            href="/"
+            className={`flex flex-col items-center py-1 px-2.5 rounded-xl transition-all ${
+              pathname === '/'
+                ? 'text-amber-400 font-bold'
+                : 'text-zinc-500 hover:text-zinc-300'
+            }`}
+          >
+            <Compass size={20} className={pathname === '/' ? 'stroke-[2.5]' : 'stroke-2'} />
+            <span className="text-[10px] mt-1">Gigs</span>
+          </Link>
+
+          {/* 2. Leaderboard */}
+          <Link
+            href="/leaderboard"
+            className={`flex flex-col items-center py-1 px-2.5 rounded-xl transition-all ${
+              pathname === '/leaderboard'
+                ? 'text-amber-400 font-bold'
+                : 'text-zinc-500 hover:text-zinc-300'
+            }`}
+          >
+            <Trophy size={20} className={pathname === '/leaderboard' ? 'stroke-[2.5]' : 'stroke-2'} />
+            <span className="text-[10px] mt-1">Leaders</span>
+          </Link>
+
+          {/* 3. Center Action: Post Gig (+) */}
+          <Link
+            href="/create-task"
+            className="flex flex-col items-center -mt-4 group"
+          >
+            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 text-black flex items-center justify-center shadow-[0_4px_16px_rgba(245,158,11,0.4)] group-active:scale-95 transition-transform border-2 border-[#09090B]">
+              <Plus size={24} className="stroke-[3]" />
+            </div>
+            <span className="text-[10px] font-bold text-amber-400 mt-0.5">Post Gig</span>
+          </Link>
+
+          {/* 4. My Tasks */}
+          <Link
+            href={isAuthenticated ? '/my-tasks' : '/login'}
+            className={`flex flex-col items-center py-1 px-2.5 rounded-xl transition-all ${
+              pathname === '/my-tasks'
+                ? 'text-amber-400 font-bold'
+                : 'text-zinc-500 hover:text-zinc-300'
+            }`}
+          >
+            <ClipboardList size={20} className={pathname === '/my-tasks' ? 'stroke-[2.5]' : 'stroke-2'} />
+            <span className="text-[10px] mt-1">My Tasks</span>
+          </Link>
+
+          {/* 5. Profile / Account */}
+          {isAuthenticated ? (
+            <button
+              onClick={() => setMobileProfileOpen(true)}
+              className="flex flex-col items-center py-1 px-2.5 rounded-xl text-zinc-500 hover:text-zinc-300 transition-all"
+            >
+              <User size={20} className="stroke-2" />
+              <span className="text-[10px] mt-1">Profile</span>
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              className={`flex flex-col items-center py-1 px-2.5 rounded-xl transition-all ${
+                pathname === '/login'
+                  ? 'text-amber-400 font-bold'
+                  : 'text-zinc-500 hover:text-zinc-300'
+              }`}
+            >
+              <User size={20} className={pathname === '/login' ? 'stroke-[2.5]' : 'stroke-2'} />
+              <span className="text-[10px] mt-1">Login</span>
+            </Link>
+          )}
+
+        </div>
+      </nav>
+
+      {/* ========================================================================= */}
+      {/* MOBILE PROFILE / ACCOUNT SLIDE-UP SHEET */}
+      {/* ========================================================================= */}
+      <AnimatePresence>
+        {mobileProfileOpen && (
+          <div className="fixed inset-0 z-50 md:hidden flex flex-col justify-end">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileProfileOpen(false)}
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            />
+
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 250 }}
+              className="relative bg-[#121217] border-t border-white/10 rounded-t-3xl p-5 space-y-4 shadow-2xl safe-bottom"
+            >
+              <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-2" />
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-amber-400/20 border border-amber-400/30 text-amber-300 flex items-center justify-center font-bold text-base uppercase">
+                    {user?.name ? user.name[0] : 'U'}
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-white">{user?.name || 'Student'}</p>
+                    <p className="text-xs text-zinc-400">LPU Campus Member</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setMobileProfileOpen(false)}
+                  className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 hover:text-white"
+                >
+                  <X size={16} />
                 </button>
-              </>
-            ) : (
-              <>
-                <Link href="/leaderboard" onClick={() => setOpen(false)} className="block px-2 py-2 text-[11px] font-mono tracking-widest text-forge-sub">LEADERBOARD</Link>
-                <Link href="/login" onClick={() => setOpen(false)} className="block px-2 py-2 text-[11px] font-mono tracking-widest text-forge-sub">LOGIN</Link>
-                <Link href="/signup" onClick={() => setOpen(false)} className="block px-2 py-2 text-[11px] font-mono tracking-widest text-forge-accent">SIGNUP</Link>
-              </>
-            )}
+              </div>
+
+              {/* Token Stats Card */}
+              <div className="p-3.5 bg-black/40 border border-white/5 rounded-2xl flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <Coins size={18} className="text-amber-400" />
+                  <div>
+                    <p className="text-xs font-semibold text-white">Commitment Tokens</p>
+                    <p className="text-[11px] text-zinc-400">Protects active claimed tasks</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-mono font-bold text-emerald-400">{availableTokens ?? '0'} Ready</p>
+                  <p className="text-[10px] text-zinc-500 font-mono">{lockedTokens ?? '0'} Locked</p>
+                </div>
+              </div>
+
+              {/* Navigation Links inside Sheet */}
+              <div className="divide-y divide-white/5">
+                <Link
+                  href="/my-tasks"
+                  onClick={() => setMobileProfileOpen(false)}
+                  className="flex items-center justify-between py-3 text-sm text-zinc-200 hover:text-white"
+                >
+                  <span className="flex items-center gap-2.5">
+                    <ClipboardList size={18} className="text-amber-400" />
+                    My Active Gigs & History
+                  </span>
+                  <ChevronRight size={16} className="text-zinc-500" />
+                </Link>
+
+                <Link
+                  href="/create-task"
+                  onClick={() => setMobileProfileOpen(false)}
+                  className="flex items-center justify-between py-3 text-sm text-zinc-200 hover:text-white"
+                >
+                  <span className="flex items-center gap-2.5">
+                    <Plus size={18} className="text-amber-400" />
+                    Post a New Gig
+                  </span>
+                  <ChevronRight size={16} className="text-zinc-500" />
+                </Link>
+              </div>
+
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="w-full py-3 px-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 text-xs font-bold font-mono tracking-wider flex items-center justify-center gap-2 transition-colors"
+              >
+                <LogOut size={16} />
+                LOG OUT OF GIGHIVE
+              </button>
+            </motion.div>
           </div>
         )}
-      </div>
-    </nav>
+      </AnimatePresence>
+    </>
   );
 }

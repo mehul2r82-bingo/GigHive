@@ -48,7 +48,9 @@ export default function RootLayout({
         <AuthProvider>
           <OneSignalInit />
           <Navbar />
-          {children}
+          <div className="flex-1 pb-20 md:pb-0">
+            {children}
+          </div>
           <PWAInstallPrompt />
         </AuthProvider>
       </body>
