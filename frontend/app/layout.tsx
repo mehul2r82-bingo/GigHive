@@ -21,8 +21,16 @@ export const metadata: Metadata = {
   description: "Student micro-gig & escrow task marketplace",
   manifest: "/manifest.json",
   icons: {
-    icon: "/gighive_icon_512.png",
+    icon: [
+      { url: "/gighive_icon_192.png", sizes: "192x192", type: "image/png" },
+      { url: "/gighive_icon_512.png", sizes: "512x512", type: "image/png" },
+    ],
     apple: "/gighive_icon_512.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "GigHive",
   },
 };
 
