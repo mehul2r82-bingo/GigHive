@@ -76,7 +76,7 @@ export default function LeaderboardPage() {
         {/* Header */}
         <div className="space-y-2">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-amber-400">
+            <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
               <Trophy size={18} />
             </div>
             <div>
@@ -96,7 +96,7 @@ export default function LeaderboardPage() {
             onClick={() => setActiveTab('solvers')}
             className={`py-2 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-2 ${
               activeTab === 'solvers'
-                ? 'bg-amber-400 text-black shadow-sm font-bold'
+                ? 'bg-indigo-600 text-white shadow-sm font-bold shadow-indigo-500/20'
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
@@ -108,7 +108,7 @@ export default function LeaderboardPage() {
             onClick={() => setActiveTab('givers')}
             className={`py-2 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-2 ${
               activeTab === 'givers'
-                ? 'bg-amber-400 text-black shadow-sm font-bold'
+                ? 'bg-indigo-600 text-white shadow-sm font-bold shadow-indigo-500/20'
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
@@ -134,7 +134,7 @@ export default function LeaderboardPage() {
                   <div
                     className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                       isFirst
-                        ? 'bg-amber-400/20 text-amber-400 border border-amber-400/40'
+                        ? 'bg-amber-400/20 text-amber-400 border border-amber-400/40 shadow-[0_0_12px_rgba(251,191,36,0.25)]'
                         : isSecond
                         ? 'bg-zinc-400/20 text-zinc-300 border border-zinc-400/40'
                         : isThird
@@ -160,7 +160,7 @@ export default function LeaderboardPage() {
 
                 {/* Right: Tasks Count */}
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-bold text-amber-300">
+                  <p className="text-sm font-bold text-indigo-300">
                     {item.tasks_count} {activeTab === 'solvers' ? 'Completed' : 'Posted'}
                   </p>
                   <p className="text-[10px] text-zinc-500">

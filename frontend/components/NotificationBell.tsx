@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Bell } from 'lucide-react';
 import API from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 
@@ -105,7 +106,7 @@ export default function NotificationBell() {
         className="relative p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.05] transition-colors"
         aria-label="View notifications"
       >
-        <span className="text-base select-none">🔔</span>
+        <Bell size={18} className="text-zinc-400 group-hover:text-white transition-colors" />
         {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 rounded-full bg-red-500 text-white font-mono text-[10px] font-bold flex items-center justify-center shadow-[0_0_8px_rgba(239,68,68,0.7)] animate-pulse">
             {unreadCount > 9 ? '9+' : unreadCount}

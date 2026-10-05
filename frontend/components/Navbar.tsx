@@ -124,12 +124,12 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={() => setTokenOpen((prev) => !prev)}
-                    className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 hover:bg-amber-400/20 transition-all text-xs font-semibold"
+                    className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 hover:bg-purple-500/20 transition-all text-xs font-semibold"
                     aria-label="View token balance"
                   >
-                    <span className="text-amber-400 font-bold">◈</span>
+                    <span className="text-purple-400 font-bold">◈</span>
                     <span className="font-mono">{availableTokens ?? '—'}</span>
-                    <span className="text-[10px] text-amber-400/70 hidden sm:inline">tokens</span>
+                    <span className="text-[10px] text-purple-400/70 hidden sm:inline">tokens</span>
                   </button>
 
                   <AnimatePresence>
@@ -142,7 +142,7 @@ export default function Navbar() {
                         className="absolute left-0 top-full mt-2 w-60 rounded-2xl border border-white/10 bg-[#121217]/95 backdrop-blur-xl shadow-2xl p-3 z-50"
                       >
                         <div className="flex items-center gap-2 pb-2.5 mb-2.5 border-b border-white/10">
-                          <Coins size={16} className="text-amber-400" />
+                          <Coins size={16} className="text-purple-400" />
                           <div>
                             <p className="text-xs font-bold text-white">Commitment Tokens</p>
                             <p className="text-[10px] text-zinc-400">Tokens protect accepted gigs</p>
@@ -156,7 +156,7 @@ export default function Navbar() {
                           </div>
                           <div className="flex justify-between items-center py-1">
                             <span className="text-zinc-400">Locked in Gigs:</span>
-                            <span className="text-amber-300 font-bold">{lockedTokens ?? '—'}</span>
+                            <span className="text-purple-300 font-bold">{lockedTokens ?? '—'}</span>
                           </div>
                         </div>
                       </motion.div>
@@ -176,7 +176,7 @@ export default function Navbar() {
                       href={item.href}
                       className={`px-3 py-1.5 text-xs font-mono tracking-wider transition-colors rounded-lg ${
                         pathname === item.href
-                          ? 'text-amber-400 bg-amber-400/10 font-bold'
+                          ? 'text-indigo-400 bg-indigo-500/10 font-bold'
                           : 'text-zinc-400 hover:text-white hover:bg-white/5'
                       }`}
                     >
@@ -211,7 +211,7 @@ export default function Navbar() {
                   </Link>
                   <Link
                     href="/signup"
-                    className="px-3.5 py-1.5 text-xs font-mono tracking-wider bg-amber-400 text-black font-bold hover:bg-amber-300 transition-colors rounded-xl"
+                    className="px-3.5 py-1.5 text-xs font-mono tracking-wider bg-indigo-600 text-white font-bold hover:bg-indigo-500 transition-colors rounded-xl shadow-lg shadow-indigo-500/20"
                   >
                     SIGN UP
                   </Link>
@@ -225,7 +225,7 @@ export default function Navbar() {
               {isAuthenticated ? (
                 <button
                   onClick={() => setMobileProfileOpen(true)}
-                  className="w-8 h-8 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300 flex items-center justify-center font-bold text-xs uppercase"
+                  className="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 flex items-center justify-center font-bold text-xs uppercase"
                   aria-label="User profile"
                 >
                   {user?.name ? user.name[0] : 'U'}
@@ -233,7 +233,7 @@ export default function Navbar() {
               ) : (
                 <Link
                   href="/login"
-                  className="px-3 py-1 rounded-xl bg-amber-400 text-black text-xs font-bold hover:bg-amber-300"
+                  className="px-3 py-1 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500"
                 >
                   Login
                 </Link>
@@ -255,7 +255,7 @@ export default function Navbar() {
             href="/"
             className={`flex flex-col items-center py-1 px-2.5 rounded-xl transition-all ${
               pathname === '/'
-                ? 'text-amber-400 font-bold'
+                ? 'text-indigo-400 font-bold'
                 : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
@@ -268,7 +268,7 @@ export default function Navbar() {
             href="/leaderboard"
             className={`flex flex-col items-center py-1 px-2.5 rounded-xl transition-all ${
               pathname === '/leaderboard'
-                ? 'text-amber-400 font-bold'
+                ? 'text-indigo-400 font-bold'
                 : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
@@ -281,10 +281,10 @@ export default function Navbar() {
             href="/create-task"
             className="flex flex-col items-center -mt-4 group"
           >
-            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 text-black flex items-center justify-center shadow-[0_4px_16px_rgba(245,158,11,0.4)] group-active:scale-95 transition-transform border-2 border-[#09090B]">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-[0_4px_16px_rgba(99,102,241,0.4)] group-active:scale-95 transition-transform border-2 border-[#09090B]">
               <Plus size={24} className="stroke-[3]" />
             </div>
-            <span className="text-[10px] font-bold text-amber-400 mt-0.5">Post Gig</span>
+            <span className="text-[10px] font-bold text-indigo-400 mt-0.5">Post Gig</span>
           </Link>
 
           {/* 4. My Tasks */}
@@ -292,7 +292,7 @@ export default function Navbar() {
             href={isAuthenticated ? '/my-tasks' : '/login'}
             className={`flex flex-col items-center py-1 px-2.5 rounded-xl transition-all ${
               pathname === '/my-tasks'
-                ? 'text-amber-400 font-bold'
+                ? 'text-indigo-400 font-bold'
                 : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
@@ -314,7 +314,7 @@ export default function Navbar() {
               href="/login"
               className={`flex flex-col items-center py-1 px-2.5 rounded-xl transition-all ${
                 pathname === '/login'
-                  ? 'text-amber-400 font-bold'
+                  ? 'text-indigo-400 font-bold'
                   : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
@@ -351,7 +351,7 @@ export default function Navbar() {
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-amber-400/20 border border-amber-400/30 text-amber-300 flex items-center justify-center font-bold text-base uppercase">
+                  <div className="w-11 h-11 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 flex items-center justify-center font-bold text-base uppercase">
                     {user?.name ? user.name[0] : 'U'}
                   </div>
                   <div>
@@ -371,7 +371,7 @@ export default function Navbar() {
               {/* Token Stats Card */}
               <div className="p-3.5 bg-black/40 border border-white/5 rounded-2xl flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <Coins size={18} className="text-amber-400" />
+                  <Coins size={18} className="text-purple-400" />
                   <div>
                     <p className="text-xs font-semibold text-white">Commitment Tokens</p>
                     <p className="text-[11px] text-zinc-400">Protects active claimed tasks</p>
@@ -391,7 +391,7 @@ export default function Navbar() {
                   className="flex items-center justify-between py-3 text-sm text-zinc-200 hover:text-white"
                 >
                   <span className="flex items-center gap-2.5">
-                    <ClipboardList size={18} className="text-amber-400" />
+                    <ClipboardList size={18} className="text-indigo-400" />
                     My Active Gigs & History
                   </span>
                   <ChevronRight size={16} className="text-zinc-500" />
@@ -403,7 +403,7 @@ export default function Navbar() {
                   className="flex items-center justify-between py-3 text-sm text-zinc-200 hover:text-white"
                 >
                   <span className="flex items-center gap-2.5">
-                    <Plus size={18} className="text-amber-400" />
+                    <Plus size={18} className="text-indigo-400" />
                     Post a New Gig
                   </span>
                   <ChevronRight size={16} className="text-zinc-500" />

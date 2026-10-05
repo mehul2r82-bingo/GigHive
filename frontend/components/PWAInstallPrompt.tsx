@@ -73,10 +73,10 @@ export default function PWAInstallPrompt() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
-          className="fixed bottom-18 left-3 right-3 sm:bottom-5 sm:left-auto sm:right-6 sm:w-84 z-50 bg-[#121217]/95 backdrop-blur-md border border-amber-500/30 p-3.5 rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.7)] flex items-center justify-between gap-3"
+          className="fixed bottom-18 left-3 right-3 sm:bottom-5 sm:left-auto sm:right-6 sm:w-84 z-50 bg-[#121217]/95 backdrop-blur-md border border-indigo-500/30 p-3.5 rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.7)] flex items-center justify-between gap-3"
         >
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center shrink-0 overflow-hidden">
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0 overflow-hidden">
               <Image
                 src="/gighive_icon_192.png"
                 alt="GigHive"
@@ -94,7 +94,7 @@ export default function PWAInstallPrompt() {
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleAndroidInstallClick}
-              className="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold transition-all shadow-sm active:scale-95"
+              className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-md shadow-indigo-500/20 active:scale-95"
             >
               Install
             </button>
@@ -115,11 +115,11 @@ export default function PWAInstallPrompt() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 30 }}
-          className="fixed bottom-18 left-3 right-3 sm:bottom-5 sm:left-auto sm:right-6 sm:w-96 z-50 bg-[#121217]/95 backdrop-blur-xl border border-amber-500/40 p-4 rounded-3xl shadow-[0_15px_40px_rgba(0,0,0,0.8)] flex flex-col gap-3"
+          className="fixed bottom-18 left-3 right-3 sm:bottom-5 sm:left-auto sm:right-6 sm:w-96 z-50 bg-[#121217]/95 backdrop-blur-xl border border-indigo-500/40 p-4 rounded-3xl shadow-[0_15px_40px_rgba(0,0,0,0.8)] flex flex-col gap-3"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center shrink-0 overflow-hidden">
+              <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0 overflow-hidden">
                 <Image
                   src="/gighive_icon_192.png"
                   alt="GigHive"
@@ -146,7 +146,7 @@ export default function PWAInstallPrompt() {
 
           <div className="bg-black/40 border border-white/5 rounded-2xl p-3 flex flex-col gap-2.5 text-xs text-zinc-300">
             <div className="flex items-center gap-2.5">
-              <span className="w-5 h-5 rounded-full bg-amber-400/20 text-amber-300 font-bold text-[11px] flex items-center justify-center shrink-0">
+              <span className="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold text-[11px] flex items-center justify-center shrink-0">
                 1
               </span>
               <span>
@@ -160,13 +160,13 @@ export default function PWAInstallPrompt() {
             </div>
 
             <div className="flex items-center gap-2.5">
-              <span className="w-5 h-5 rounded-full bg-amber-400/20 text-amber-300 font-bold text-[11px] flex items-center justify-center shrink-0">
+              <span className="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold text-[11px] flex items-center justify-center shrink-0">
                 2
               </span>
               <span>
                 Scroll down and select <strong className="text-white">Add to Home Screen</strong>{' '}
                 <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-200 font-bold border border-zinc-700">
-                  <span className="text-amber-400 mr-1">➕</span> Add
+                  <span className="text-indigo-400 mr-1">➕</span> Add
                 </span>
               </span>
             </div>
@@ -176,7 +176,7 @@ export default function PWAInstallPrompt() {
             <span>✨ No App Store download needed • 0 MB</span>
             <button
               onClick={handleDismiss}
-              className="text-amber-400/80 hover:text-amber-300 font-medium"
+              className="text-indigo-400 hover:text-indigo-300 font-medium"
             >
               Got it
             </button>

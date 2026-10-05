@@ -113,7 +113,7 @@ return (
           <div className="flex items-center justify-center gap-2.5 mt-3.5">
             <Link
               href="/signup"
-              className="px-4 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold font-mono tracking-wider transition-colors"
+              className="px-4 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold font-mono tracking-wider transition-colors shadow-lg shadow-indigo-500/20"
             >
               GET STARTED
             </Link>

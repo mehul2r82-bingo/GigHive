@@ -407,7 +407,7 @@ export default function MyTasksPage() {
                 onClick={() => setActiveTab(tab)}
                 className={`flex-1 py-2 sm:py-2.5 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${
                   isActive
-                    ? "bg-amber-400 text-black shadow-sm font-bold"
+                    ? "bg-indigo-600 text-white shadow-sm font-bold shadow-indigo-500/20"
                     : "text-zinc-400 hover:text-white hover:bg-white/5"
                 }`}
               >
@@ -415,7 +415,7 @@ export default function MyTasksPage() {
                 <span
                   className={`text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded-full font-mono ${
                     isActive
-                      ? "bg-black/20 text-black font-bold"
+                      ? "bg-white/20 text-white font-bold"
                       : "bg-white/10 text-zinc-400"
                   }`}
                 >
