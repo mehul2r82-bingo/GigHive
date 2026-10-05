@@ -100,35 +100,33 @@ return (
           those changes belong in that navbar component, not here. */}
 
       {/* HERO */}
-      <section className="max-w-3xl mx-auto px-6 pt-16 pb-8 sm:pt-24 sm:pb-12 text-center animate-hero">
-
-        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight mb-4">
+      <section className="max-w-2xl mx-auto px-4 pt-6 pb-3 sm:pt-8 sm:pb-5 text-center animate-hero">
+        <h1 className="text-lg sm:text-2xl md:text-3xl font-bold tracking-tight text-white leading-snug mb-1.5">
           Too lazy to do your assignment? Too broke to say no?
         </h1>
 
-        <p className="text-base sm:text-lg text-zinc-400 font-normal max-w-xl mx-auto leading-relaxed">
-          Pay a classmate to save your grades, or finish their work and fund your canteen cravings. 100% escrow protected.
+        <p className="text-xs sm:text-sm text-zinc-400 max-w-lg mx-auto leading-relaxed">
+          Do the math: Outsource the work draining your time, or monetize your skills and earn on campus.
         </p>
 
         {!isAuthenticated && (
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
+          <div className="flex items-center justify-center gap-2.5 mt-3.5">
             <Link
               href="/signup"
-              className="px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold transition-colors"
+              className="px-4 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold font-mono tracking-wider transition-colors"
             >
               GET STARTED
             </Link>
 
             <Link
               href="/login"
-              className="px-6 py-3 rounded-lg border border-white/10 hover:border-white/20 text-sm font-medium text-zinc-300 hover:text-white transition-colors"
+              className="px-4 py-1.5 rounded-xl border border-white/10 hover:border-white/20 text-xs font-medium text-zinc-300 hover:text-white transition-colors"
             >
               LOGIN
             </Link>
           </div>
         )}
-
-        </section>
+      </section>
 
         {isAuthenticated && (
     <>
