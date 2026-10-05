@@ -370,65 +370,60 @@ export default function MyTasksPage() {
   );
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white px-6 py-10 md:px-10 lg:px-16">
+    <main className="min-h-screen bg-zinc-950 text-white px-4 py-6 sm:px-8 sm:py-10">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="max-w-5xl mx-auto"
+        className="max-w-4xl mx-auto"
       >
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
-            My Tasks
-          </h1>
-          <p className="text-zinc-400 mt-2">
-            View and manage all your current and previous tasks.
-          </p>
-          {user?.username && (
-            <p className="text-zinc-600 text-sm mt-1">@{user.username}</p>
-          )}
-        </div>
-
-        {/* Stats — derived only from data already loaded */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
-          {tabs.map((tab) => (
-            <div
-              key={tab}
-              className="rounded-2xl border border-zinc-800 bg-zinc-900/40 px-4 py-4 shadow-sm"
-            >
-              <p className="text-zinc-500 text-xs uppercase tracking-wide">
-                {tabLabels[tab]}
-              </p>
-              <p className="text-2xl font-semibold mt-1 text-white">
-                {tabCounts[tab]}
+        <div className="mb-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+                My Tasks
+              </h1>
+              <p className="text-xs sm:text-sm text-zinc-400 mt-0.5">
+                Manage your active gigs, submissions, and task history.
               </p>
             </div>
-          ))}
+            {user?.username && (
+              <span className="text-xs font-mono text-zinc-500 self-start sm:self-auto">
+                @{user.username}
+              </span>
+            )}
+          </div>
         </div>
 
-        {/* Tabs */}
-        <div className="relative flex gap-2 mb-8 border-b border-zinc-800">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`relative px-5 py-3 text-sm font-medium transition-colors duration-200 rounded-t-xl ${
-                activeTab === tab
-                  ? "text-white"
-                  : "text-zinc-500 hover:text-zinc-300"
-              }`}
-            >
-              {tabLabels[tab]}
-              {activeTab === tab && (
-                <motion.div
-                  layoutId="myTasksActiveTab"
-                  className="absolute left-0 right-0 -bottom-[1px] h-[2px] bg-purple-500 rounded-full"
-                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                />
-              )}
-            </button>
-          ))}
+        {/* Unified Interactive Filter Tabs with Live Counts */}
+        <div className="flex items-center gap-1.5 sm:gap-2 p-1 bg-zinc-900/90 border border-white/10 rounded-2xl mb-6">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab;
+            const count = tabCounts[tab];
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 py-2 sm:py-2.5 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${
+                  isActive
+                    ? "bg-amber-400 text-black shadow-sm font-bold"
+                    : "text-zinc-400 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <span>{tabLabels[tab]}</span>
+                <span
+                  className={`text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded-full font-mono ${
+                    isActive
+                      ? "bg-black/20 text-black font-bold"
+                      : "bg-white/10 text-zinc-400"
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Loading skeleton */}
