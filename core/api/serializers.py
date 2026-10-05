@@ -262,8 +262,12 @@ class TaskAcceptSerializer(serializers.Serializer):
                 e.message_dict if hasattr(e, "message_dict") else str(e)
             )
 
-        except PermissionDenied as e:
-            raise PermissionDenied(str(e))
+        except Exception as e:
+            if hasattr(e, "messages") and e.messages:
+                raise serializers.ValidationError(e.messages[0])
+            if e.__class__.__name__ == "PermissionDenied":
+                raise PermissionDenied(str(e))
+            raise serializers.ValidationError(str(e))
 
         return task 
     

@@ -85,9 +85,17 @@ export default function TaskDetailPage() {
   const [acceptStatus, setAcceptStatus] = useState<AcceptStatus>("idle");
   const [showUpiPopup, setShowUpiPopup] = useState(false);
 
-  // Real profile-backed UPI state
+  // Real profile-backed UPI and user state
   const [earningsUpi, setEarningsUpi] = useState<string>("");
+  const [currentUser, setCurrentUser] = useState<string>("");
   const [profileLoading, setProfileLoading] = useState(true);
+
+  // Check if viewing own task
+  const isOwnTask = Boolean(
+    currentUser &&
+    task?.giver &&
+    currentUser.trim().toLowerCase() === task.giver.trim().toLowerCase()
+  );
 
   // UPI modal local UI state
   const [upiInput, setUpiInput] = useState("");
@@ -123,9 +131,11 @@ export default function TaskDetailPage() {
     API.get("/profile/")
       .then((res) => {
         const savedUpi = res.data?.earnings_upi_id || "";
+        const username = res.data?.username || "";
 
-setEarningsUpi(savedUpi);
-setUpiMode(savedUpi ? "view" : "edit");
+        setCurrentUser(username);
+        setEarningsUpi(savedUpi);
+        setUpiMode(savedUpi ? "view" : "edit");
       })
       .catch((err) => console.error(err))
       .finally(() => setProfileLoading(false));
@@ -154,7 +164,7 @@ setUpiMode(savedUpi ? "view" : "edit");
     return;
 }
 
-      if (/giver and taker cannot be the same|cannot accept your own task|own task/i.test(message)) {
+      if (/giver and taker cannot be the same|cannot accept your own task|own task|giver cannot accept|cannot accept.*own/i.test(message)) {
         setFlowStep("none");
         setAgreedToRules(false);
         setAcceptStatus("idle");
@@ -192,6 +202,12 @@ setUpiMode(savedUpi ? "view" : "edit");
 
   // Real profile check: skip the modal entirely if UPI is already on file
   function handleAcceptClick() {
+    if (isOwnTask) {
+      setFlowStep("none");
+      setAgreedToRules(false);
+      setErrorModal("own_task");
+      return;
+    }
     if (!earningsUpi) {
       setUpiMode("edit");
       setShowUpiPopup(true);
@@ -240,6 +256,10 @@ setUpiMode(savedUpi ? "view" : "edit");
   }, [errorModal]);
 
   function handleAcceptButtonClick() {
+    if (isOwnTask) {
+      setErrorModal("own_task");
+      return;
+    }
     setOpeningFlow(true);
     setTimeout(() => {
       setOpeningFlow(false);
@@ -254,7 +274,7 @@ setUpiMode(savedUpi ? "view" : "edit");
     own_task: {
       title: "You can't accept your own task",
       description:
-        "Tasks are meant for other students. Ask another student to complete this task, or edit/cancel it from My Tasks.",
+        "You posted this gig! Tasks are meant for other students on campus. Wait for a classmate to accept it, or manage it from My Tasks.",
     },
     tokens: {
       title: "Not enough Commitment Tokens",
@@ -490,7 +510,12 @@ setUpiMode(savedUpi ? "view" : "edit");
                   <div className="flex justify-between items-center gap-4 pt-4 border-t border-white/5">
                     <span className="text-zinc-500">Posted by</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-zinc-300 font-mono font-medium">{task.giver}</span>
+                      <span className="text-zinc-300 font-mono font-medium">
+                        {task.giver}
+                        {isOwnTask && (
+                          <span className="text-xs text-indigo-400 font-sans ml-1.5 font-normal">(You)</span>
+                        )}
+                      </span>
                       {task.giver_badge && <GamificationBadge type={task.giver_badge} size="sm" />}
                       {task.giver_streak && task.giver_streak > 0 ? (
                         <GamificationBadge type="STREAK" streakCount={task.giver_streak} size="sm" />
@@ -527,29 +552,51 @@ setUpiMode(savedUpi ? "view" : "edit");
 
               {/* ACCEPT BUTTON */}
             {task.state === "OPEN" ? (
-              <div>
-                <motion.button
-                  whileHover={{ scale: openingFlow ? 1 : 1.02 }}
-                  whileTap={{ scale: openingFlow ? 1 : 0.98 }}
-                  onClick={handleAcceptButtonClick}
-                  disabled={acceptStatus === "loading" || profileLoading || openingFlow}
-                  className="w-full bg-indigo-600 hover:bg-indigo-500 hover:shadow-[0_10px_30px_-8px_rgba(99,102,241,0.5)] transition-all duration-200 p-4 rounded-xl font-semibold text-base disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {openingFlow && (
-                    <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
-                  )}
+              isOwnTask ? (
+                <div className="space-y-3">
+                  <div className="rounded-xl border border-indigo-500/25 bg-indigo-500/[0.07] p-4 text-center">
+                    <div className="w-9 h-9 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-base mx-auto mb-2 text-indigo-400">
+                      ℹ️
+                    </div>
+                    <p className="text-sm font-semibold text-zinc-200">You posted this gig</p>
+                    <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+                      You cannot accept your own task. Other students will see and accept this gig.
+                    </p>
+                  </div>
 
-                  {profileLoading
-                    ? "Loading..."
-                    : openingFlow
-                      ? "Preparing..."
-                      : "Accept Task"}
-                </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setErrorModal("own_task")}
+                    className="w-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors p-3.5 rounded-xl font-medium text-sm text-zinc-300 flex items-center justify-center gap-2"
+                  >
+                    <span>⚠️</span> Cannot Accept Your Own Task
+                  </motion.button>
+                </div>
+              ) : (
+                <div>
+                  <motion.button
+                    whileHover={{ scale: openingFlow ? 1 : 1.02 }}
+                    whileTap={{ scale: openingFlow ? 1 : 0.98 }}
+                    onClick={handleAcceptButtonClick}
+                    disabled={acceptStatus === "loading" || profileLoading || openingFlow}
+                    className="w-full bg-indigo-600 hover:bg-indigo-500 hover:shadow-[0_10px_30px_-8px_rgba(99,102,241,0.5)] transition-all duration-200 p-4 rounded-xl font-semibold text-base disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {openingFlow && (
+                      <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                    )}
 
-                <p className="text-xs text-zinc-500 text-center mt-2.5 flex items-center justify-center gap-1">
-                  <span>🔒</span> 1 Commitment Token will be locked until completion.
-                </p>
-              </div>
+                    {profileLoading
+                      ? "Loading..."
+                      : openingFlow
+                        ? "Preparing..."
+                        : "Accept Task"}
+                  </motion.button>
+
+                  <p className="text-xs text-zinc-500 text-center mt-2.5 flex items-center justify-center gap-1">
+                    <span>🔒</span> 1 Commitment Token will be locked until completion.
+                  </p>
+                </div>
+              )
             ) : (
               <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 text-center">
                 <p className="text-sm font-semibold text-zinc-300">
@@ -860,7 +907,7 @@ setUpiMode(savedUpi ? "view" : "edit");
               transition={{ type: "spring", stiffness: 300, damping: 26 }}
               className="bg-[#0D0D10] border border-white/10 rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] text-center"
             >
-              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-2xl mx-auto mb-5">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-2xl mx-auto mb-5 text-indigo-400">
                 ⚠️
               </div>
 

@@ -111,9 +111,15 @@ class TaskAcceptView(generics.GenericAPIView):
                 message=f"@{request.user.username} accepted your task '{task.title}'.",
                 url=f"/my-tasks"
             )
-        except ValidationError as e:
+        except Exception as e:
+            detail = (
+                e.messages[0] if hasattr(e, "messages") and e.messages
+                else (e.detail[0] if hasattr(e, "detail") and isinstance(e.detail, (list, tuple)) and e.detail
+                else (str(e.detail) if hasattr(e, "detail")
+                else str(e)))
+            )
             return Response(
-                {"detail": str(e.detail[0])},
+                {"detail": detail},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
