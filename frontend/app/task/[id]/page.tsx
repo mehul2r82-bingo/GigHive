@@ -273,8 +273,7 @@ export default function TaskDetailPage() {
   > = {
     own_task: {
       title: "You can't accept your own task",
-      description:
-        "You posted this gig! Tasks are meant for other students on campus. Wait for a classmate to accept it, or manage it from My Tasks.",
+      description: "This gig was posted by you.",
     },
     tokens: {
       title: "Not enough Commitment Tokens",
@@ -553,24 +552,16 @@ export default function TaskDetailPage() {
               {/* ACCEPT BUTTON */}
             {task.state === "OPEN" ? (
               isOwnTask ? (
-                <div className="space-y-3">
-                  <div className="rounded-xl border border-indigo-500/25 bg-indigo-500/[0.07] p-4 text-center">
-                    <div className="w-9 h-9 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-base mx-auto mb-2 text-indigo-400">
-                      ℹ️
-                    </div>
-                    <p className="text-sm font-semibold text-zinc-200">You posted this gig</p>
-                    <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-                      You cannot accept your own task. Other students will see and accept this gig.
-                    </p>
-                  </div>
-
-                  <motion.button
-                    whileTap={{ scale: 0.98 }}
+                <div>
+                  <button
                     onClick={() => setErrorModal("own_task")}
-                    className="w-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors p-3.5 rounded-xl font-medium text-sm text-zinc-300 flex items-center justify-center gap-2"
+                    className="w-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors p-4 rounded-xl font-medium text-sm text-zinc-300 flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <span>⚠️</span> Cannot Accept Your Own Task
-                  </motion.button>
+                    You can't accept your own task
+                  </button>
+                  <p className="text-xs text-zinc-500 text-center mt-2.5">
+                    This gig was posted by you.
+                  </p>
                 </div>
               ) : (
                 <div>
