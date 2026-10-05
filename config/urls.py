@@ -4,7 +4,18 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 
+from django.http import JsonResponse
+
+
+def health_check(request):
+    return JsonResponse({"status": "healthy", "service": "GigHive API"})
+
+
 urlpatterns = [
+    # Health checks for UptimeRobot / root access
+    path("", health_check, name="root-health"),
+    path("health/", health_check, name="health-check"),
+
     # Admin panel
     path("admin/", admin.site.urls),
 
