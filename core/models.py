@@ -1021,9 +1021,22 @@ def create_user_profile_and_token_account(sender, instance, created, **kwargs):
             total_tokens=2,
             locked_tokens=0,
         )
-   
-     
 
 
+class Notification(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="notifications"
+    )
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    url = models.CharField(max_length=255, blank=True, default="")
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["-created_at"]
 
+    def __str__(self):
+        return f"Notification({self.user.username}: {self.title})"

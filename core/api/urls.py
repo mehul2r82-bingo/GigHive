@@ -22,6 +22,8 @@ from .views import (
     TaskTypeListView,
     LeaderboardView,
     fail_expired_tasks_api,
+    NotificationListView,
+    NotificationMarkReadView,
 )
 
 urlpatterns = [
@@ -96,6 +98,8 @@ urlpatterns = [
         fail_expired_tasks_api,
         name="fail-expired-tasks-api",
     ),
+    path("notifications/", NotificationListView.as_view(), name="notifications-list"),
+    path("notifications/mark-read/", NotificationMarkReadView.as_view(), name="notifications-mark-read"),
 ]
 
 

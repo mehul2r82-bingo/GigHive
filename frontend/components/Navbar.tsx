@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import API from '../services/api';
+import NotificationBell from './NotificationBell';
 
   const NAV_AUTH = [
   { href: '/', label: 'MARKETPLACE' },
@@ -229,7 +230,8 @@ export default function Navbar() {
                     {item.label}
                   </Link>
                 ))}
-                <div className="w-px h-4 bg-forge-border mx-2" />
+                <NotificationBell />
+                <div className="w-px h-4 bg-forge-border mx-1" />
                 <span className="text-forge-sub text-[11px] font-mono mr-2">
                   {user?.name}
                 </span>
@@ -255,14 +257,17 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile hamburger */}
-          <button className="md:hidden text-forge-sub" onClick={() => setOpen(!open)}>
-            <div className="space-y-1">
-              <span className={`block w-5 h-px bg-current transition-transform ${open ? 'rotate-45 translate-y-1.5' : ''}`} />
-              <span className={`block w-5 h-px bg-current transition-opacity ${open ? 'opacity-0' : ''}`} />
-              <span className={`block w-5 h-px bg-current transition-transform ${open ? '-rotate-45 -translate-y-1.5' : ''}`} />
-            </div>
-          </button>
+          {/* Mobile actions */}
+          <div className="flex items-center gap-2 md:hidden">
+            <NotificationBell />
+            <button className="text-forge-sub p-1" onClick={() => setOpen(!open)} aria-label="Toggle navigation">
+              <div className="space-y-1">
+                <span className={`block w-5 h-px bg-current transition-transform ${open ? 'rotate-45 translate-y-1.5' : ''}`} />
+                <span className={`block w-5 h-px bg-current transition-opacity ${open ? 'opacity-0' : ''}`} />
+                <span className={`block w-5 h-px bg-current transition-transform ${open ? '-rotate-45 -translate-y-1.5' : ''}`} />
+              </div>
+            </button>
+          </div>
         </div>
 
         {/* Mobile menu */}

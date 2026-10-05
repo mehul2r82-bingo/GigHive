@@ -12,7 +12,7 @@ import secrets
 import os
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
-from core.models import Payment, Task, TaskState, TaskType
+from core.models import Payment, Task, TaskState, TaskType, Notification
 from .serializers import (
     TaskSerializer,
     TaskPublishSerializer,
@@ -22,8 +22,9 @@ from .serializers import (
     UserProfileSerializer,
     TaskCompleteSerializer,
     TaskRevisionSerializer,
-    
+    NotificationSerializer,
 )
+from core.notifications import send_user_notification, broadcast_push_notification
 
 class TaskListView(generics.ListCreateAPIView):
     queryset = Task.objects.all()
@@ -103,6 +104,13 @@ class TaskAcceptView(generics.GenericAPIView):
 
         try:
             serializer.save()
+            task.refresh_from_db()
+            send_user_notification(
+                user=task.giver,
+                title="🤝 Task Accepted",
+                message=f"@{request.user.username} accepted your task '{task.title}'.",
+                url=f"/my-tasks"
+            )
         except ValidationError as e:
             return Response(
                 {"detail": str(e.detail[0])},
@@ -133,6 +141,14 @@ class TaskSubmitView(generics.GenericAPIView):
 
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        task.refresh_from_db()
+
+        send_user_notification(
+            user=task.giver,
+            title="📤 Work Submitted",
+            message=f"@{request.user.username} submitted work for '{task.title}'. Tap to review.",
+            url=f"/my-tasks"
+        )
 
         return Response(
             {"detail": "Task submitted for review."},
@@ -171,6 +187,20 @@ class TaskCompleteView(generics.GenericAPIView):
             f"Action required: Pay the tasker."
         )
 
+        if task.taker:
+            send_user_notification(
+                user=task.taker,
+                title="🎉 Work Approved!",
+                message=f"@{task.giver.username} approved your work on '{task.title}'. Payout is queued!",
+                url=f"/my-tasks"
+            )
+        send_user_notification(
+            user=task.giver,
+            title="✅ Task Completed",
+            message=f"'{task.title}' has been successfully completed. Thanks for using GigHive!",
+            url=f"/my-tasks"
+        )
+
         return Response(
             {"detail": "Task completed successfully."},
             status=status.HTTP_200_OK,
@@ -194,6 +224,15 @@ class TaskRevisionView(generics.GenericAPIView):
 
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        task.refresh_from_db()
+
+        if task.taker:
+            send_user_notification(
+                user=task.taker,
+                title="⚠️ Changes Requested",
+                message=f"Giver requested revisions on '{task.title}': {task.revision_note}",
+                url=f"/my-tasks"
+            )
 
         return Response(
             {"detail": "Revision request sent."},
@@ -218,6 +257,22 @@ class TaskCancelView(generics.GenericAPIView):
 
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        task.refresh_from_db()
+
+        if request.user == task.giver and task.taker:
+            send_user_notification(
+                user=task.taker,
+                title="❌ Task Cancelled",
+                message=f"Giver cancelled '{task.title}'. Your token is safe.",
+                url=f"/my-tasks"
+            )
+        elif request.user == task.taker:
+            send_user_notification(
+                user=task.giver,
+                title="⚠️ Taker Dropped Task",
+                message=f"Taker dropped '{task.title}'. The task has been reopened.",
+                url=f"/my-tasks"
+            )
 
         return Response(
             {"detail": "Task cancelled successfully."},
@@ -283,6 +338,21 @@ class PaymentVerifyView(generics.GenericAPIView):
         task.published_at = timezone.now()
         task.save(update_fields=["state", "published_at", "updated_at"])
 
+        # Notify giver
+        send_user_notification(
+            user=task.giver,
+            title="✅ Payment Confirmed",
+            message=f"Your task '{task.title}' is now live on the marketplace.",
+            url=f"/task/{task.id}"
+        )
+
+        # Broadcast fresh gig alert to all students
+        broadcast_push_notification(
+            title="⚡ Fresh Gig Alert!",
+            message=f"New task '{task.title}' (₹{task.price}) is live. Be the first to claim it!",
+            url=f"/task/{task.id}"
+        )
+
         return Response(
             {"detail": "Payment verified. Task is now open."},
             status=status.HTTP_200_OK,
@@ -306,6 +376,20 @@ class PaymentPayoutView(generics.GenericAPIView):
 
         payment.status = Payment.Status.PAID_OUT
         payment.save(update_fields=["status"])
+
+        if task.taker:
+            send_user_notification(
+                user=task.taker,
+                title="💰 Payment Released!",
+                message=f"₹{payment.amount} for '{task.title}' has been transferred to your registered UPI ID.",
+                url=f"/my-tasks"
+            )
+        send_user_notification(
+            user=task.giver,
+            title="✅ Payout Sent",
+            message=f"Payout of ₹{payment.amount} has been processed for task '{task.title}'.",
+            url=f"/my-tasks"
+        )
 
         return Response(
             {"detail": "Payment released to tasker."},
@@ -498,3 +582,33 @@ def fail_expired_tasks_api(request):
         "processed": processed,
         "checked_at": now.isoformat(),
     })
+
+
+class NotificationListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        notifications = Notification.objects.filter(user=request.user)[:30]
+        serializer = NotificationSerializer(notifications, many=True)
+        unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
+        return Response({
+            "unread_count": unread_count,
+            "notifications": serializer.data
+        })
+
+
+class NotificationMarkReadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        notification_id = request.data.get("id")
+        if notification_id:
+            Notification.objects.filter(user=request.user, id=notification_id).update(is_read=True)
+        else:
+            Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+
+        unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
+        return Response({
+            "detail": "Marked as read",
+            "unread_count": unread_count
+        })

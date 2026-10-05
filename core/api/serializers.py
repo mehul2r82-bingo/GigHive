@@ -4,7 +4,7 @@ from rest_framework.exceptions import PermissionDenied
 from django.db import transaction
 from django.utils import timezone
 from django.contrib.auth.models import User
-from core.models import Payment, Task, TaskState
+from core.models import Payment, Task, TaskState, Notification
 from core.models import UserProfile
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -420,4 +420,17 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "fast_tasks_counter",
             "is_gold_patron",
             "badge_type",
+        ]
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = [
+            "id",
+            "title",
+            "message",
+            "url",
+            "is_read",
+            "created_at",
         ]
