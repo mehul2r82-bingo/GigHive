@@ -102,18 +102,18 @@ export default function Navbar() {
             {/* Left: Brand + Token Balance */}
             <div className="flex items-center gap-3 sm:gap-4">
               <Link href="/" className="flex items-center gap-2 group">
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:border-white/40 transition-all">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path
                       d="M12 4 L19 8 V16 L12 20 L5 16 V8 Z"
-                      stroke="#FBBF24"
+                      stroke="white"
                       strokeWidth="2"
                       strokeLinejoin="round"
                     />
-                    <circle cx="12" cy="12" r="2.5" fill="#FBBF24" />
+                    <circle cx="12" cy="12" r="2.5" fill="white" />
                   </svg>
                 </div>
-                <span className="font-mono font-bold text-white tracking-wider text-base sm:text-lg group-hover:text-amber-400 transition-colors">
+                <span className="font-mono font-bold text-white tracking-wider text-base sm:text-lg group-hover:text-zinc-300 transition-colors">
                   GigHive
                 </span>
               </Link>

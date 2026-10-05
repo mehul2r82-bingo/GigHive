@@ -100,19 +100,14 @@ return (
           those changes belong in that navbar component, not here. */}
 
       {/* HERO */}
-      <section className="max-w-3xl mx-auto px-6 pt-28 pb-10 sm:pt-40 sm:pb-14 text-center animate-hero">
+      <section className="max-w-3xl mx-auto px-6 pt-16 pb-8 sm:pt-24 sm:pb-12 text-center animate-hero">
 
-        <h1 className="text-[60px] sm:text-[68px] leading-[1.05] font-bold tracking-tight mb-6">
-          GigHive
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight mb-4">
+          Too lazy to do your assignment? Too broke to say no?
         </h1>
 
-        <p className="text-[32px] sm:text-[38px] font-semibold tracking-tight mb-6">
-          Complete campus tasks. Earn with trust.
-        </p>
-
-        <p className="text-[18px] text-zinc-400 font-normal max-w-xl mx-auto leading-relaxed">
-          Connect with students, complete verified gigs, and get paid securely
-          through GigHive&apos;s escrow system.
+        <p className="text-base sm:text-lg text-zinc-400 font-normal max-w-xl mx-auto leading-relaxed">
+          Pay a classmate to save your grades, or finish their work and fund your canteen cravings. 100% escrow protected.
         </p>
 
         {!isAuthenticated && (
