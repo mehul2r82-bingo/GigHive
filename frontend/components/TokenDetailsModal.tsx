@@ -139,7 +139,7 @@ export default function TokenDetailsModal({
             <p className="text-xs text-zinc-300 leading-relaxed mb-3">
               {nextChallenge?.note ||
                 (targetToken === 3
-                  ? "Post a gig AND complete a gig on the SAME DAY to unlock Token #3."
+                  ? "Post any gig (just publish, it doesn't need to be finished today) AND complete an accepted gig as solver on the SAME DAY."
                   : "Complete your campus gig milestones to unlock your next token.")}
             </p>
 
@@ -156,48 +156,54 @@ export default function TokenDetailsModal({
 
                 <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-1">
                   <div
-                    className={`flex items-center gap-2 p-2 rounded-lg border ${
+                    className={`flex items-start gap-2 p-2 rounded-lg border ${
                       todayPosted
                         ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
                         : 'border-white/10 bg-white/[0.02] text-zinc-400'
                     }`}
                   >
                     <div
-                      className={`w-4 h-4 rounded flex items-center justify-center shrink-0 ${
+                      className={`w-4 h-4 rounded flex items-center justify-center shrink-0 mt-0.5 ${
                         todayPosted ? 'bg-emerald-500 text-black' : 'border border-zinc-600'
                       }`}
                     >
                       {todayPosted && <Check size={11} className="stroke-[3]" />}
                     </div>
-                    <span className="text-[11px]">1. Post a Gig</span>
+                    <div>
+                      <span className="text-[11px] font-bold block">1. Post a Gig</span>
+                      <span className="text-[9px] text-zinc-400 font-sans block leading-tight">Just post it — no need to finish today</span>
+                    </div>
                   </div>
 
                   <div
-                    className={`flex items-center gap-2 p-2 rounded-lg border ${
+                    className={`flex items-start gap-2 p-2 rounded-lg border ${
                       todayCompleted
                         ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
                         : 'border-white/10 bg-white/[0.02] text-zinc-400'
                     }`}
                   >
                     <div
-                      className={`w-4 h-4 rounded flex items-center justify-center shrink-0 ${
+                      className={`w-4 h-4 rounded flex items-center justify-center shrink-0 mt-0.5 ${
                         todayCompleted ? 'bg-emerald-500 text-black' : 'border border-zinc-600'
                       }`}
                     >
                       {todayCompleted && <Check size={11} className="stroke-[3]" />}
                     </div>
-                    <span className="text-[11px]">2. Solve a Gig</span>
+                    <div>
+                      <span className="text-[11px] font-bold block">2. Solve a Gig</span>
+                      <span className="text-[9px] text-zinc-400 font-sans block leading-tight">Must complete an accepted gig today</span>
+                    </div>
                   </div>
                 </div>
 
                 <p className="text-[10px] text-zinc-400 leading-tight">
                   {todayPosted && todayCompleted
-                    ? "Both complete today! Your 3rd token is synced."
+                    ? "Both complete today! Your 3rd token is unlocked."
                     : todayPosted
-                    ? "You posted today! Now complete 1 gig before midnight to unlock Token #3."
+                    ? "Gig posted! Now finish solving an accepted gig before 12:00 AM."
                     : todayCompleted
-                    ? "You solved a gig today! Now post 1 gig before midnight to unlock Token #3."
-                    : "Both actions must be completed on the same calendar day."}
+                    ? "Gig solved! Now publish any gig before 12:00 AM to unlock Token #3."
+                    : "Post any gig + complete an accepted gig before 12:00 AM."}
                 </p>
               </div>
             )}
@@ -291,7 +297,7 @@ export default function TokenDetailsModal({
                       Hustler Dual
                       <Zap size={11} className={totalTokens >= 3 ? 'text-indigo-400' : 'text-zinc-600'} />
                     </p>
-                    <p className="text-[10px] text-zinc-500">Post & Complete a gig on the SAME DAY</p>
+                    <p className="text-[10px] text-zinc-500">Post a gig + complete an accepted gig on the SAME DAY</p>
                   </div>
                 </div>
                 <span className={`text-[10px] font-bold ${totalTokens >= 3 ? 'text-emerald-400' : 'text-zinc-600'}`}>

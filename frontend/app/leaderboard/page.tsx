@@ -181,7 +181,7 @@ export default function LeaderboardPage() {
                   target_token: 3,
                   tier: 'HUSTLER',
                   title: 'Same-Day Dual Hustle',
-                  note: 'Complete the 24-Hour Dual Mover Challenge: You must both POST a gig and COMPLETE a gig on the SAME DAY.',
+                  note: 'Same-Day Dual Challenge: Post any gig (no need to be finished today) AND complete an accepted gig as solver on the SAME DAY.',
                   reward: '+1 Commitment Token (Hustler Tier)',
                 }
               : selectedEntry.tokens === 3
