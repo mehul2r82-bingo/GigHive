@@ -248,9 +248,10 @@ class UserProfile(models.Model):
         has_take = self.tasks_completed_count > 0 or self.user.tasks_as_taker.exists()
         if has_post or has_take:
             target = max(target, 2)
-        has_comp_post = self.tasks_posted_count > 0 or self.user.tasks_as_giver.filter(state="COMPLETED").exists()
-        has_comp_take = self.tasks_completed_count > 0 or self.user.tasks_as_taker.filter(state="COMPLETED").exists()
-        if has_comp_post and has_comp_take:
+        # Token 3 Challenge: MUST both post a gig AND complete a gig on the SAME DAY!
+        giver_dates = set(self.user.tasks_as_giver.values_list("created_at__date", flat=True))
+        taker_comp_dates = set(self.user.tasks_as_taker.filter(state="COMPLETED").values_list("updated_at__date", flat=True))
+        if bool(giver_dates & taker_comp_dates):
             target = max(target, 3)
         if getattr(self, "referral_count", 0) > 0 or (self.tasks_completed_count + self.tasks_posted_count >= 3):
             target = max(target, 4)

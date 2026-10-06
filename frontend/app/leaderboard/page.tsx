@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Trophy, Coins, CheckCircle, ShieldCheck, Sparkles, Crown } from 'lucide-react';
 import API from '@/services/api';
 import GamificationBadge, { BadgeType } from '@/components/GamificationBadge';
+import TokenDetailsModal from '@/components/TokenDetailsModal';
 
 interface LeaderboardEntry {
   rank: number;
@@ -29,6 +30,7 @@ const DEFAULT_LEADERBOARD: LeaderboardEntry[] = [
 export default function LeaderboardPage() {
   const [entries, setEntries] = useState<LeaderboardEntry[]>(DEFAULT_LEADERBOARD);
   const [loading, setLoading] = useState(true);
+  const [selectedEntry, setSelectedEntry] = useState<LeaderboardEntry | null>(null);
 
   useEffect(() => {
     API.get<any>('/leaderboard/')
@@ -130,21 +132,24 @@ export default function LeaderboardPage() {
 
                 {/* Right: Tokens Display */}
                 <div className="shrink-0 flex items-center gap-2">
-                  <div
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-mono text-xs font-bold ${
+                  <button
+                    type="button"
+                    onClick={() => setSelectedEntry(entry)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all duration-200 cursor-pointer active:scale-95 hover:scale-105 ${
                       entry.tokens >= 5
-                        ? 'bg-amber-500/10 text-amber-300 border-amber-400/40 shadow-[0_0_12px_rgba(245,158,11,0.2)]'
+                        ? 'bg-amber-500/10 text-amber-300 border-amber-400/40 shadow-[0_0_12px_rgba(245,158,11,0.2)] hover:border-amber-400'
                         : entry.tokens >= 3
-                        ? 'bg-indigo-500/10 text-indigo-200 border-indigo-500/30'
-                        : 'bg-white/5 text-zinc-300 border-white/10'
+                        ? 'bg-indigo-500/10 text-indigo-200 border-indigo-500/30 hover:border-indigo-400'
+                        : 'bg-white/5 text-zinc-300 border-white/10 hover:border-white/30'
                     }`}
+                    title="Click to view token details & challenge note"
                   >
                     <Coins size={13} className={entry.tokens >= 5 ? 'text-amber-400' : 'text-indigo-400'} />
                     <span>{entry.tokens}</span>
                     <span className="text-[10px] text-zinc-400 font-sans font-normal hidden sm:inline">
                       {entry.tokens === 1 ? 'Token' : 'Tokens'}
                     </span>
-                  </div>
+                  </button>
                 </div>
               </div>
             );
@@ -152,6 +157,59 @@ export default function LeaderboardPage() {
         </div>
 
       </div>
+
+      {selectedEntry && (
+        <TokenDetailsModal
+          isOpen={Boolean(selectedEntry)}
+          onClose={() => setSelectedEntry(null)}
+          totalTokens={selectedEntry.tokens}
+          availableTokens={selectedEntry.tokens}
+          lockedTokens={0}
+          badgeType={selectedEntry.badge_type}
+          totalVolume={selectedEntry.total_volume || 0}
+          nextChallenge={
+            selectedEntry.tokens === 1
+              ? {
+                  target_token: 2,
+                  tier: 'ACTIVE',
+                  title: 'First Action on Campus',
+                  note: 'Post a 1st gig or accept a 1st gig to unlock Token #2.',
+                  reward: '+1 Commitment Token (Active Tier)',
+                }
+              : selectedEntry.tokens === 2
+              ? {
+                  target_token: 3,
+                  tier: 'HUSTLER',
+                  title: 'Same-Day Dual Hustle',
+                  note: 'Complete the 24-Hour Dual Mover Challenge: You must both POST a gig and COMPLETE a gig on the SAME DAY.',
+                  reward: '+1 Commitment Token (Hustler Tier)',
+                }
+              : selectedEntry.tokens === 3
+              ? {
+                  target_token: 4,
+                  tier: 'RECRUITER',
+                  title: 'Campus Recruiter',
+                  note: 'Refer a classmate who posts their first gig on GigHive.',
+                  reward: '+1 Commitment Token (Recruiter Tier)',
+                }
+              : selectedEntry.tokens === 4
+              ? {
+                  target_token: 5,
+                  tier: 'MASTER',
+                  title: 'Campus Master Milestone (₹250)',
+                  note: `Reach ₹250 Total Campus Volume (Earned + Spent). Current: ₹${selectedEntry.total_volume || 0}/₹250.`,
+                  reward: '5th Golden Token + Free Homework Pass (₹100) + Bounty Booster (+₹50)',
+                }
+              : {
+                  target_token: 5,
+                  tier: 'MASTER',
+                  title: 'Master Status Achieved 👑',
+                  note: 'Maximum 5 tokens unlocked. Free Homework Pass & Bounty Booster perks active!',
+                  reward: 'All Master Perks Active',
+                }
+          }
+        />
+      )}
     </main>
   );
 }

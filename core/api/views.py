@@ -470,14 +470,77 @@ class TokenAccountView(generics.GenericAPIView):
     def get(self, request):
         request.user.profile.sync_tokens()
         token_account = request.user.token_account
-
         profile = request.user.profile
+
+        from django.utils import timezone
+        today = timezone.localdate()
+        today_posted = request.user.tasks_as_giver.filter(created_at__date=today).exists()
+        today_completed = request.user.tasks_as_taker.filter(state="COMPLETED", updated_at__date=today).exists()
+
+        tokens = token_account.total_tokens
+        if tokens <= 1:
+            next_challenge = {
+                "target_token": 2,
+                "tier": "ACTIVE",
+                "title": "First Action on Campus",
+                "note": "Post your first gig or accept an open gig to earn your second commitment token.",
+                "reward": "+1 Commitment Token (Active Tier)",
+                "action_url": "/create-task",
+                "action_label": "Post a Gig",
+            }
+        elif tokens == 2:
+            next_challenge = {
+                "target_token": 3,
+                "tier": "HUSTLER",
+                "title": "Same-Day Dual Hustle",
+                "note": "Complete the 24-Hour Dual Mover Challenge: You must both POST a gig and COMPLETE a gig on the SAME DAY.",
+                "reward": "+1 Commitment Token (Hustler Tier)",
+                "today_posted": today_posted,
+                "today_completed": today_completed,
+                "action_url": "/" if today_posted else "/create-task",
+                "action_label": "Solve Gigs" if today_posted else "Post a Gig",
+            }
+        elif tokens == 3:
+            next_challenge = {
+                "target_token": 4,
+                "tier": "RECRUITER",
+                "title": "Campus Recruiter",
+                "note": "Invite or refer a classmate who creates their first gig on GigHive.",
+                "reward": "+1 Commitment Token (Recruiter Tier)",
+                "action_url": "/",
+                "action_label": "Invite Classmates",
+            }
+        elif tokens == 4:
+            rem = max(0, 250 - profile.total_volume)
+            next_challenge = {
+                "target_token": 5,
+                "tier": "MASTER",
+                "title": "Campus Master Milestone (₹250)",
+                "note": f"Reach ₹250 Total Campus Volume (Earned + Spent). You are at ₹{profile.total_volume}/₹250 (₹{rem} to go).",
+                "reward": "5th Golden Token + Free Homework Pass (₹100) + Bounty Booster (+₹50)",
+                "action_url": "/",
+                "action_label": "Trade Gigs",
+            }
+        else:
+            next_challenge = {
+                "target_token": 5,
+                "tier": "MASTER",
+                "title": "Master Tier Achieved 👑",
+                "note": "You have unlocked the maximum 5 tokens and all elite campus perks are active!",
+                "reward": "Free Homework Pass (₹100) & Bounty Booster (+₹50) Active",
+                "action_url": "/leaderboard",
+                "action_label": "View Leaderboard",
+            }
+
         return Response({
             "total_tokens": token_account.total_tokens,
             "available_tokens": token_account.available_tokens,
             "locked_tokens": token_account.locked_tokens,
             "badge_type": profile.badge_type,
             "total_volume": profile.total_volume,
+            "today_posted": today_posted,
+            "today_completed": today_completed,
+            "next_challenge": next_challenge,
         })        
         
 class TaskTypeListView(generics.GenericAPIView):
