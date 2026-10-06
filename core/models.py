@@ -78,7 +78,7 @@ class TokenAccount(models.Model):
         related_name="token_account",
     )
 
-    total_tokens = models.PositiveSmallIntegerField(default=2)
+    total_tokens = models.PositiveSmallIntegerField(default=1)
     locked_tokens = models.PositiveSmallIntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -155,6 +155,7 @@ class TokenAccount(models.Model):
 
         self.total_tokens += n
         self.assert_invariants()
+        self.save(update_fields=["total_tokens", "updated_at"])
 
     def debit(self, n=1):
         if n <= 0:
@@ -220,15 +221,50 @@ class UserProfile(models.Model):
 
     @property
     def badge_type(self):
-        if self.tasks_posted_count >= 5:
-            return "GOLD_PATRON"
-        if self.speed_streak >= 3:
-            return "SPEED_DEMON"
-        if self.speed_streak >= 1:
-            return "FAST_RESPONDER"
-        if self.tasks_completed_count >= 1:
-            return "VERIFIED_RUNNER"
-        return None
+        tokens = getattr(self.user.token_account, "total_tokens", 1) if hasattr(self.user, "token_account") else 1
+        if tokens >= 5:
+            return "MASTER"
+        if tokens == 4:
+            return "RECRUITER"
+        if tokens == 3:
+            return "HUSTLER"
+        if tokens == 2:
+            return "ACTIVE"
+        return "ROOKIE"
+    @property
+    def total_volume(self):
+        from django.db.models import Sum
+        earned = self.user.tasks_as_taker.filter(state="COMPLETED").aggregate(s=Sum("price"))["s"] or 0
+        spent = self.user.tasks_as_giver.filter(state="COMPLETED").aggregate(s=Sum("price"))["s"] or 0
+        return int(earned + spent)
+
+    def sync_tokens(self):
+        account = getattr(self.user, "token_account", None)
+        if not account:
+            return 0
+        current = account.total_tokens
+        target = 1
+        has_post = self.tasks_posted_count > 0 or self.user.tasks_as_giver.exists()
+        has_take = self.tasks_completed_count > 0 or self.user.tasks_as_taker.exists()
+        if has_post or has_take:
+            target = max(target, 2)
+        has_comp_post = self.tasks_posted_count > 0 or self.user.tasks_as_giver.filter(state="COMPLETED").exists()
+        has_comp_take = self.tasks_completed_count > 0 or self.user.tasks_as_taker.filter(state="COMPLETED").exists()
+        if has_comp_post and has_comp_take:
+            target = max(target, 3)
+        if getattr(self, "referral_count", 0) > 0 or (self.tasks_completed_count + self.tasks_posted_count >= 3):
+            target = max(target, 4)
+        if self.total_volume >= 250:
+            target = max(target, 5)
+        if target > current:
+            account.total_tokens = target
+            account.save(update_fields=["total_tokens", "updated_at"])
+            return target - current
+        return 0
+
+
+
+
 
     college_verified = models.BooleanField(default=False)
 

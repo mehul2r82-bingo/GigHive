@@ -15,10 +15,13 @@ import {
   Coins, 
   X,
   ChevronRight,
-  ShieldCheck
+  ShieldCheck,
+  Zap,
+  Crown
 } from 'lucide-react';
 import API from '../services/api';
 import NotificationBell from './NotificationBell';
+import GamificationBadge from './GamificationBadge';
 
 const NAV_DESKTOP = [
   { href: '/', label: 'MARKETPLACE' },
@@ -37,6 +40,9 @@ export default function Navbar() {
   const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
   const [availableTokens, setAvailableTokens] = useState<number | null>(null);
   const [lockedTokens, setLockedTokens] = useState<number | null>(null);
+  const [totalTokens, setTotalTokens] = useState<number | null>(null);
+  const [badgeType, setBadgeType] = useState<string | null>(null);
+  const [totalVolume, setTotalVolume] = useState<number | null>(null);
   const tokenRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -50,6 +56,9 @@ export default function Navbar() {
     if (!isAuthenticated) {
       setAvailableTokens(null);
       setLockedTokens(null);
+      setTotalTokens(null);
+      setBadgeType(null);
+      setTotalVolume(null);
       return;
     }
 
@@ -58,6 +67,9 @@ export default function Navbar() {
         const res = await API.get('/token-account/');
         setAvailableTokens(res.data.available_tokens);
         setLockedTokens(res.data.locked_tokens);
+        setTotalTokens(res.data.total_tokens);
+        setBadgeType(res.data.badge_type || 'ROOKIE');
+        setTotalVolume(res.data.total_volume || 0);
       } catch (err) {
         console.error('Failed to load token balance:', err);
       }
@@ -139,26 +151,96 @@ export default function Navbar() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -5, scale: 0.96 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute left-0 top-full mt-2 w-60 rounded-2xl border border-white/10 bg-[#121217]/95 backdrop-blur-xl shadow-2xl p-3 z-50"
+                        className="absolute left-0 top-full mt-2 w-72 sm:w-80 rounded-2xl border border-white/10 bg-[#121217]/95 backdrop-blur-xl shadow-2xl p-4 z-50 text-left"
                       >
-                        <div className="flex items-center gap-2 pb-2.5 mb-2.5 border-b border-white/10">
-                          <Coins size={16} className="text-purple-400" />
-                          <div>
-                            <p className="text-xs font-bold text-white">Commitment Tokens</p>
-                            <p className="text-[10px] text-zinc-400">Tokens protect accepted gigs</p>
+                        {/* Header with Badge */}
+                        <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
+                          <div className="flex items-center gap-2">
+                            <Coins size={16} className="text-indigo-400" />
+                            <div>
+                              <p className="text-xs font-bold text-white">Commitment Tokens</p>
+                              <p className="text-[10px] text-zinc-400 font-mono">{totalTokens ?? 1}/5 Tokens Claimed</p>
+                            </div>
+                          </div>
+                          {badgeType && <GamificationBadge type={badgeType} size="sm" />}
+                        </div>
+
+                        {/* Available vs Locked */}
+                        <div className="grid grid-cols-2 gap-2 mb-3">
+                          <div className="bg-white/[0.03] border border-white/5 rounded-xl p-2 text-center">
+                            <span className="text-[10px] text-zinc-400 font-mono block">Available</span>
+                            <span className="text-emerald-400 font-bold font-mono text-sm">{availableTokens ?? 0}</span>
+                          </div>
+                          <div className="bg-white/[0.03] border border-white/5 rounded-xl p-2 text-center">
+                            <span className="text-[10px] text-zinc-400 font-mono block">Locked</span>
+                            <span className="text-purple-300 font-bold font-mono text-sm">{lockedTokens ?? 0}</span>
                           </div>
                         </div>
 
-                        <div className="space-y-1.5 text-xs font-mono">
-                          <div className="flex justify-between items-center py-1">
-                            <span className="text-zinc-400">Available:</span>
-                            <span className="text-emerald-400 font-bold">{availableTokens ?? '—'}</span>
+                        {/* Progression Roadmap */}
+                        <div className="space-y-1 mb-3 text-[11px] font-mono border-t border-white/5 pt-2.5">
+                          <p className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider font-sans mb-1.5">
+                            5-Token Roadmap
+                          </p>
+                          <div className={`flex items-center justify-between px-2 py-1 rounded-lg ${(totalTokens ?? 1) >= 1 ? 'bg-white/[0.05] text-zinc-200' : 'text-zinc-600'}`}>
+                            <span className="flex items-center gap-1.5">
+                              <span className={`w-1.5 h-1.5 rounded-full ${(totalTokens ?? 1) >= 1 ? 'bg-zinc-400' : 'bg-zinc-700'}`} />
+                              1. Rookie Starter
+                            </span>
+                            <span className="text-[10px]">Unlocked</span>
                           </div>
-                          <div className="flex justify-between items-center py-1">
-                            <span className="text-zinc-400">Locked in Gigs:</span>
-                            <span className="text-purple-300 font-bold">{lockedTokens ?? '—'}</span>
+                          <div className={`flex items-center justify-between px-2 py-1 rounded-lg ${(totalTokens ?? 1) >= 2 ? 'bg-white/[0.05] text-slate-200' : 'text-zinc-600'}`}>
+                            <span className="flex items-center gap-1.5">
+                              <span className={`w-1.5 h-1.5 rounded-full ${(totalTokens ?? 1) >= 2 ? 'bg-slate-400' : 'bg-zinc-700'}`} />
+                              2. Active Mover
+                            </span>
+                            <span className="text-[10px]">1st Action</span>
+                          </div>
+                          <div className={`flex items-center justify-between px-2 py-1 rounded-lg ${(totalTokens ?? 1) >= 3 ? 'bg-indigo-950/40 text-indigo-300' : 'text-zinc-600'}`}>
+                            <span className="flex items-center gap-1.5">
+                              <span className={`w-1.5 h-1.5 rounded-full ${(totalTokens ?? 1) >= 3 ? 'bg-indigo-400' : 'bg-zinc-700'}`} />
+                              3. Hustler Dual
+                            </span>
+                            <span className="text-[10px]">Post + Solve</span>
+                          </div>
+                          <div className={`flex items-center justify-between px-2 py-1 rounded-lg ${(totalTokens ?? 1) >= 4 ? 'bg-purple-950/40 text-purple-300' : 'text-zinc-600'}`}>
+                            <span className="flex items-center gap-1.5">
+                              <span className={`w-1.5 h-1.5 rounded-full ${(totalTokens ?? 1) >= 4 ? 'bg-purple-400' : 'bg-zinc-700'}`} />
+                              4. Recruiter
+                            </span>
+                            <span className="text-[10px]">Referral</span>
+                          </div>
+                          <div className={`flex items-center justify-between px-2 py-1 rounded-lg ${(totalTokens ?? 1) >= 5 ? 'bg-amber-950/40 text-amber-300 border border-amber-500/30' : 'text-zinc-600'}`}>
+                            <span className="flex items-center gap-1.5">
+                              <Crown size={11} className={(totalTokens ?? 1) >= 5 ? 'text-amber-400' : 'text-zinc-700'} />
+                              5. Campus Master
+                            </span>
+                            <span className="text-[10px] text-amber-400 font-bold">₹250 Vol</span>
                           </div>
                         </div>
+
+                        {/* Campus Volume Progress towards ₹250 */}
+                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-2.5 mb-2.5">
+                          <div className="flex justify-between items-center text-[10px] font-mono mb-1.5">
+                            <span className="text-zinc-400">Campus Volume</span>
+                            <span className="text-amber-400 font-bold">₹{totalVolume ?? 0} / ₹250</span>
+                          </div>
+                          <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-indigo-500 to-amber-400 rounded-full transition-all duration-500"
+                              style={{ width: `${Math.min(100, Math.round(((totalVolume ?? 0) / 250) * 100))}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        <Link
+                          href="/leaderboard"
+                          onClick={() => setTokenOpen(false)}
+                          className="flex items-center justify-between w-full py-1.5 px-2 rounded-lg text-[11px] font-semibold text-indigo-400 hover:bg-indigo-500/10 transition-colors"
+                        >
+                          <span>View Campus Leaderboard</span>
+                          <ChevronRight size={13} />
+                        </Link>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -355,8 +437,11 @@ export default function Navbar() {
                     {user?.name ? user.name[0] : 'U'}
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-white">{user?.name || 'Student'}</p>
-                    <p className="text-xs text-zinc-400">LPU Campus Member</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-bold text-white">{user?.name || 'Student'}</p>
+                      {badgeType && <GamificationBadge type={badgeType} size="sm" />}
+                    </div>
+                    <p className="text-xs text-zinc-400 font-mono">LPU · {totalTokens ?? 1}/5 Tokens</p>
                   </div>
                 </div>
 

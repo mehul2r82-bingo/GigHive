@@ -32,14 +32,15 @@ class TaskListView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-     task = serializer.save(giver=self.request.user)
+        task = serializer.save(giver=self.request.user)
 
-     Payment.objects.create(
-        task=task,
-        payer=self.request.user,
-        amount=task.price,
-        status=Payment.Status.PENDING
-    )
+        Payment.objects.create(
+            task=task,
+            payer=self.request.user,
+            amount=task.price,
+            status=Payment.Status.PENDING
+        )
+        self.request.user.profile.sync_tokens()
 
     def get_queryset(self):
         return (
@@ -105,6 +106,7 @@ class TaskAcceptView(generics.GenericAPIView):
         try:
             serializer.save()
             task.refresh_from_db()
+            request.user.profile.sync_tokens()
             send_user_notification(
                 user=task.giver,
                 title="🤝 Task Accepted",
@@ -123,8 +125,15 @@ class TaskAcceptView(generics.GenericAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        profile = request.user.profile
+        account = getattr(request.user, "token_account", None)
         return Response(
-            {"detail": "Task accepted successfully."},
+            {
+                "detail": "Task accepted successfully.",
+                "total_tokens": account.total_tokens if account else 1,
+                "badge_type": profile.badge_type,
+                "total_volume": profile.total_volume,
+            },
             status=status.HTTP_200_OK,
         )
 
@@ -181,6 +190,9 @@ class TaskCompleteView(generics.GenericAPIView):
         serializer.save()
 
         task.refresh_from_db()
+        task.giver.profile.sync_tokens()
+        if task.taker:
+            task.taker.profile.sync_tokens()
 
         send_telegram_message(
             f"💰 GigHive — Payout Required\n\n"
@@ -207,8 +219,15 @@ class TaskCompleteView(generics.GenericAPIView):
             url=f"/my-tasks"
         )
 
+        profile = request.user.profile
+        account = getattr(request.user, "token_account", None)
         return Response(
-            {"detail": "Task completed successfully."},
+            {
+                "detail": "Task completed successfully.",
+                "total_tokens": account.total_tokens if account else 1,
+                "badge_type": profile.badge_type,
+                "total_volume": profile.total_volume,
+            },
             status=status.HTTP_200_OK,
         )       
 
@@ -429,9 +448,10 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        return self.request.user.profile  
-    
-    
+        profile = self.request.user.profile
+        profile.sync_tokens()
+        return profile
+
 
 class MyTasksView(generics.ListAPIView):
     serializer_class = TaskSerializer
@@ -448,11 +468,16 @@ class TokenAccountView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        request.user.profile.sync_tokens()
         token_account = request.user.token_account
 
+        profile = request.user.profile
         return Response({
+            "total_tokens": token_account.total_tokens,
             "available_tokens": token_account.available_tokens,
             "locked_tokens": token_account.locked_tokens,
+            "badge_type": profile.badge_type,
+            "total_volume": profile.total_volume,
         })        
         
 class TaskTypeListView(generics.GenericAPIView):
@@ -478,70 +503,33 @@ class LeaderboardView(APIView):
     def get(self, request):
         from core.models import UserProfile
 
-        taker_qs = (
-            UserProfile.objects.filter(
-                Q(tasks_completed_count__gt=0) | Q(speed_streak__gt=0) | Q(fast_tasks_counter__gt=0)
-            )
-            .select_related("user")
-            .order_by("-speed_streak", "-fast_tasks_counter", "-tasks_completed_count")[:25]
+        profiles = (
+            UserProfile.objects.select_related("user", "user__token_account")
+            .filter(user__is_active=True)
+            .order_by("-user__token_account__total_tokens", "-tasks_completed_count", "-tasks_posted_count")[:35]
         )
 
-        speed_runners = []
-        for idx, profile in enumerate(taker_qs, start=1):
+        leaderboard = []
+        for idx, profile in enumerate(profiles, start=1):
+            tokens = profile.user.token_account.total_tokens if hasattr(profile.user, "token_account") else 1
             reg = profile.registration_number or ""
-            masked_reg = f"{reg[:4]}****" if len(reg) >= 4 else (reg if reg else "Verified")
+            masked_reg = f"{reg[:4]}****" if len(reg) >= 4 else (reg if reg else "LPU Student")
 
-            if profile.speed_streak >= 3:
-                badge = "SPEED_DEMON"
-            elif profile.speed_streak >= 1:
-                badge = "FAST_RESPONDER"
-            elif profile.tasks_completed_count >= 1:
-                badge = "VERIFIED_RUNNER"
-            else:
-                badge = None
-
-            speed_runners.append({
+            leaderboard.append({
                 "rank": idx,
                 "username": profile.user.username,
                 "reg_no": masked_reg,
-                "speed_streak": profile.speed_streak,
-                "fast_tasks": profile.fast_tasks_counter,
+                "tokens": tokens,
+                "badge_type": profile.badge_type,
                 "tasks_completed": profile.tasks_completed_count,
-                "badge_type": badge,
-            })
-
-        giver_qs = (
-            UserProfile.objects.filter(tasks_posted_count__gt=0)
-            .select_related("user")
-            .order_by("-tasks_posted_count")[:25]
-        )
-
-        gold_patrons = []
-        for idx, profile in enumerate(giver_qs, start=1):
-            reg = profile.registration_number or ""
-            masked_reg = f"{reg[:4]}****" if len(reg) >= 4 else (reg if reg else "Verified")
-
-            if profile.tasks_posted_count >= 5:
-                badge = "GOLD_PATRON"
-            elif profile.tasks_posted_count >= 3:
-                badge = "SILVER_PATRON"
-            elif profile.tasks_posted_count >= 1:
-                badge = "BRONZE_PATRON"
-            else:
-                badge = None
-
-            gold_patrons.append({
-                "rank": idx,
-                "username": profile.user.username,
-                "reg_no": masked_reg,
                 "tasks_posted": profile.tasks_posted_count,
-                "is_gold_patron": profile.is_gold_patron,
-                "badge_type": badge,
+                "total_volume": profile.total_volume,
             })
 
         return Response({
-            "speed_runners": speed_runners,
-            "gold_patrons": gold_patrons,
+            "leaderboard": leaderboard,
+            "speed_runners": leaderboard,
+            "gold_patrons": leaderboard,
         })
 
 

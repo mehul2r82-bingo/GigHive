@@ -1,62 +1,50 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, CheckCircle, PlusCircle, Users } from 'lucide-react';
+import { Trophy, Coins, CheckCircle, ShieldCheck, Sparkles, Crown } from 'lucide-react';
 import API from '@/services/api';
-import type { LeaderboardData } from '@/types';
+import GamificationBadge, { BadgeType } from '@/components/GamificationBadge';
 
-interface SimpleLeaderboardEntry {
+interface LeaderboardEntry {
   rank: number;
   username: string;
   reg_no: string;
-  tasks_count: number;
-  label: string;
+  tokens: number;
+  badge_type: BadgeType | string;
+  tasks_completed: number;
+  tasks_posted?: number;
+  total_volume?: number;
 }
 
-const DEFAULT_SOLVERS: SimpleLeaderboardEntry[] = [
-  { rank: 1, username: 'Hostel7_Flash', reg_no: '1240****', tasks_count: 18, label: 'Top Solver 👑' },
-  { rank: 2, username: 'CodeNinja_LPU', reg_no: '1231****', tasks_count: 11, label: 'Star Solver' },
-  { rank: 3, username: 'Block34_Ace', reg_no: '1220****', tasks_count: 8, label: 'Star Solver' },
-  { rank: 4, username: 'NightOwl_99', reg_no: '1241****', tasks_count: 5, label: 'Active Helper' },
-  { rank: 5, username: 'CampusSprinter', reg_no: '1238****', tasks_count: 4, label: 'Active Helper' },
-];
-
-const DEFAULT_GIVERS: SimpleLeaderboardEntry[] = [
-  { rank: 1, username: 'FinTech_Lead', reg_no: '1240****', tasks_count: 12, label: 'Top Poster 👑' },
-  { rank: 2, username: 'BBA_Council', reg_no: '1235****', tasks_count: 7, label: 'Frequent Poster' },
-  { rank: 3, username: 'UniClub_Design', reg_no: '1229****', tasks_count: 5, label: 'Frequent Poster' },
-  { rank: 4, username: 'StartupCell', reg_no: '1242****', tasks_count: 4, label: 'Task Creator' },
-  { rank: 5, username: 'Robotics_LPU', reg_no: '1234****', tasks_count: 2, label: 'Task Creator' },
+const DEFAULT_LEADERBOARD: LeaderboardEntry[] = [
+  { rank: 1, username: 'Hostel7_Flash', reg_no: '1240****', tokens: 5, badge_type: 'MASTER', tasks_completed: 18, total_volume: 820 },
+  { rank: 2, username: 'CodeNinja_LPU', reg_no: '1231****', tokens: 4, badge_type: 'RECRUITER', tasks_completed: 12, total_volume: 540 },
+  { rank: 3, username: 'Block34_Ace', reg_no: '1220****', tokens: 3, badge_type: 'HUSTLER', tasks_completed: 7, total_volume: 310 },
+  { rank: 4, username: 'NightOwl_99', reg_no: '1241****', tokens: 2, badge_type: 'ACTIVE', tasks_completed: 4, total_volume: 180 },
+  { rank: 5, username: 'CampusSprinter', reg_no: '1238****', tokens: 2, badge_type: 'ACTIVE', tasks_completed: 3, total_volume: 120 },
+  { rank: 6, username: 'UniClub_Design', reg_no: '1229****', tokens: 1, badge_type: 'ROOKIE', tasks_completed: 1, total_volume: 60 },
+  { rank: 7, username: 'Fresh_Hustler', reg_no: '1245****', tokens: 1, badge_type: 'ROOKIE', tasks_completed: 0, total_volume: 0 },
 ];
 
 export default function LeaderboardPage() {
-  const [activeTab, setActiveTab] = useState<'solvers' | 'givers'>('solvers');
-  const [solvers, setSolvers] = useState<SimpleLeaderboardEntry[]>(DEFAULT_SOLVERS);
-  const [givers, setGivers] = useState<SimpleLeaderboardEntry[]>(DEFAULT_GIVERS);
+  const [entries, setEntries] = useState<LeaderboardEntry[]>(DEFAULT_LEADERBOARD);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    API.get<LeaderboardData>('/leaderboard/')
+    API.get<any>('/leaderboard/')
       .then((res) => {
         if (res.data) {
-          if (res.data.speed_runners?.length) {
-            setSolvers(
-              res.data.speed_runners.map((item, idx) => ({
+          const list = res.data.leaderboard || res.data.speed_runners;
+          if (Array.isArray(list) && list.length > 0) {
+            setEntries(
+              list.map((item: any, idx: number) => ({
                 rank: idx + 1,
                 username: item.username,
-                reg_no: item.reg_no,
-                tasks_count: item.tasks_completed || 0,
-                label: idx === 0 ? 'Top Solver 👑' : idx < 3 ? 'Star Solver' : 'Active Helper',
-              }))
-            );
-          }
-          if (res.data.gold_patrons?.length) {
-            setGivers(
-              res.data.gold_patrons.map((item, idx) => ({
-                rank: idx + 1,
-                username: item.username,
-                reg_no: item.reg_no,
-                tasks_count: item.tasks_posted || 0,
-                label: idx === 0 ? 'Top Poster 👑' : idx < 3 ? 'Frequent Poster' : 'Task Creator',
+                reg_no: item.reg_no || 'LPU Student',
+                tokens: item.tokens || (item.tasks_completed >= 5 ? 5 : item.tasks_completed >= 3 ? 3 : 2),
+                badge_type: item.badge_type || (item.tokens >= 5 ? 'MASTER' : item.tokens === 4 ? 'RECRUITER' : item.tokens === 3 ? 'HUSTLER' : item.tokens === 2 ? 'ACTIVE' : 'ROOKIE'),
+                tasks_completed: item.tasks_completed || 0,
+                total_volume: item.total_volume || 0,
               }))
             );
           }
@@ -64,118 +52,104 @@ export default function LeaderboardPage() {
       })
       .catch((err) => {
         console.warn('Leaderboard fetch fallback active:', err);
-      });
+      })
+      .finally(() => setLoading(false));
   }, []);
-
-  const list = activeTab === 'solvers' ? solvers : givers;
 
   return (
     <main className="min-h-screen bg-[#09090B] text-white px-4 py-8 sm:px-6">
       <div className="max-w-2xl mx-auto space-y-6">
 
-        {/* Header */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
-              <Trophy size={18} />
+        {/* Header Banner */}
+        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-indigo-500/[0.08] via-white/[0.02] to-transparent p-5 sm:p-6 shadow-[0_10px_30px_-10px_rgba(99,102,241,0.15)]">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0 shadow-[0_0_16px_rgba(99,102,241,0.3)]">
+              <Trophy size={22} className="text-indigo-400" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
                 Campus Leaderboard
               </h1>
-              <p className="text-xs text-zinc-400">
-                Top students completing gigs & helping classmates at LPU.
+              <p className="text-xs text-zinc-400 mt-0.5">
+                Ranked by Commitment Tokens held across campus.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Tab Selection: Solvers vs Givers */}
-        <div className="grid grid-cols-2 p-1 bg-zinc-900 border border-white/10 rounded-xl">
-          <button
-            onClick={() => setActiveTab('solvers')}
-            className={`py-2 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-2 ${
-              activeTab === 'solvers'
-                ? 'bg-indigo-600 text-white shadow-sm font-bold shadow-indigo-500/20'
-                : 'text-zinc-400 hover:text-white'
-            }`}
-          >
-            <CheckCircle size={14} />
-            <span>Top Solvers (Earners)</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('givers')}
-            className={`py-2 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-2 ${
-              activeTab === 'givers'
-                ? 'bg-indigo-600 text-white shadow-sm font-bold shadow-indigo-500/20'
-                : 'text-zinc-400 hover:text-white'
-            }`}
-          >
-            <PlusCircle size={14} />
-            <span>Top Posters (Givers)</span>
-          </button>
-        </div>
-
-        {/* Clear, Simple List */}
-        <div className="bg-zinc-900/60 border border-white/10 rounded-2xl overflow-hidden divide-y divide-white/5">
-          {list.map((item) => {
-            const isFirst = item.rank === 1;
-            const isSecond = item.rank === 2;
-            const isThird = item.rank === 3;
+        {/* Unified Serial Ranking Table */}
+        <div className="space-y-2.5">
+          {entries.map((entry) => {
+            const isRank1 = entry.rank === 1;
+            const isRank2 = entry.rank === 2;
+            const isRank3 = entry.rank === 3;
 
             return (
               <div
-                key={`${activeTab}-${item.rank}-${item.username}`}
-                className="px-4 py-3.5 sm:px-5 flex items-center justify-between gap-3 hover:bg-white/[0.02] transition-colors"
+                key={entry.username}
+                className={`flex items-center justify-between p-3.5 sm:p-4 rounded-2xl transition-all duration-200 border ${
+                  isRank1
+                    ? 'border-amber-500/35 bg-gradient-to-r from-amber-500/[0.08] via-amber-500/[0.02] to-transparent shadow-[0_0_20px_rgba(245,158,11,0.12)] hover:border-amber-400/50'
+                    : isRank2
+                    ? 'border-slate-300/30 bg-gradient-to-r from-slate-300/[0.07] via-white/[0.02] to-transparent shadow-[0_0_16px_rgba(203,213,225,0.1)] hover:border-slate-200/50'
+                    : isRank3
+                    ? 'border-indigo-500/30 bg-gradient-to-r from-indigo-500/[0.07] via-indigo-500/[0.02] to-transparent shadow-[0_0_16px_rgba(99,102,241,0.1)] hover:border-indigo-400/50'
+                    : 'border-white/10 bg-white/[0.02] hover:border-indigo-500/30 hover:bg-white/[0.04]'
+                }`}
               >
-                {/* Left: Rank & User Info */}
-                <div className="flex items-center gap-3.5 min-w-0">
+                {/* Left: Rank & User Details */}
+                <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
+                  {/* Rank Indicator */}
                   <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                      isFirst
-                        ? 'bg-amber-400/20 text-amber-400 border border-amber-400/40 shadow-[0_0_12px_rgba(251,191,36,0.25)]'
-                        : isSecond
-                        ? 'bg-zinc-400/20 text-zinc-300 border border-zinc-400/40'
-                        : isThird
-                        ? 'bg-amber-700/20 text-amber-600 border border-amber-700/40'
-                        : 'bg-white/5 text-zinc-500'
+                    className={`w-8 h-8 rounded-xl flex items-center justify-center font-mono font-bold text-xs shrink-0 border ${
+                      isRank1
+                        ? 'bg-amber-500/20 text-amber-300 border-amber-400/50 shadow-[0_0_12px_rgba(245,158,11,0.3)]'
+                        : isRank2
+                        ? 'bg-slate-300/20 text-slate-200 border-slate-300/40 shadow-[0_0_10px_rgba(203,213,225,0.2)]'
+                        : isRank3
+                        ? 'bg-indigo-500/20 text-indigo-300 border-indigo-400/40 shadow-[0_0_10px_rgba(99,102,241,0.2)]'
+                        : 'bg-white/5 text-zinc-400 border-white/10'
                     }`}
                   >
-                    {isFirst ? '🥇' : isSecond ? '🥈' : isThird ? '🥉' : item.rank}
+                    #{entry.rank}
                   </div>
 
+                  {/* Username & Registration */}
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold text-white truncate">
-                        {item.username}
+                      <p className="font-semibold text-sm text-white truncate max-w-[120px] sm:max-w-[180px]">
+                        @{entry.username}
                       </p>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 text-zinc-400 shrink-0">
-                        {item.label}
-                      </span>
+                      <GamificationBadge type={entry.badge_type} size="sm" />
                     </div>
-                    <p className="text-[11px] text-zinc-500">LPU • {item.reg_no}</p>
+                    <p className="text-[11px] font-mono text-zinc-500 mt-0.5 truncate">
+                      {entry.reg_no} · {entry.tasks_completed} {entry.tasks_completed === 1 ? 'gig done' : 'gigs done'}
+                    </p>
                   </div>
                 </div>
 
-                {/* Right: Tasks Count */}
-                <div className="text-right shrink-0">
-                  <p className="text-sm font-bold text-indigo-300">
-                    {item.tasks_count} {activeTab === 'solvers' ? 'Completed' : 'Posted'}
-                  </p>
-                  <p className="text-[10px] text-zinc-500">
-                    {activeTab === 'solvers' ? 'Tasks done' : 'Gigs created'}
-                  </p>
+                {/* Right: Tokens Display */}
+                <div className="shrink-0 flex items-center gap-2">
+                  <div
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-mono text-xs font-bold ${
+                      entry.tokens >= 5
+                        ? 'bg-amber-500/10 text-amber-300 border-amber-400/40 shadow-[0_0_12px_rgba(245,158,11,0.2)]'
+                        : entry.tokens >= 3
+                        ? 'bg-indigo-500/10 text-indigo-200 border-indigo-500/30'
+                        : 'bg-white/5 text-zinc-300 border-white/10'
+                    }`}
+                  >
+                    <Coins size={13} className={entry.tokens >= 5 ? 'text-amber-400' : 'text-indigo-400'} />
+                    <span>{entry.tokens}</span>
+                    <span className="text-[10px] text-zinc-400 font-sans font-normal hidden sm:inline">
+                      {entry.tokens === 1 ? 'Token' : 'Tokens'}
+                    </span>
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
-
-        {/* Simple Note */}
-        <p className="text-center text-xs text-zinc-500">
-          Rankings update automatically when tasks are marked complete.
-        </p>
 
       </div>
     </main>

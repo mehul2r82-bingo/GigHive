@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import API from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import TokenCelebrationModal from "@/components/TokenCelebrationModal";
 
 export default function MyTasksPage() {
   const [activeTab, setActiveTab] = useState("posted");
@@ -16,6 +17,10 @@ export default function MyTasksPage() {
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [submissionNote, setSubmissionNote] = useState("");
   const [submissionFile, setSubmissionFile] = useState<File | null>(null);
+  const [celebrationModal, setCelebrationModal] = useState<{
+    isOpen: boolean;
+    type: "TOKEN_2" | "TOKEN_5";
+  }>({ isOpen: false, type: "TOKEN_5" });
   const { user } = useAuth();
   const router = useRouter();
 
@@ -140,7 +145,15 @@ export default function MyTasksPage() {
 };
   const handleCompleteTask = async (taskId: number) => {
   try {
-    await API.post(`/tasks/${taskId}/complete/`);
+    const completeRes = await API.post(`/tasks/${taskId}/complete/`);
+
+    if (
+      completeRes.data?.total_tokens === 5 ||
+      completeRes.data?.badge_type === "MASTER" ||
+      (completeRes.data?.total_volume && completeRes.data.total_volume >= 250)
+    ) {
+      setCelebrationModal({ isOpen: true, type: "TOKEN_5" });
+    }
 
     const res = await API.get("/my-tasks/");
     setTasks(res.data);
@@ -1033,6 +1046,13 @@ export default function MyTasksPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* 5-Token Progression Milestone Celebration Modal */}
+      <TokenCelebrationModal
+        isOpen={celebrationModal.isOpen}
+        type={celebrationModal.type}
+        onClose={() => setCelebrationModal((prev) => ({ ...prev, isOpen: false }))}
+      />
     </main>
   );
 }

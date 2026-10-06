@@ -1,9 +1,14 @@
 'use client';
 
 import React from 'react';
-import { Crown, Zap, Flame, ShieldCheck, Sparkles } from 'lucide-react';
+import { Crown, Zap, Flame, ShieldCheck, Sparkles, Shield } from 'lucide-react';
 
 export type BadgeType =
+  | 'MASTER'
+  | 'RECRUITER'
+  | 'HUSTLER'
+  | 'ACTIVE'
+  | 'ROOKIE'
   | 'GOLD_PATRON'
   | 'SILVER_PATRON'
   | 'BRONZE_PATRON'
@@ -13,7 +18,7 @@ export type BadgeType =
   | 'STREAK';
 
 interface GamificationBadgeProps {
-  type: BadgeType;
+  type: BadgeType | string;
   streakCount?: number;
   size?: 'sm' | 'md';
   showLabel?: boolean;
@@ -29,81 +34,74 @@ export default function GamificationBadge({
   const iconSize = isSm ? 12 : 14;
 
   switch (type) {
+    case 'MASTER':
     case 'GOLD_PATRON':
       return (
         <span
-          className={`inline-flex items-center gap-1.5 rounded-full font-mono font-bold tracking-wider uppercase transition-all duration-300 bg-amber-500/10 text-amber-300 border border-amber-500/40 shadow-[0_0_14px_rgba(245,158,11,0.2)] hover:border-amber-400 ${
+          className={`inline-flex items-center gap-1.5 rounded-full font-mono font-bold tracking-wider uppercase transition-all duration-300 bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-amber-500/10 text-amber-200 border border-amber-400/50 shadow-[0_0_16px_rgba(245,158,11,0.3)] hover:border-amber-300 ${
             isSm ? 'px-2 py-0.5 text-[10px]' : 'px-3 py-1 text-xs'
           }`}
-          title="Gold Patron: Unlocked ₹50 Short Task Rate!"
+          title="Master Tier: 5 Tokens & Maximum Campus Clout"
         >
-          <Crown size={iconSize} className="text-amber-400 animate-pulse" />
-          {showLabel && <span>Gold 👑</span>}
+          <Crown size={iconSize} className="text-amber-400 drop-shadow-[0_0_6px_rgba(245,158,11,0.6)]" />
+          {showLabel && <span>Master</span>}
         </span>
       );
 
-    case 'SILVER_PATRON':
+    case 'RECRUITER':
       return (
         <span
-          className={`inline-flex items-center gap-1.5 rounded-full font-mono font-medium tracking-wide uppercase transition-all bg-slate-300/10 text-slate-200 border border-slate-300/30 ${
+          className={`inline-flex items-center gap-1.5 rounded-full font-mono font-semibold tracking-wider uppercase transition-all duration-300 bg-gradient-to-r from-purple-500/20 via-fuchsia-500/15 to-purple-500/10 text-purple-200 border border-purple-400/40 shadow-[0_0_14px_rgba(168,85,247,0.25)] hover:border-purple-300 ${
             isSm ? 'px-2 py-0.5 text-[10px]' : 'px-3 py-1 text-xs'
           }`}
-          title="Silver Patron"
+          title="Recruiter Tier: 4 Tokens & Network Pioneer"
         >
-          <Sparkles size={iconSize} className="text-slate-300" />
-          {showLabel && <span>Silver</span>}
+          <Flame size={iconSize} className="text-purple-400 drop-shadow-[0_0_6px_rgba(168,85,247,0.5)]" />
+          {showLabel && <span>Recruiter</span>}
         </span>
       );
 
-    case 'BRONZE_PATRON':
-      return (
-        <span
-          className={`inline-flex items-center gap-1.5 rounded-full font-mono font-medium tracking-wide uppercase transition-all bg-orange-700/10 text-orange-300 border border-orange-600/30 ${
-            isSm ? 'px-2 py-0.5 text-[10px]' : 'px-3 py-1 text-xs'
-          }`}
-          title="Bronze Patron"
-        >
-          <ShieldCheck size={iconSize} className="text-orange-400" />
-          {showLabel && <span>Bronze</span>}
-        </span>
-      );
-
+    case 'HUSTLER':
     case 'SPEED_DEMON':
       return (
         <span
-          className={`inline-flex items-center gap-1.5 rounded-full font-mono font-bold tracking-wider uppercase transition-all duration-300 bg-cyan-500/10 text-cyan-300 border border-cyan-500/40 shadow-[0_0_14px_rgba(6,182,212,0.25)] hover:border-cyan-400 ${
+          className={`inline-flex items-center gap-1.5 rounded-full font-mono font-semibold tracking-wider uppercase transition-all duration-300 bg-gradient-to-r from-indigo-500/20 via-violet-500/15 to-indigo-500/10 text-indigo-200 border border-indigo-400/40 shadow-[0_0_14px_rgba(99,102,241,0.25)] hover:border-indigo-300 ${
             isSm ? 'px-2 py-0.5 text-[10px]' : 'px-3 py-1 text-xs'
           }`}
-          title="Speed Demon: Same-Day Completion Master!"
+          title="Hustler Tier: 3 Tokens & Active Campus Mover"
         >
-          <Zap size={iconSize} className="text-cyan-400 fill-cyan-400/30" />
-          {showLabel && <span>Speed Demon ⚡</span>}
+          <Zap size={iconSize} className="text-indigo-400 fill-indigo-400/40 drop-shadow-[0_0_6px_rgba(99,102,241,0.5)]" />
+          {showLabel && <span>Hustler</span>}
         </span>
       );
 
+    case 'ACTIVE':
+    case 'SILVER_PATRON':
     case 'FAST_RESPONDER':
       return (
         <span
-          className={`inline-flex items-center gap-1.5 rounded-full font-mono font-medium tracking-wide uppercase transition-all bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.15)] ${
+          className={`inline-flex items-center gap-1.5 rounded-full font-mono font-medium tracking-wide uppercase transition-all duration-300 bg-gradient-to-r from-slate-400/15 to-blue-500/10 text-slate-200 border border-slate-300/35 shadow-[0_0_10px_rgba(203,213,225,0.15)] hover:border-slate-200 ${
             isSm ? 'px-2 py-0.5 text-[10px]' : 'px-3 py-1 text-xs'
           }`}
-          title="Fast Responder"
+          title="Active Tier: 2 Tokens"
         >
-          <Zap size={iconSize} className="text-emerald-400" />
-          {showLabel && <span>Fast</span>}
+          <Sparkles size={iconSize} className="text-slate-300 drop-shadow-[0_0_4px_rgba(203,213,225,0.4)]" />
+          {showLabel && <span>Active</span>}
         </span>
       );
 
+    case 'ROOKIE':
+    case 'BRONZE_PATRON':
     case 'VERIFIED_RUNNER':
       return (
         <span
-          className={`inline-flex items-center gap-1.5 rounded-full font-mono font-medium tracking-wide uppercase transition-all bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 ${
+          className={`inline-flex items-center gap-1.5 rounded-full font-mono font-medium tracking-wide uppercase transition-all bg-slate-500/10 text-zinc-300 border border-white/15 hover:border-white/25 ${
             isSm ? 'px-2 py-0.5 text-[10px]' : 'px-3 py-1 text-xs'
           }`}
-          title="Verified Runner"
+          title="Rookie Tier: 1 Token Starter"
         >
-          <ShieldCheck size={iconSize} className="text-indigo-400" />
-          {showLabel && <span>Runner</span>}
+          <Shield size={iconSize} className="text-zinc-400" />
+          {showLabel && <span>Rookie</span>}
         </span>
       );
 

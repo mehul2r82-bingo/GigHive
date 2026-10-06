@@ -406,6 +406,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source="user.username", read_only=True)
     is_gold_patron = serializers.BooleanField(read_only=True)
     badge_type = serializers.CharField(read_only=True)
+    total_tokens = serializers.IntegerField(source="user.token_account.total_tokens", read_only=True, default=1)
+    available_tokens = serializers.IntegerField(source="user.token_account.available_tokens", read_only=True, default=1)
+    total_volume = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = UserProfile
@@ -424,6 +427,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "fast_tasks_counter",
             "is_gold_patron",
             "badge_type",
+            "total_tokens",
+            "available_tokens",
+            "total_volume",
         ]
 
 

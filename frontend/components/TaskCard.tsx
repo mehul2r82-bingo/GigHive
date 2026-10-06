@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Coins } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import GamificationBadge from './GamificationBadge';
 import type { Task } from '@/types';
@@ -15,14 +16,19 @@ export default function TaskCard({ task }: { task: Task }) {
             <h3 className="font-mono text-forge-text font-semibold text-sm leading-snug group-hover:text-forge-accent transition-colors line-clamp-2">
               {task.title}
             </h3>
-            {task.giver_badge && (
-              <div className="mt-1.5 flex items-center gap-1.5">
+            <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
+              {task.giver && (
+                <span className="text-[11px] font-mono text-zinc-400">
+                  @{task.giver}
+                </span>
+              )}
+              {task.giver_badge && (
                 <GamificationBadge type={task.giver_badge} size="sm" />
-                {task.giver_streak && task.giver_streak > 0 ? (
-                  <GamificationBadge type="STREAK" streakCount={task.giver_streak} size="sm" />
-                ) : null}
-              </div>
-            )}
+              )}
+              {task.giver_streak && task.giver_streak > 0 ? (
+                <GamificationBadge type="STREAK" streakCount={task.giver_streak} size="sm" />
+              ) : null}
+            </div>
           </div>
           <StatusBadge status={task.status} />
         </div>
@@ -51,8 +57,9 @@ export default function TaskCard({ task }: { task: Task }) {
               ₹{Number(task.price).toLocaleString()}
             </span>
             {task.bonus_tokens && task.bonus_tokens > 0 ? (
-              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
-                +{task.bonus_tokens} 🪙
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                <Coins size={10} className="text-amber-400" />
+                <span>+{task.bonus_tokens}</span>
               </span>
             ) : null}
           </div>

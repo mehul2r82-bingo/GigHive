@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import API from "../../services/api"
 import { Crown } from "lucide-react"
+import TokenCelebrationModal from "@/components/TokenCelebrationModal"
 
 type FormState = {
   title: string
@@ -27,6 +28,9 @@ const [loading,setLoading] = useState(false)
 const [nowLocal, setNowLocal] = useState("");
 const [isGoldPatron, setIsGoldPatron] = useState(false);
 const [tasksPostedCount, setTasksPostedCount] = useState(0);
+const [userTotalTokens, setUserTotalTokens] = useState(1);
+const [celebrationOpen, setCelebrationOpen] = useState(false);
+const [createdTaskId, setCreatedTaskId] = useState<number | null>(null);
 
 useEffect(() => {
   API.get('/profile/')
@@ -34,6 +38,7 @@ useEffect(() => {
       if (res.data) {
         setIsGoldPatron(Boolean(res.data.is_gold_patron));
         setTasksPostedCount(res.data.tasks_posted_count || 0);
+        setUserTotalTokens(res.data.total_tokens || 1);
       }
     })
     .catch((err) => {
@@ -104,7 +109,7 @@ const TASK_TYPES = [
 const shortMin = isGoldPatron ? 50 : 60;
 
 const BANDS = [
-  { value: "short", label: isGoldPatron ? "Short (min 50 👑 Gold)" : "Short (min 60)", min: shortMin },
+  { value: "short", label: isGoldPatron ? "Short (min 50 Master)" : "Short (min 60)", min: shortMin },
   { value: "medium", label: "Medium (min 120)", min: 120 },
   { value: "long", label: "Long (min 250)", min: 250 }
 ]
@@ -243,10 +248,12 @@ const res = await API.post("/tasks/", formData, {
 
 const taskId = res.data.id
 
-alert("Task created successfully")
-console.log(res.data)
-
-router.push(`/pay-escrow/${taskId}`)
+if (tasksPostedCount === 0 || userTotalTokens <= 1) {
+  setCreatedTaskId(taskId);
+  setCelebrationOpen(true);
+} else {
+  router.push(`/pay-escrow/${taskId}`);
+}
 
 }catch(err:any){
 
@@ -649,6 +656,17 @@ return(
       animation: fadeUp 0.5s ease-out both;
     }
   `}</style>
+
+  <TokenCelebrationModal
+    isOpen={celebrationOpen}
+    type="TOKEN_2"
+    onClose={() => {
+      setCelebrationOpen(false);
+      if (createdTaskId) {
+        router.push(`/pay-escrow/${createdTaskId}`);
+      }
+    }}
+  />
 
 </div>
 

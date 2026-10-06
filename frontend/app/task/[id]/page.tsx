@@ -4,8 +4,10 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { Coins } from "lucide-react";
 import API from "../../../services/api";
 import GamificationBadge, { BadgeType } from "@/components/GamificationBadge";
+import TokenCelebrationModal from "@/components/TokenCelebrationModal";
 
 /* ---------- Types ---------- */
 
@@ -114,9 +116,11 @@ export default function TaskDetailPage() {
     null | "own_task" | "tokens" | "already_accepted" | "expired"
   >(null);
 
-  // Brief disable+spinner transition on the main Accept button, purely
-  // cosmetic — no API call happens here, it just delays opening the modal.
   const [openingFlow, setOpeningFlow] = useState(false);
+  const [celebrationModal, setCelebrationModal] = useState<{
+    isOpen: boolean;
+    type: 'TOKEN_2' | 'TOKEN_5';
+  }>({ isOpen: false, type: 'TOKEN_2' });
 
   useEffect(() => {
     if (!id) return;
@@ -147,8 +151,17 @@ export default function TaskDetailPage() {
     setAcceptStatus("loading");
 
     try {
-      await API.post(`/tasks/${task.id}/accept/`);
-      setAcceptStatus("done");
+      const res = await API.post(`/tasks/${task.id}/accept/`);
+      const totalTokens = res.data?.total_tokens;
+      const volume = res.data?.total_volume;
+
+      if (totalTokens === 5 || (volume && volume >= 250)) {
+        setCelebrationModal({ isOpen: true, type: "TOKEN_5" });
+      } else if (totalTokens === 2) {
+        setCelebrationModal({ isOpen: true, type: "TOKEN_2" });
+      } else {
+        setAcceptStatus("done");
+      }
     } catch (err: any) {
       const message =
         err?.response?.data?.detail ||
@@ -588,7 +601,7 @@ export default function TaskDetailPage() {
               {/* COMMITMENT TOKEN CARD */}
               <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-indigo-400">🪙</span>
+                  <Coins size={16} className="text-indigo-400" />
                   <h4 className="text-sm font-semibold tracking-tight">Commitment Token</h4>
                 </div>
                 <p className="text-xs text-zinc-500 leading-relaxed">
@@ -890,6 +903,16 @@ export default function TaskDetailPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* 5-Token Progression Milestone Celebration Modal */}
+      <TokenCelebrationModal
+        isOpen={celebrationModal.isOpen}
+        type={celebrationModal.type}
+        onClose={() => {
+          setCelebrationModal((prev) => ({ ...prev, isOpen: false }));
+          setShowAcceptedScreen(true);
+        }}
+      />
 
     </main>
   );
