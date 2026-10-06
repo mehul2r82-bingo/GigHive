@@ -6,17 +6,15 @@ import {
   Coins, 
   X, 
   Check, 
-  Zap, 
-  Flame, 
   Crown, 
-  Shield, 
   Sparkles, 
-  Calendar, 
   ArrowRight,
-  Gift
+  Flame,
+  Zap,
+  Shield
 } from 'lucide-react';
 import Link from 'next/link';
-import GamificationBadge, { BadgeType } from './GamificationBadge';
+import GamificationBadge from './GamificationBadge';
 
 export interface NextChallengeInfo {
   target_token: number;
@@ -43,6 +41,14 @@ interface TokenDetailsModalProps {
   todayCompleted?: boolean;
 }
 
+const ROADMAP_STEPS = [
+  { num: 1, label: 'Rookie', color: 'text-zinc-400 border-zinc-600 bg-zinc-800/40' },
+  { num: 2, label: 'Active', color: 'text-emerald-300 border-emerald-500/50 bg-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.3)]' },
+  { num: 3, label: 'Hustler', color: 'text-indigo-300 border-indigo-500/50 bg-indigo-500/20 shadow-[0_0_10px_rgba(99,102,241,0.3)]' },
+  { num: 4, label: 'Recruiter', color: 'text-purple-300 border-purple-500/50 bg-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.3)]' },
+  { num: 5, label: 'Master', color: 'text-amber-300 border-amber-400/60 bg-amber-500/20 shadow-[0_0_12px_rgba(245,158,11,0.4)]' },
+];
+
 export default function TokenDetailsModal({
   isOpen,
   onClose,
@@ -59,296 +65,189 @@ export default function TokenDetailsModal({
 
   const currentTier = badgeType || 'ROOKIE';
   const targetToken = nextChallenge?.target_token ?? Math.min(5, (totalTokens || 1) + 1);
+  const volumeProgress = Math.min(100, Math.round(((totalVolume || 0) / 250) * 100));
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 15 }}
+          initial={{ opacity: 0, scale: 0.92, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.92, y: 15 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl border border-white/10 bg-[#0E0E13] p-5 sm:p-7 shadow-[0_0_60px_rgba(99,102,241,0.2)] text-left"
+          exit={{ opacity: 0, scale: 0.94, y: 12 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 320 }}
+          className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#0E0E13] p-5 shadow-[0_0_50px_rgba(0,0,0,0.8)] text-left"
         >
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white transition-colors cursor-pointer"
+            className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white transition-colors cursor-pointer"
             aria-label="Close"
           >
-            <X size={16} />
+            <X size={15} />
           </button>
 
-          {/* Header */}
-          <div className="flex items-start gap-3.5 mb-5 pr-8">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500/20 via-purple-500/15 to-transparent border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0 shadow-[0_0_20px_rgba(99,102,241,0.3)]">
-              <Coins size={24} />
+          {/* Top Bar: Title & Status */}
+          <div className="flex items-center gap-2.5 mb-3 pr-8">
+            <div className="w-8 h-8 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0">
+              <Coins size={16} />
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <h2 className="text-lg font-bold text-white tracking-tight">
-                  Commitment Tokens
-                </h2>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-white tracking-tight">
+                  Token Pass
+                </h3>
                 <GamificationBadge type={currentTier} size="sm" />
               </div>
-              <p className="text-xs text-zinc-400 font-mono">
-                {totalTokens} of 5 Tokens Held · Campus Clout
+              <p className="text-[11px] font-mono text-zinc-400">
+                {totalTokens} of 5 Tokens Held
               </p>
             </div>
           </div>
 
-          {/* Token Stats (Available vs Locked) */}
-          <div className="grid grid-cols-2 gap-3 mb-5">
-            <div className="p-3.5 rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.04]">
-              <span className="text-[11px] font-mono text-zinc-400 block mb-0.5">Available Balance</span>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-2xl font-mono font-extrabold text-emerald-400">{availableTokens}</span>
-                <span className="text-xs text-zinc-500 font-mono">ready</span>
-              </div>
-              <p className="text-[10px] text-zinc-400 mt-1">Available to bid or post</p>
+          {/* Mini Balances Row */}
+          <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl border border-white/10 bg-white/[0.02] mb-3.5 text-center font-mono">
+            <div>
+              <span className="text-[10px] text-zinc-400 block uppercase">Ready</span>
+              <span className="text-sm font-extrabold text-emerald-400">{availableTokens}</span>
             </div>
-
-            <div className="p-3.5 rounded-2xl border border-purple-500/25 bg-purple-500/[0.04]">
-              <span className="text-[11px] font-mono text-zinc-400 block mb-0.5">Locked in Escrow</span>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-2xl font-mono font-extrabold text-purple-300">{lockedTokens}</span>
-                <span className="text-xs text-zinc-500 font-mono">active</span>
-              </div>
-              <p className="text-[10px] text-zinc-400 mt-1">Guarantees ongoing tasks</p>
+            <div className="border-x border-white/10">
+              <span className="text-[10px] text-zinc-400 block uppercase">In Escrow</span>
+              <span className="text-sm font-extrabold text-purple-300">{lockedTokens}</span>
+            </div>
+            <div>
+              <span className="text-[10px] text-zinc-400 block uppercase">Volume</span>
+              <span className="text-sm font-extrabold text-amber-300">₹{totalVolume}</span>
             </div>
           </div>
 
-          {/* ⭐ PROMINENT NOTE: NEXT TOKEN CHALLENGE ⭐ */}
-          <div className="relative overflow-hidden rounded-2xl border border-indigo-400/40 bg-gradient-to-br from-indigo-500/15 via-purple-500/5 to-transparent p-4 sm:p-5 mb-5 shadow-[0_0_30px_rgba(99,102,241,0.2)]">
-            {/* Header / Pill */}
-            <div className="flex items-center justify-between mb-2.5">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/20 border border-indigo-400/40 text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-300">
-                <Sparkles size={11} className="text-indigo-400" />
-                Next Token Challenge
+          {/* ₹250 Campus Volume Bar (Highlighted & Clean) */}
+          <div className="rounded-xl border border-amber-500/30 bg-amber-500/[0.04] p-3 mb-3.5 space-y-1.5">
+            <div className="flex justify-between items-center text-xs font-mono">
+              <span className="text-amber-200 font-bold flex items-center gap-1.5">
+                <Crown size={13} className="text-amber-400" />
+                Campus Volume Goal
               </span>
-              <span className="text-xs font-mono font-bold text-amber-300">
-                Target: Token #{targetToken}
+              <span className="text-emerald-400 font-extrabold">
+                ₹{totalVolume} / ₹250 <span className="text-[10px] text-zinc-400 font-normal">({volumeProgress}%)</span>
+              </span>
+            </div>
+            
+            <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden p-0.5 border border-white/5">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 shadow-[0_0_10px_rgba(245,158,11,0.6)] transition-all duration-700"
+                style={{ width: `${volumeProgress}%` }}
+              />
+            </div>
+
+            <div className="flex justify-between items-center text-[10px] text-zinc-400 pt-0.5">
+              <span>Perk 1: Free Homework Pass (₹100)</span>
+              <span>Perk 2: +₹50 Bounty Boost</span>
+            </div>
+          </div>
+
+          {/* Next Challenge Card (Clean, Simple, 0 Clutter) */}
+          <div className="rounded-xl border border-indigo-400/35 bg-indigo-500/[0.06] p-3 mb-4">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-300">
+                <Sparkles size={11} className="text-indigo-400" />
+                Next Challenge: Token #{targetToken}
+              </span>
+              <span className="text-[10px] font-mono text-zinc-400">
+                {targetToken === 3 ? 'Resets 12 AM' : 'Automatic'}
               </span>
             </div>
 
-            {/* Title & Description */}
-            <h3 className="text-base font-bold text-white mb-1.5 flex items-center gap-2">
-              {nextChallenge?.title || `Unlock Token #${targetToken}`}
-            </h3>
-
-            <p className="text-xs text-zinc-300 leading-relaxed mb-3">
-              {nextChallenge?.note ||
-                (targetToken === 3
-                  ? "Post any gig (just publish, it doesn't need to be finished today) AND complete an accepted gig as solver on the SAME DAY."
-                  : "Complete your campus gig milestones to unlock your next token.")}
-            </p>
-
-            {/* SPECIAL SAME-DAY CHALLENGE BOX (FOR TOKEN 3) */}
-            {targetToken === 3 && (
-              <div className="rounded-xl border border-indigo-500/30 bg-black/40 p-3 mb-3 space-y-2">
-                <div className="flex items-center justify-between text-[11px] font-mono">
-                  <span className="text-indigo-300 font-bold flex items-center gap-1.5">
-                    <Calendar size={13} className="text-indigo-400" />
-                    Same-Day Tracker
-                  </span>
-                  <span className="text-[10px] text-zinc-400">Resets daily at 12:00 AM</span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-1">
+            {/* Token 3 Same-Day Challenge */}
+            {targetToken === 3 ? (
+              <div className="space-y-2">
+                <p className="text-xs text-white font-medium leading-snug">
+                  Same-Day Double Hustle
+                </p>
+                <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
                   <div
-                    className={`flex items-start gap-2 p-2 rounded-lg border ${
+                    className={`flex items-center gap-1.5 p-1.5 rounded-lg border ${
                       todayPosted
                         ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
                         : 'border-white/10 bg-white/[0.02] text-zinc-400'
                     }`}
                   >
-                    <div
-                      className={`w-4 h-4 rounded flex items-center justify-center shrink-0 mt-0.5 ${
-                        todayPosted ? 'bg-emerald-500 text-black' : 'border border-zinc-600'
-                      }`}
-                    >
-                      {todayPosted && <Check size={11} className="stroke-[3]" />}
+                    <div className={`w-3.5 h-3.5 rounded flex items-center justify-center shrink-0 ${todayPosted ? 'bg-emerald-500 text-black' : 'border border-zinc-600'}`}>
+                      {todayPosted && <Check size={10} className="stroke-[3]" />}
                     </div>
-                    <div>
-                      <span className="text-[11px] font-bold block">1. Post a Gig</span>
-                      <span className="text-[9px] text-zinc-400 font-sans block leading-tight">Just post it — no need to finish today</span>
-                    </div>
+                    <span className="truncate">Post any gig</span>
                   </div>
 
                   <div
-                    className={`flex items-start gap-2 p-2 rounded-lg border ${
+                    className={`flex items-center gap-1.5 p-1.5 rounded-lg border ${
                       todayCompleted
                         ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
                         : 'border-white/10 bg-white/[0.02] text-zinc-400'
                     }`}
                   >
-                    <div
-                      className={`w-4 h-4 rounded flex items-center justify-center shrink-0 mt-0.5 ${
-                        todayCompleted ? 'bg-emerald-500 text-black' : 'border border-zinc-600'
-                      }`}
-                    >
-                      {todayCompleted && <Check size={11} className="stroke-[3]" />}
+                    <div className={`w-3.5 h-3.5 rounded flex items-center justify-center shrink-0 ${todayCompleted ? 'bg-emerald-500 text-black' : 'border border-zinc-600'}`}>
+                      {todayCompleted && <Check size={10} className="stroke-[3]" />}
                     </div>
-                    <div>
-                      <span className="text-[11px] font-bold block">2. Solve a Gig</span>
-                      <span className="text-[9px] text-zinc-400 font-sans block leading-tight">Must complete an accepted gig today</span>
-                    </div>
+                    <span className="truncate">Solve a gig</span>
                   </div>
                 </div>
-
                 <p className="text-[10px] text-zinc-400 leading-tight">
-                  {todayPosted && todayCompleted
-                    ? "Both complete today! Your 3rd token is unlocked."
-                    : todayPosted
-                    ? "Gig posted! Now finish solving an accepted gig before 12:00 AM."
-                    : todayCompleted
-                    ? "Gig solved! Now publish any gig before 12:00 AM to unlock Token #3."
-                    : "Post any gig + complete an accepted gig before 12:00 AM."}
+                  Posted gig just needs to be published; accepted gig must be completed today.
                 </p>
               </div>
+            ) : targetToken === 5 ? (
+              <p className="text-xs text-zinc-300">
+                Reach ₹250 campus volume to unlock the 5th Golden Token and both Master perks.
+              </p>
+            ) : targetToken === 4 ? (
+              <p className="text-xs text-zinc-300">
+                Refer a classmate who posts their first gig on GigHive.
+              </p>
+            ) : totalTokens >= 5 ? (
+              <p className="text-xs text-amber-200 font-semibold">
+                Master Status Achieved! All elite perks are active on your account.
+              </p>
+            ) : (
+              <p className="text-xs text-zinc-300">
+                Post your first gig or accept an open task on campus to unlock Token #2.
+              </p>
             )}
+          </div>
 
-            {/* SPECIAL VOLUME BAR (FOR TOKEN 5) */}
-            {targetToken === 5 && (
-              <div className="rounded-xl border border-amber-500/30 bg-black/40 p-3 mb-3 space-y-2">
-                <div className="flex justify-between items-center text-xs font-mono">
-                  <span className="text-amber-300 font-bold">Campus Volume Progress</span>
-                  <span className="text-emerald-400 font-bold">₹{totalVolume} / ₹250</span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+          {/* Horizontal 5-Step Roadmap Tracker (Compact 32px height) */}
+          <div className="pt-2 border-t border-white/10 mb-4">
+            <div className="flex items-center justify-between text-[10px] font-mono mb-2 text-zinc-400">
+              <span>Token Roadmap</span>
+              <span className="text-white font-bold">{totalTokens}/5 Complete</span>
+            </div>
+
+            <div className="grid grid-cols-5 gap-1.5">
+              {ROADMAP_STEPS.map((step) => {
+                const isUnlocked = totalTokens >= step.num;
+                return (
                   <div
-                    className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full transition-all duration-500"
-                    style={{ width: `${Math.min(100, Math.round((totalVolume / 250) * 100))}%` }}
-                  />
-                </div>
-                <p className="text-[10px] text-zinc-400">
-                  Unlocks 2 Master Perks: Free Homework Pass (₹100) & Bounty Booster (+₹50 cash).
-                </p>
-              </div>
-            )}
-
-            {/* Reward Note & CTA */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-white/10">
-              <div className="text-[11px] font-mono text-zinc-300">
-                <span className="text-zinc-500 block text-[10px] uppercase">Reward:</span>
-                <span className="text-indigo-300 font-bold">{nextChallenge?.reward || '+1 Commitment Token'}</span>
-              </div>
-
-              {nextChallenge?.action_url && (
-                <Link
-                  href={nextChallenge.action_url}
-                  onClick={onClose}
-                  className="inline-flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/30 transition-all cursor-pointer"
-                >
-                  <span>{nextChallenge.action_label || 'Start Challenge'}</span>
-                  <ArrowRight size={13} />
-                </Link>
-              )}
+                    key={step.num}
+                    className={`p-1.5 rounded-xl border text-center transition-all ${
+                      isUnlocked
+                        ? step.color
+                        : 'border-white/5 bg-white/[0.02] text-zinc-600'
+                    }`}
+                  >
+                    <div className="text-[11px] font-mono font-bold leading-none mb-0.5">
+                      #{step.num}
+                    </div>
+                    <div className="text-[9px] font-mono truncate leading-none">
+                      {step.label}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          {/* 5-Token Roadmap Overview */}
-          <div className="space-y-2 mb-5">
-            <p className="text-[11px] uppercase tracking-wider font-mono font-bold text-zinc-400">
-              5-Token Roadmap
-            </p>
-
-            <div className="space-y-1.5 text-xs font-mono">
-              {/* Token 1 */}
-              <div className={`flex items-center justify-between p-2.5 rounded-xl border ${totalTokens >= 1 ? 'border-white/10 bg-white/[0.03] text-white' : 'border-white/5 text-zinc-600'}`}>
-                <div className="flex items-center gap-2.5">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${totalTokens >= 1 ? 'bg-zinc-400 text-black' : 'bg-zinc-800 text-zinc-500'}`}>
-                    1
-                  </div>
-                  <div>
-                    <p className="font-semibold">Rookie Starter</p>
-                    <p className="text-[10px] text-zinc-500">Base commitment token upon verification</p>
-                  </div>
-                </div>
-                <span className={`text-[10px] font-bold ${totalTokens >= 1 ? 'text-emerald-400' : 'text-zinc-600'}`}>
-                  {totalTokens >= 1 ? 'Unlocked' : 'Locked'}
-                </span>
-              </div>
-
-              {/* Token 2 */}
-              <div className={`flex items-center justify-between p-2.5 rounded-xl border ${totalTokens >= 2 ? 'border-slate-300/30 bg-slate-400/[0.05] text-slate-200' : 'border-white/5 text-zinc-600'}`}>
-                <div className="flex items-center gap-2.5">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${totalTokens >= 2 ? 'bg-slate-300 text-black' : 'bg-zinc-800 text-zinc-500'}`}>
-                    2
-                  </div>
-                  <div>
-                    <p className="font-semibold">Active Mover</p>
-                    <p className="text-[10px] text-zinc-500">Post 1st gig OR accept 1st gig</p>
-                  </div>
-                </div>
-                <span className={`text-[10px] font-bold ${totalTokens >= 2 ? 'text-emerald-400' : 'text-zinc-600'}`}>
-                  {totalTokens >= 2 ? 'Unlocked' : '1st Action'}
-                </span>
-              </div>
-
-              {/* Token 3 */}
-              <div className={`flex items-center justify-between p-2.5 rounded-xl border ${totalTokens >= 3 ? 'border-indigo-400/40 bg-indigo-500/[0.08] text-indigo-200' : 'border-white/5 text-zinc-600'}`}>
-                <div className="flex items-center gap-2.5">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${totalTokens >= 3 ? 'bg-indigo-400 text-black' : 'bg-zinc-800 text-zinc-500'}`}>
-                    3
-                  </div>
-                  <div>
-                    <p className="font-semibold flex items-center gap-1.5">
-                      Hustler Dual
-                      <Zap size={11} className={totalTokens >= 3 ? 'text-indigo-400' : 'text-zinc-600'} />
-                    </p>
-                    <p className="text-[10px] text-zinc-500">Post a gig + complete an accepted gig on the SAME DAY</p>
-                  </div>
-                </div>
-                <span className={`text-[10px] font-bold ${totalTokens >= 3 ? 'text-emerald-400' : 'text-zinc-600'}`}>
-                  {totalTokens >= 3 ? 'Unlocked' : 'Same-Day'}
-                </span>
-              </div>
-
-              {/* Token 4 */}
-              <div className={`flex items-center justify-between p-2.5 rounded-xl border ${totalTokens >= 4 ? 'border-purple-400/40 bg-purple-500/[0.08] text-purple-200' : 'border-white/5 text-zinc-600'}`}>
-                <div className="flex items-center gap-2.5">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${totalTokens >= 4 ? 'bg-purple-400 text-black' : 'bg-zinc-800 text-zinc-500'}`}>
-                    4
-                  </div>
-                  <div>
-                    <p className="font-semibold flex items-center gap-1.5">
-                      Campus Recruiter
-                      <Flame size={11} className={totalTokens >= 4 ? 'text-purple-400' : 'text-zinc-600'} />
-                    </p>
-                    <p className="text-[10px] text-zinc-500">Refer a classmate who posts a gig</p>
-                  </div>
-                </div>
-                <span className={`text-[10px] font-bold ${totalTokens >= 4 ? 'text-emerald-400' : 'text-zinc-600'}`}>
-                  {totalTokens >= 4 ? 'Unlocked' : 'Referral'}
-                </span>
-              </div>
-
-              {/* Token 5 */}
-              <div className={`flex items-center justify-between p-2.5 rounded-xl border ${totalTokens >= 5 ? 'border-amber-400/50 bg-amber-500/[0.1] text-amber-200' : 'border-white/5 text-zinc-600'}`}>
-                <div className="flex items-center gap-2.5">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${totalTokens >= 5 ? 'bg-amber-400 text-black' : 'bg-zinc-800 text-zinc-500'}`}>
-                    5
-                  </div>
-                  <div>
-                    <p className="font-semibold flex items-center gap-1.5">
-                      Campus Master
-                      <Crown size={11} className={totalTokens >= 5 ? 'text-amber-400' : 'text-zinc-600'} />
-                    </p>
-                    <p className="text-[10px] text-zinc-500">₹250 campus volume · Free Homework Pass + Booster</p>
-                  </div>
-                </div>
-                <span className={`text-[10px] font-bold ${totalTokens >= 5 ? 'text-amber-400' : 'text-zinc-600'}`}>
-                  {totalTokens >= 5 ? 'Master Tier' : '₹250 Vol'}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer Close Button */}
+          {/* Close Button */}
           <button
             onClick={onClose}
-            className="w-full py-3 px-4 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs font-mono tracking-wider transition-colors cursor-pointer"
+            className="w-full py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs font-mono tracking-wider transition-all cursor-pointer text-center"
           >
             CLOSE
           </button>

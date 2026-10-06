@@ -76,16 +76,15 @@ export default function GamificationBadge({
       );
 
     case 'ACTIVE':
-    case 'SILVER_PATRON':
     case 'FAST_RESPONDER':
       return (
         <span
-          className={`inline-flex items-center gap-1.5 rounded-full font-mono font-medium tracking-wide uppercase transition-all duration-300 bg-gradient-to-r from-slate-400/15 to-blue-500/10 text-slate-200 border border-slate-300/35 shadow-[0_0_10px_rgba(203,213,225,0.15)] hover:border-slate-200 ${
+          className={`inline-flex items-center gap-1.5 rounded-full font-mono font-medium tracking-wide uppercase transition-all duration-300 bg-gradient-to-r from-emerald-500/20 via-teal-500/15 to-emerald-500/10 text-emerald-200 border border-emerald-400/40 shadow-[0_0_14px_rgba(16,185,129,0.25)] hover:border-emerald-300 ${
             isSm ? 'px-2 py-0.5 text-[10px]' : 'px-3 py-1 text-xs'
           }`}
           title="Active Tier: 2 Tokens"
         >
-          <Sparkles size={iconSize} className="text-slate-300 drop-shadow-[0_0_4px_rgba(203,213,225,0.4)]" />
+          <Sparkles size={iconSize} className="text-emerald-300 drop-shadow-[0_0_6px_rgba(16,185,129,0.5)]" />
           {showLabel && <span>Active</span>}
         </span>
       );

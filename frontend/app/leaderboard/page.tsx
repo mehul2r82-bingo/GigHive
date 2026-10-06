@@ -91,11 +91,13 @@ export default function LeaderboardPage() {
                 key={entry.username}
                 className={`flex items-center justify-between p-3.5 sm:p-4 rounded-2xl transition-all duration-200 border ${
                   isRank1
-                    ? 'border-amber-500/35 bg-gradient-to-r from-amber-500/[0.08] via-amber-500/[0.02] to-transparent shadow-[0_0_20px_rgba(245,158,11,0.12)] hover:border-amber-400/50'
+                    ? 'border-amber-500/40 bg-gradient-to-r from-amber-500/[0.10] via-amber-500/[0.03] to-transparent shadow-[0_0_24px_rgba(245,158,11,0.18)] hover:border-amber-400'
                     : isRank2
-                    ? 'border-slate-300/30 bg-gradient-to-r from-slate-300/[0.07] via-white/[0.02] to-transparent shadow-[0_0_16px_rgba(203,213,225,0.1)] hover:border-slate-200/50'
+                    ? 'border-slate-200/70 bg-gradient-to-r from-slate-200/[0.14] via-slate-400/[0.05] to-transparent shadow-[0_0_24px_rgba(241,245,249,0.24)] hover:border-white'
                     : isRank3
-                    ? 'border-indigo-500/30 bg-gradient-to-r from-indigo-500/[0.07] via-indigo-500/[0.02] to-transparent shadow-[0_0_16px_rgba(99,102,241,0.1)] hover:border-indigo-400/50'
+                    ? 'border-indigo-400/50 bg-gradient-to-r from-indigo-500/[0.12] via-violet-500/[0.04] to-transparent shadow-[0_0_22px_rgba(99,102,241,0.25)] hover:border-indigo-300'
+                    : entry.tokens === 2
+                    ? 'border-emerald-500/40 bg-gradient-to-r from-emerald-500/[0.09] via-emerald-500/[0.02] to-transparent shadow-[0_0_18px_rgba(16,185,129,0.18)] hover:border-emerald-400'
                     : 'border-white/10 bg-white/[0.02] hover:border-indigo-500/30 hover:bg-white/[0.04]'
                 }`}
               >
@@ -105,11 +107,13 @@ export default function LeaderboardPage() {
                   <div
                     className={`w-8 h-8 rounded-xl flex items-center justify-center font-mono font-bold text-xs shrink-0 border ${
                       isRank1
-                        ? 'bg-amber-500/20 text-amber-300 border-amber-400/50 shadow-[0_0_12px_rgba(245,158,11,0.3)]'
+                        ? 'bg-amber-500/25 text-amber-300 border-amber-400/60 shadow-[0_0_14px_rgba(245,158,11,0.4)]'
                         : isRank2
-                        ? 'bg-slate-300/20 text-slate-200 border-slate-300/40 shadow-[0_0_10px_rgba(203,213,225,0.2)]'
+                        ? 'bg-gradient-to-br from-slate-100 to-slate-300 text-slate-900 border-white shadow-[0_0_16px_rgba(255,255,255,0.4)]'
                         : isRank3
-                        ? 'bg-indigo-500/20 text-indigo-300 border-indigo-400/40 shadow-[0_0_10px_rgba(99,102,241,0.2)]'
+                        ? 'bg-indigo-500/25 text-indigo-200 border-indigo-400/60 shadow-[0_0_14px_rgba(99,102,241,0.35)]'
+                        : entry.tokens === 2
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/50 shadow-[0_0_12px_rgba(16,185,129,0.25)]'
                         : 'bg-white/5 text-zinc-400 border-white/10'
                     }`}
                   >
@@ -137,14 +141,31 @@ export default function LeaderboardPage() {
                     onClick={() => setSelectedEntry(entry)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all duration-200 cursor-pointer active:scale-95 hover:scale-105 ${
                       entry.tokens >= 5
-                        ? 'bg-amber-500/10 text-amber-300 border-amber-400/40 shadow-[0_0_12px_rgba(245,158,11,0.2)] hover:border-amber-400'
-                        : entry.tokens >= 3
-                        ? 'bg-indigo-500/10 text-indigo-200 border-indigo-500/30 hover:border-indigo-400'
+                        ? 'bg-amber-500/15 text-amber-300 border-amber-400/50 shadow-[0_0_14px_rgba(245,158,11,0.25)] hover:border-amber-300'
+                        : entry.tokens === 4
+                        ? 'bg-purple-500/15 text-purple-200 border-purple-400/40 shadow-[0_0_12px_rgba(168,85,247,0.2)] hover:border-purple-300'
+                        : entry.tokens === 3
+                        ? 'bg-indigo-500/15 text-indigo-200 border-indigo-400/50 shadow-[0_0_14px_rgba(99,102,241,0.25)] hover:border-indigo-300'
+                        : entry.tokens === 2
+                        ? 'bg-emerald-500/15 text-emerald-200 border-emerald-400/40 shadow-[0_0_14px_rgba(16,185,129,0.25)] hover:border-emerald-300'
                         : 'bg-white/5 text-zinc-300 border-white/10 hover:border-white/30'
                     }`}
                     title="Click to view token details & challenge note"
                   >
-                    <Coins size={13} className={entry.tokens >= 5 ? 'text-amber-400' : 'text-indigo-400'} />
+                    <Coins
+                      size={13}
+                      className={
+                        entry.tokens >= 5
+                          ? 'text-amber-400'
+                          : entry.tokens === 4
+                          ? 'text-purple-400'
+                          : entry.tokens === 3
+                          ? 'text-indigo-400'
+                          : entry.tokens === 2
+                          ? 'text-emerald-400'
+                          : 'text-zinc-400'
+                      }
+                    />
                     <span>{entry.tokens}</span>
                     <span className="text-[10px] text-zinc-400 font-sans font-normal hidden sm:inline">
                       {entry.tokens === 1 ? 'Token' : 'Tokens'}
