@@ -66,10 +66,10 @@ export default function TokenCelebrationModal({
               </motion.div>
 
               <h3 className="text-2xl font-bold tracking-tight text-white mb-2">
-                +1 Token Unlocked!
+                +1 Hive Cred Unlocked!
               </h3>
               <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
-                You took action on GigHive. Your commitment token is now credited and active.
+                You took action on GigHive. Your Hive Cred is now active and ready to stake.
               </p>
 
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 mb-6 text-left space-y-3">
@@ -119,7 +119,7 @@ export default function TokenCelebrationModal({
                 Campus Master
               </h3>
               <p className="text-xs text-zinc-400 mb-6 leading-relaxed">
-                You reached ₹250 in total campus volume. The 5th Golden Token is yours.
+                You reached ₹250 in total campus volume. The 5th Golden Cred is yours.
               </p>
 
               {/* Animated Progress Bar */}

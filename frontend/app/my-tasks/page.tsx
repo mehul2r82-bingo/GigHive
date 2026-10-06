@@ -169,10 +169,10 @@ export default function MyTasksPage() {
 ) => {
   const message =
   role === "taker"
-    ? "Cancel this task? Your commitment token will be burned, and the giver's payment will be marked for refund."
+    ? "Cancel this gig? Your staked Hive Cred will be burned, and the giver's payment will be marked for refund."
     : state === "OPEN"
-      ? "Cancel this task? Your payment will be refunded."
-      : "Cancel this task? Your commitment token will be burned, and your payment will be marked for refund.";
+      ? "Cancel this gig? Your payment will be refunded."
+      : "Cancel this gig? Your staked Hive Cred will be burned, and your payment will be marked for refund.";
   const confirmed = window.confirm(message);
 
   if (!confirmed) return;
@@ -950,7 +950,7 @@ export default function MyTasksPage() {
                         </p>
 
                         <p className="text-zinc-500 text-sm mt-1">
-                          Commitment token deducted.
+                          Staked Hive Cred burned.
                         </p>
                       </motion.div>
                     ))

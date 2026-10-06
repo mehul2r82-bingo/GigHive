@@ -151,7 +151,7 @@ export default function Navbar() {
                   >
                     <span className="text-purple-400 font-bold">◈</span>
                     <span className="font-mono">{availableTokens ?? '—'}</span>
-                    <span className="text-[10px] text-purple-400/70 hidden sm:inline">tokens</span>
+                    <span className="text-[10px] text-purple-400/70 hidden sm:inline">creds</span>
                   </button>
 
                   <TokenDetailsModal
@@ -386,13 +386,13 @@ export default function Navbar() {
                 <div className="flex items-center gap-2.5">
                   <Coins size={18} className="text-purple-400" />
                   <div>
-                    <p className="text-xs font-semibold text-white">Commitment Tokens</p>
-                    <p className="text-[11px] text-zinc-400">Protects active claimed tasks</p>
+                    <p className="text-xs font-semibold text-white">Hive Creds</p>
+                    <p className="text-[11px] text-zinc-400">Protects active claimed gigs</p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-mono font-bold text-emerald-400">{availableTokens ?? '0'} Ready</p>
-                  <p className="text-[10px] text-zinc-500 font-mono">{lockedTokens ?? '0'} Locked</p>
+                  <p className="text-[10px] text-zinc-500 font-mono">{lockedTokens ?? '0'} Staked</p>
                 </div>
               </div>
 

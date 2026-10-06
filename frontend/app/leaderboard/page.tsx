@@ -73,7 +73,7 @@ export default function LeaderboardPage() {
                 Campus Leaderboard
               </h1>
               <p className="text-xs text-zinc-400 mt-0.5">
-                Ranked by Commitment Tokens held across campus.
+                Ranked by Hive Creds held across campus.
               </p>
             </div>
           </div>
@@ -168,7 +168,7 @@ export default function LeaderboardPage() {
                     />
                     <span>{entry.tokens}</span>
                     <span className="text-[10px] text-zinc-400 font-sans font-normal hidden sm:inline">
-                      {entry.tokens === 1 ? 'Token' : 'Tokens'}
+                      {entry.tokens === 1 ? 'Cred' : 'Creds'}
                     </span>
                   </button>
                 </div>
@@ -194,8 +194,8 @@ export default function LeaderboardPage() {
                   target_token: 2,
                   tier: 'ACTIVE',
                   title: 'First Action on Campus',
-                  note: 'Post a 1st gig or accept a 1st gig to unlock Token #2.',
-                  reward: '+1 Commitment Token (Active Tier)',
+                  note: 'Post a 1st gig or accept a 1st gig to unlock Cred #2.',
+                  reward: '+1 Hive Cred (Active Tier)',
                 }
               : selectedEntry.tokens === 2
               ? {
@@ -203,15 +203,15 @@ export default function LeaderboardPage() {
                   tier: 'HUSTLER',
                   title: 'Same-Day Dual Hustle',
                   note: 'Same-Day Dual Challenge: Post any gig (no need to be finished today) AND complete an accepted gig as solver on the SAME DAY.',
-                  reward: '+1 Commitment Token (Hustler Tier)',
+                  reward: '+1 Hive Cred (Hustler Tier)',
                 }
               : selectedEntry.tokens === 3
               ? {
                   target_token: 4,
                   tier: 'RECRUITER',
                   title: 'Campus Recruiter',
-                  note: 'Refer a classmate who posts their first gig on GigHive.',
-                  reward: '+1 Commitment Token (Recruiter Tier)',
+                  note: 'Refer a classmate who posts their first gig on GigHive to unlock Cred #4.',
+                  reward: '+1 Hive Cred (Recruiter Tier)',
                 }
               : selectedEntry.tokens === 4
               ? {
@@ -219,13 +219,13 @@ export default function LeaderboardPage() {
                   tier: 'MASTER',
                   title: 'Campus Master Milestone (₹250)',
                   note: `Reach ₹250 Total Campus Volume (Earned + Spent). Current: ₹${selectedEntry.total_volume || 0}/₹250.`,
-                  reward: '5th Golden Token + Free Homework Pass (₹100) + Bounty Booster (+₹50)',
+                  reward: '5th Golden Cred + Free Homework Pass (₹100) + Bounty Booster (+₹50)',
                 }
               : {
                   target_token: 5,
                   tier: 'MASTER',
                   title: 'Master Status Achieved 👑',
-                  note: 'Maximum 5 tokens unlocked. Free Homework Pass & Bounty Booster perks active!',
+                  note: 'Maximum 5 Hive Creds unlocked. Free Homework Pass & Bounty Booster perks active!',
                   reward: 'All Master Perks Active',
                 }
           }

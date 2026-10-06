@@ -185,7 +185,7 @@ export default function TaskDetailPage() {
         return;
       }
 
-      if (/commitment token/i.test(message) && /insufficient|not enough|no.*available/i.test(message)) {
+      if (/(commitment token|token|cred)/i.test(message) && /insufficient|not enough|no.*available/i.test(message)) {
         setFlowStep("none");
         setAgreedToRules(false);
         setAcceptStatus("idle");
@@ -289,9 +289,9 @@ export default function TaskDetailPage() {
       description: "This gig was posted by you.",
     },
     tokens: {
-      title: "Not enough Commitment Tokens",
+      title: "Not enough Hive Creds",
       description:
-        "You need an available Commitment Token to accept a task. Complete or resolve an ongoing task to free one up, or check your token balance from your profile.",
+        "You need an available Hive Cred to accept a gig. Complete or resolve an ongoing gig to free one up, or check your cred balance from your profile.",
     },
     already_accepted: {
       title: "Task already accepted",
@@ -568,7 +568,7 @@ export default function TaskDetailPage() {
                   </motion.button>
 
                   <p className="text-xs text-zinc-500 text-center mt-2.5 flex items-center justify-center gap-1">
-                    <span>🔒</span> 1 Commitment Token will be locked until completion.
+                    <span>🔒</span> 1 Hive Cred will be staked until completion.
                   </p>
                 </div>
               )
@@ -598,14 +598,14 @@ export default function TaskDetailPage() {
                 <p className="text-red-400 text-sm text-center">Failed to accept task.</p>
               )}
 
-              {/* COMMITMENT TOKEN CARD */}
+              {/* HIVE CRED STAKING CARD */}
               <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <Coins size={16} className="text-indigo-400" />
-                  <h4 className="text-sm font-semibold tracking-tight">Commitment Token</h4>
+                  <h4 className="text-sm font-semibold tracking-tight">Hive Cred Staking</h4>
                 </div>
                 <p className="text-xs text-zinc-500 leading-relaxed">
-                  One Commitment Token will be locked until the task is completed.
+                  One Hive Cred is staked until the gig is verified & completed.
                 </p>
               </div>
 
@@ -685,9 +685,9 @@ export default function TaskDetailPage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                       {[
-                        { icon: "🔒", text: "You and the task creator each lock one Commitment Token." },
-                        { icon: "⏰", text: "Complete before the deadline to keep your token." },
-                        { icon: "❌", text: "Missing the deadline may burn your token." },
+                        { icon: "🔒", text: "You and the gig creator each stake 1 Hive Cred." },
+                        { icon: "⏰", text: "Complete before the deadline to keep your Cred." },
+                        { icon: "❌", text: "Missing the deadline may burn your staked Cred." },
                         { icon: "💰", text: "Payment is released after successful completion." },
                       ].map((rule, i) => (
                         <div key={i} className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
@@ -923,8 +923,8 @@ export default function TaskDetailPage() {
 function FAQ() {
   const items = [
     {
-      q: "Why do I need a Commitment Token?",
-      a: "Encourages both users to honour the agreement.",
+      q: "Why do I need a Hive Cred?",
+      a: "Staking a Hive Cred guarantees mutual commitment between gig creator and solver.",
     },
     {
       q: "When will I receive payment?",
@@ -932,7 +932,7 @@ function FAQ() {
     },
     {
       q: "Can I cancel later?",
-      a: "Yes. Cancellation follows GigHive's Commitment Token rules.",
+      a: "Yes. Cancellation follows GigHive's Hive Cred staking rules.",
     },
   ];
 

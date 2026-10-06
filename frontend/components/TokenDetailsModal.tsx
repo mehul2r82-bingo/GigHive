@@ -94,12 +94,12 @@ export default function TokenDetailsModal({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-bold text-white tracking-tight">
-                  Token Pass
+                  Hive Creds
                 </h3>
                 <GamificationBadge type={currentTier} size="sm" />
               </div>
               <p className="text-[11px] font-mono text-zinc-400">
-                {totalTokens} of 5 Tokens Held
+                {totalTokens} of 5 Hive Creds Held
               </p>
             </div>
           </div>
@@ -111,7 +111,7 @@ export default function TokenDetailsModal({
               <span className="text-sm font-extrabold text-emerald-400">{availableTokens}</span>
             </div>
             <div className="border-x border-white/10">
-              <span className="text-[10px] text-zinc-400 block uppercase">In Escrow</span>
+              <span className="text-[10px] text-zinc-400 block uppercase">Staked</span>
               <span className="text-sm font-extrabold text-purple-300">{lockedTokens}</span>
             </div>
             <div>
@@ -150,7 +150,7 @@ export default function TokenDetailsModal({
             <div className="flex items-center justify-between mb-1.5">
               <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-300">
                 <Sparkles size={11} className="text-indigo-400" />
-                Next Challenge: Token #{targetToken}
+                Next Challenge: Cred #{targetToken}
               </span>
               <span className="text-[10px] font-mono text-zinc-400">
                 {targetToken === 3 ? 'Resets 12 AM' : 'Automatic'}
@@ -196,11 +196,11 @@ export default function TokenDetailsModal({
               </div>
             ) : targetToken === 5 ? (
               <p className="text-xs text-zinc-300">
-                Reach ₹250 campus volume to unlock the 5th Golden Token and both Master perks.
+                Reach ₹250 campus volume to unlock the 5th Golden Cred and both Master perks.
               </p>
             ) : targetToken === 4 ? (
               <p className="text-xs text-zinc-300">
-                Refer a classmate who posts their first gig on GigHive.
+                Refer a classmate who posts their first gig on GigHive to unlock Cred #4.
               </p>
             ) : totalTokens >= 5 ? (
               <p className="text-xs text-amber-200 font-semibold">
@@ -208,7 +208,7 @@ export default function TokenDetailsModal({
               </p>
             ) : (
               <p className="text-xs text-zinc-300">
-                Post your first gig or accept an open task on campus to unlock Token #2.
+                Post your first gig or accept an open task on campus to unlock Cred #2.
               </p>
             )}
           </div>
@@ -216,7 +216,7 @@ export default function TokenDetailsModal({
           {/* Horizontal 5-Step Roadmap Tracker (Compact 32px height) */}
           <div className="pt-2 border-t border-white/10 mb-4">
             <div className="flex items-center justify-between text-[10px] font-mono mb-2 text-zinc-400">
-              <span>Token Roadmap</span>
+              <span>Cred Roadmap</span>
               <span className="text-white font-bold">{totalTokens}/5 Complete</span>
             </div>
 
