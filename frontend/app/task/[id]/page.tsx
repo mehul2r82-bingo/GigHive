@@ -242,9 +242,10 @@ export default function TaskDetailPage() {
       setShowUpiPopup(false);
       // Continue directly to acceptance, no extra click required
       acceptTask();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setUpiSaveError("Failed to save UPI. Please try again.");
+      const msg = err.response?.data?.detail || err.response?.data?.earnings_upi_id?.[0] || "Failed to save UPI. Please try again.";
+      setUpiSaveError(String(msg));
     } finally {
       setSavingUpi(false);
     }

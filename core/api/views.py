@@ -474,8 +474,8 @@ class TokenAccountView(generics.GenericAPIView):
 
         from django.utils import timezone
         today = timezone.localdate()
-        today_posted = request.user.tasks_as_giver.filter(created_at__date=today).exists()
-        today_completed = request.user.tasks_as_taker.filter(state="COMPLETED", updated_at__date=today).exists()
+        today_posted = Task.objects.filter(giver=request.user, created_at__date=today).exists()
+        today_completed = Task.objects.filter(taker=request.user, state="COMPLETED", updated_at__date=today).exists()
 
         tokens = token_account.total_tokens
         if tokens <= 1:

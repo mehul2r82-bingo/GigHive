@@ -1,4 +1,3 @@
-from django.tasks import task
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from django.db import transaction

@@ -259,7 +259,14 @@ if (tasksPostedCount === 0 || userTotalTokens <= 1) {
 
 console.error("Task creation failed:", err.response?.data)
 const errData = err.response?.data
-setError(typeof errData === "object" ? JSON.stringify(errData) : (errData || "Request failed"))
+if (typeof errData === "string" && (errData.includes("<!doctype html>") || errData.includes("<html"))) {
+  setError("Server encountered an issue creating your gig. Please try again in a moment.");
+} else if (typeof errData === "object" && errData !== null) {
+  const msg = errData.detail || Object.values(errData).flat().join(" ") || "Request failed";
+  setError(String(msg));
+} else {
+  setError(errData || "Request failed. Please try again.");
+}
 
 }finally{
 setLoading(false)

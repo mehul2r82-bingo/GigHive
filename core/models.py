@@ -233,35 +233,43 @@ class UserProfile(models.Model):
         return "ROOKIE"
     @property
     def total_volume(self):
-        from django.db.models import Sum
-        earned = self.user.tasks_as_taker.filter(state="COMPLETED").aggregate(s=Sum("price"))["s"] or 0
-        spent = self.user.tasks_as_giver.filter(state="COMPLETED").aggregate(s=Sum("price"))["s"] or 0
-        return int(earned + spent)
+        try:
+            from django.db.models import Sum
+            earned = self.user.taken_tasks.filter(state="COMPLETED").aggregate(s=Sum("price"))["s"] or 0
+            spent = self.user.given_tasks.filter(state="COMPLETED").aggregate(s=Sum("price"))["s"] or 0
+            return int(earned + spent)
+        except Exception:
+            return 0
 
     def sync_tokens(self):
-        account = getattr(self.user, "token_account", None)
-        if not account:
+        try:
+            account = getattr(self.user, "token_account", None)
+            if not account:
+                return 0
+            current = account.total_tokens
+            target = 1
+            has_post = self.tasks_posted_count > 0 or self.user.given_tasks.exists()
+            has_take = self.tasks_completed_count > 0 or self.user.taken_tasks.exists()
+            if has_post or has_take:
+                target = max(target, 2)
+            # Token 3 Challenge: MUST both post a gig AND complete a gig on the SAME DAY!
+            giver_dates = {dt.date() for dt in self.user.given_tasks.values_list("created_at", flat=True) if dt}
+            taker_comp_dates = {dt.date() for dt in self.user.taken_tasks.filter(state="COMPLETED").values_list("updated_at", flat=True) if dt}
+            if bool(giver_dates & taker_comp_dates):
+                target = max(target, 3)
+            if getattr(self, "referral_count", 0) > 0 or (self.tasks_completed_count + self.tasks_posted_count >= 3):
+                target = max(target, 4)
+            if self.total_volume >= 250:
+                target = max(target, 5)
+            if target > current:
+                account.total_tokens = target
+                account.save(update_fields=["total_tokens", "updated_at"])
+                return target - current
             return 0
-        current = account.total_tokens
-        target = 1
-        has_post = self.tasks_posted_count > 0 or self.user.tasks_as_giver.exists()
-        has_take = self.tasks_completed_count > 0 or self.user.tasks_as_taker.exists()
-        if has_post or has_take:
-            target = max(target, 2)
-        # Token 3 Challenge: MUST both post a gig AND complete a gig on the SAME DAY!
-        giver_dates = set(self.user.tasks_as_giver.values_list("created_at__date", flat=True))
-        taker_comp_dates = set(self.user.tasks_as_taker.filter(state="COMPLETED").values_list("updated_at__date", flat=True))
-        if bool(giver_dates & taker_comp_dates):
-            target = max(target, 3)
-        if getattr(self, "referral_count", 0) > 0 or (self.tasks_completed_count + self.tasks_posted_count >= 3):
-            target = max(target, 4)
-        if self.total_volume >= 250:
-            target = max(target, 5)
-        if target > current:
-            account.total_tokens = target
-            account.save(update_fields=["total_tokens", "updated_at"])
-            return target - current
-        return 0
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning("sync_tokens error: %s", e)
+            return 0
 
 
 
