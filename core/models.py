@@ -261,6 +261,14 @@ class UserProfile(models.Model):
                 target = max(target, 4)
             if self.total_volume >= 250:
                 target = max(target, 5)
+
+            # Self-correct new accounts that were created with 2 tokens before any actions
+            if not has_post and not has_take and getattr(self, "referral_count", 0) == 0 and self.total_volume == 0 and account.locked_tokens == 0:
+                if account.total_tokens > 1:
+                    account.total_tokens = 1
+                    account.save(update_fields=["total_tokens", "updated_at"])
+                    return 0
+
             if target > current:
                 account.total_tokens = target
                 account.save(update_fields=["total_tokens", "updated_at"])
@@ -1063,7 +1071,7 @@ def create_user_profile_and_token_account(sender, instance, created, **kwargs):
         UserProfile.objects.create(user=instance)
         TokenAccount.objects.create(
             user=instance,
-            total_tokens=2,
+            total_tokens=1,
             locked_tokens=0,
         )
 

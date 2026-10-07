@@ -363,7 +363,7 @@ export default function Navbar() {
                       <p className="text-sm font-bold text-white">{user?.name || 'Student'}</p>
                       {badgeType && <GamificationBadge type={badgeType} size="sm" />}
                     </div>
-                    <p className="text-xs text-zinc-400 font-mono">LPU · {totalTokens ?? 1}/5 Tokens</p>
+                    <p className="text-xs text-zinc-400 font-mono">LPU · {totalTokens ?? 1}/5 Creds</p>
                   </div>
                 </div>
 
