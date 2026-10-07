@@ -253,10 +253,11 @@ class UserProfile(models.Model):
             if has_post or has_take:
                 target = max(target, 2)
             # Token 3 Challenge: MUST both post a gig AND complete a gig on the SAME DAY!
-            giver_dates = {dt.date() for dt in self.user.given_tasks.values_list("created_at", flat=True) if dt}
-            taker_comp_dates = {dt.date() for dt in self.user.taken_tasks.filter(state="COMPLETED").values_list("updated_at", flat=True) if dt}
-            if bool(giver_dates & taker_comp_dates):
-                target = max(target, 3)
+            if has_post and has_take:
+                giver_dates = {dt.date() for dt in self.user.given_tasks.values_list("created_at", flat=True) if dt}
+                taker_comp_dates = {dt.date() for dt in self.user.taken_tasks.filter(state="COMPLETED").values_list("updated_at", flat=True) if dt}
+                if bool(giver_dates & taker_comp_dates):
+                    target = max(target, 3)
             if getattr(self, "referral_count", 0) > 0 or (self.tasks_completed_count + self.tasks_posted_count >= 3):
                 target = max(target, 4)
             if self.total_volume >= 250:
@@ -264,12 +265,12 @@ class UserProfile(models.Model):
 
             # Self-correct new accounts that were created with 2 tokens before any actions
             if not has_post and not has_take and getattr(self, "referral_count", 0) == 0 and self.total_volume == 0 and account.locked_tokens == 0:
-                if account.total_tokens > 1:
+                if account.total_tokens != 1:
                     account.total_tokens = 1
                     account.save(update_fields=["total_tokens", "updated_at"])
-                    return 0
+                return 0
 
-            if target > current:
+            if target != current:
                 account.total_tokens = target
                 account.save(update_fields=["total_tokens", "updated_at"])
                 return target - current

@@ -574,6 +574,7 @@ class LeaderboardView(APIView):
 
         leaderboard = []
         for idx, profile in enumerate(profiles, start=1):
+            profile.sync_tokens()
             tokens = profile.user.token_account.total_tokens if hasattr(profile.user, "token_account") else 1
             reg = profile.registration_number or ""
             masked_reg = f"{reg[:4]}****" if len(reg) >= 4 else (reg if reg else "LPU Student")

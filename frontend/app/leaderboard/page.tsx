@@ -39,15 +39,19 @@ export default function LeaderboardPage() {
           const list = res.data.leaderboard || res.data.speed_runners;
           if (Array.isArray(list) && list.length > 0) {
             setEntries(
-              list.map((item: any, idx: number) => ({
-                rank: idx + 1,
-                username: item.username,
-                reg_no: item.reg_no || 'LPU Student',
-                tokens: item.tokens || (item.tasks_completed >= 5 ? 5 : item.tasks_completed >= 3 ? 3 : 2),
-                badge_type: item.badge_type || (item.tokens >= 5 ? 'MASTER' : item.tokens === 4 ? 'RECRUITER' : item.tokens === 3 ? 'HUSTLER' : item.tokens === 2 ? 'ACTIVE' : 'ROOKIE'),
-                tasks_completed: item.tasks_completed || 0,
-                total_volume: item.total_volume || 0,
-              }))
+              list.map((item: any, idx: number) => {
+                const tokens = typeof item.tokens === 'number' ? item.tokens : 1;
+                const badgeType = item.badge_type || (tokens >= 5 ? 'MASTER' : tokens === 4 ? 'RECRUITER' : tokens === 3 ? 'HUSTLER' : tokens === 2 ? 'ACTIVE' : 'ROOKIE');
+                return {
+                  rank: idx + 1,
+                  username: item.username,
+                  reg_no: item.reg_no || 'LPU Student',
+                  tokens,
+                  badge_type: badgeType,
+                  tasks_completed: item.tasks_completed || 0,
+                  total_volume: item.total_volume || 0,
+                };
+              })
             );
           }
         }
