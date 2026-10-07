@@ -39,6 +39,8 @@ interface TokenDetailsModalProps {
   nextChallenge?: NextChallengeInfo | null;
   todayPosted?: boolean;
   todayCompleted?: boolean;
+  isLeaderboardView?: boolean;
+  username?: string;
 }
 
 const ROADMAP_STEPS = [
@@ -60,12 +62,30 @@ export default function TokenDetailsModal({
   nextChallenge,
   todayPosted = false,
   todayCompleted = false,
+  isLeaderboardView = false,
+  username,
 }: TokenDetailsModalProps) {
   if (!isOpen) return null;
 
   const currentTier = badgeType || 'ROOKIE';
   const targetToken = nextChallenge?.target_token ?? Math.min(5, (totalTokens || 1) + 1);
   const volumeProgress = Math.min(100, Math.round(((totalVolume || 0) / 250) * 100));
+
+  const getTierIconStyles = (tier: string, tokens: number) => {
+    if (tier === 'MASTER' || tokens >= 5) {
+      return 'bg-amber-500/20 border-amber-500/40 text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.3)]';
+    }
+    if (tier === 'RECRUITER' || tokens === 4) {
+      return 'bg-purple-500/20 border-purple-500/40 text-purple-300 shadow-[0_0_10px_rgba(168,85,247,0.3)]';
+    }
+    if (tier === 'HUSTLER' || tokens === 3) {
+      return 'bg-indigo-500/20 border-indigo-500/40 text-indigo-300 shadow-[0_0_10px_rgba(99,102,241,0.3)]';
+    }
+    if (tier === 'ACTIVE' || tokens === 2) {
+      return 'bg-emerald-500/20 border-emerald-400/40 text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.3)]';
+    }
+    return 'bg-zinc-800 border-zinc-600 text-zinc-300';
+  };
 
   return (
     <AnimatePresence>
@@ -88,13 +108,13 @@ export default function TokenDetailsModal({
 
           {/* Top Bar: Title & Status */}
           <div className="flex items-center gap-2 mb-2.5 pr-7">
-            <div className="w-7 h-7 rounded-lg bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-300 shrink-0 shadow-[0_0_10px_rgba(99,102,241,0.25)]">
+            <div className={`w-7 h-7 rounded-lg border flex items-center justify-center shrink-0 ${getTierIconStyles(currentTier, totalTokens)}`}>
               <Coins size={15} />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
                 <h3 className="text-sm font-extrabold text-white tracking-tight">
-                  Hive Creds
+                  {username ? `@${username}'s Creds` : 'Hive Creds'}
                 </h3>
                 <GamificationBadge type={currentTier} size="sm" />
               </div>
@@ -104,46 +124,46 @@ export default function TokenDetailsModal({
             </div>
           </div>
 
-          {/* Mini Balances Row */}
-          <div className="grid grid-cols-3 gap-1.5 p-2 rounded-xl border border-white/10 bg-white/[0.03] mb-2.5 text-center">
-            <div>
-              <span className="text-[9px] text-zinc-400 block uppercase font-bold tracking-wider">Ready</span>
-              <span className="text-xs font-black text-emerald-400">{availableTokens}</span>
+          {/* Mini Balances Row: Shown ONLY in user profile/account, REMOVED from leaderboard! Shows only Ready and Staked */}
+          {!isLeaderboardView && (
+            <div className="grid grid-cols-2 gap-2 py-1.5 px-2 rounded-xl border border-white/10 bg-white/[0.03] mb-2.5 text-center">
+              <div>
+                <span className="text-[9px] text-zinc-400 block uppercase font-bold tracking-wider leading-none mb-0.5">Ready</span>
+                <span className="text-xs font-black text-emerald-400 leading-none">{availableTokens}</span>
+              </div>
+              <div className="border-l border-white/10">
+                <span className="text-[9px] text-zinc-400 block uppercase font-bold tracking-wider leading-none mb-0.5">Staked</span>
+                <span className="text-xs font-black text-purple-300 leading-none">{lockedTokens}</span>
+              </div>
             </div>
-            <div className="border-x border-white/10">
-              <span className="text-[9px] text-zinc-400 block uppercase font-bold tracking-wider">Staked</span>
-              <span className="text-xs font-black text-purple-300">{lockedTokens}</span>
-            </div>
-            <div>
-              <span className="text-[9px] text-zinc-400 block uppercase font-bold tracking-wider">Volume</span>
-              <span className="text-xs font-black text-amber-300">₹{totalVolume}</span>
-            </div>
-          </div>
+          )}
 
-          {/* ₹250 Campus Volume Bar (Highlighted & Compact) */}
-          <div className="rounded-xl border border-amber-500/35 bg-amber-500/[0.05] p-2.5 mb-2.5 space-y-1">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-amber-200 font-extrabold flex items-center gap-1.5">
-                <Crown size={12} className="text-amber-400" />
-                Campus Volume Goal
-              </span>
-              <span className="text-emerald-400 font-black">
-                ₹{totalVolume} / ₹250 <span className="text-[10px] text-zinc-300 font-bold">({volumeProgress}%)</span>
-              </span>
-            </div>
-            
-            <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden p-0.5 border border-white/10">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 shadow-[0_0_10px_rgba(245,158,11,0.7)] transition-all duration-700"
-                style={{ width: `${volumeProgress}%` }}
-              />
-            </div>
+          {/* ₹250 Campus Volume Bar: REMOVED from leaderboard! Only shown in homepage token account AFTER completing 4th token (totalTokens >= 4) */}
+          {!isLeaderboardView && totalTokens >= 4 && (
+            <div className="rounded-xl border border-amber-500/35 bg-amber-500/[0.05] p-2.5 mb-2.5 space-y-1">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-amber-200 font-extrabold flex items-center gap-1.5">
+                  <Crown size={12} className="text-amber-400" />
+                  Campus Volume Goal
+                </span>
+                <span className="text-emerald-400 font-black">
+                  ₹{totalVolume} / ₹250 <span className="text-[10px] text-zinc-300 font-bold">({volumeProgress}%)</span>
+                </span>
+              </div>
+              
+              <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden p-0.5 border border-white/10">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 shadow-[0_0_10px_rgba(245,158,11,0.7)] transition-all duration-700"
+                  style={{ width: `${volumeProgress}%` }}
+                />
+              </div>
 
-            <div className="flex justify-between items-center text-[10px] text-zinc-300 font-semibold pt-0.5">
-              <span>Perk 1: Free Homework Pass (₹100)</span>
-              <span>Perk 2: +₹50 Bounty Boost</span>
+              <div className="flex justify-between items-center text-[10px] text-zinc-300 font-semibold pt-0.5">
+                <span>Perk 1: Free Homework Pass (₹100)</span>
+                <span>Perk 2: +₹50 Bounty Boost</span>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Next Challenge Card (Clean, Bold, Compact) */}
           <div className="rounded-xl border border-indigo-400/40 bg-indigo-500/[0.08] p-2.5 mb-2.5">

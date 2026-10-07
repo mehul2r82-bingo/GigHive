@@ -96,9 +96,7 @@ export default function LeaderboardPage() {
                     ? 'border-slate-200/70 bg-gradient-to-r from-slate-200/[0.14] via-slate-400/[0.05] to-transparent shadow-[0_0_24px_rgba(241,245,249,0.24)] hover:border-white'
                     : isRank3
                     ? 'border-indigo-400/50 bg-gradient-to-r from-indigo-500/[0.12] via-violet-500/[0.04] to-transparent shadow-[0_0_22px_rgba(99,102,241,0.25)] hover:border-indigo-300'
-                    : entry.tokens === 2
-                    ? 'border-emerald-500/40 bg-gradient-to-r from-emerald-500/[0.09] via-emerald-500/[0.02] to-transparent shadow-[0_0_18px_rgba(16,185,129,0.18)] hover:border-emerald-400'
-                    : 'border-white/10 bg-white/[0.02] hover:border-indigo-500/30 hover:bg-white/[0.04]'
+                    : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]'
                 }`}
               >
                 {/* Left: Rank & User Details */}
@@ -112,8 +110,6 @@ export default function LeaderboardPage() {
                         ? 'bg-gradient-to-br from-slate-100 to-slate-300 text-slate-900 border-white shadow-[0_0_16px_rgba(255,255,255,0.4)]'
                         : isRank3
                         ? 'bg-indigo-500/25 text-indigo-200 border-indigo-400/60 shadow-[0_0_14px_rgba(99,102,241,0.35)]'
-                        : entry.tokens === 2
-                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/50 shadow-[0_0_12px_rgba(16,185,129,0.25)]'
                         : 'bg-white/5 text-zinc-400 border-white/10'
                     }`}
                   >
@@ -134,19 +130,21 @@ export default function LeaderboardPage() {
                   </div>
                 </div>
 
-                {/* Right: Tokens Display */}
+                {/* Right: Tokens Display (According to tier color) */}
                 <div className="shrink-0 flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setSelectedEntry(entry)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all duration-200 cursor-pointer active:scale-95 hover:scale-105 ${
-                      entry.tokens >= 5
+                      isRank1 || entry.tokens >= 5 || entry.badge_type === 'MASTER'
                         ? 'bg-amber-500/15 text-amber-300 border-amber-400/50 shadow-[0_0_14px_rgba(245,158,11,0.25)] hover:border-amber-300'
-                        : entry.tokens === 4
-                        ? 'bg-purple-500/15 text-purple-200 border-purple-400/40 shadow-[0_0_12px_rgba(168,85,247,0.2)] hover:border-purple-300'
-                        : entry.tokens === 3
+                        : isRank2
+                        ? 'bg-slate-200/15 text-slate-100 border-slate-300/50 shadow-[0_0_14px_rgba(241,245,249,0.25)] hover:border-white'
+                        : isRank3 || entry.tokens === 3 || entry.badge_type === 'HUSTLER'
                         ? 'bg-indigo-500/15 text-indigo-200 border-indigo-400/50 shadow-[0_0_14px_rgba(99,102,241,0.25)] hover:border-indigo-300'
-                        : entry.tokens === 2
+                        : entry.tokens === 4 || entry.badge_type === 'RECRUITER'
+                        ? 'bg-purple-500/15 text-purple-200 border-purple-400/40 shadow-[0_0_12px_rgba(168,85,247,0.2)] hover:border-purple-300'
+                        : entry.tokens === 2 || entry.badge_type === 'ACTIVE'
                         ? 'bg-emerald-500/15 text-emerald-200 border-emerald-400/40 shadow-[0_0_14px_rgba(16,185,129,0.25)] hover:border-emerald-300'
                         : 'bg-white/5 text-zinc-300 border-white/10 hover:border-white/30'
                     }`}
@@ -155,13 +153,15 @@ export default function LeaderboardPage() {
                     <Coins
                       size={13}
                       className={
-                        entry.tokens >= 5
+                        isRank1 || entry.tokens >= 5 || entry.badge_type === 'MASTER'
                           ? 'text-amber-400'
-                          : entry.tokens === 4
-                          ? 'text-purple-400'
-                          : entry.tokens === 3
+                          : isRank2
+                          ? 'text-slate-200'
+                          : isRank3 || entry.tokens === 3 || entry.badge_type === 'HUSTLER'
                           ? 'text-indigo-400'
-                          : entry.tokens === 2
+                          : entry.tokens === 4 || entry.badge_type === 'RECRUITER'
+                          ? 'text-purple-400'
+                          : entry.tokens === 2 || entry.badge_type === 'ACTIVE'
                           ? 'text-emerald-400'
                           : 'text-zinc-400'
                       }
@@ -188,6 +188,8 @@ export default function LeaderboardPage() {
           lockedTokens={0}
           badgeType={selectedEntry.badge_type}
           totalVolume={selectedEntry.total_volume || 0}
+          isLeaderboardView={true}
+          username={selectedEntry.username}
           nextChallenge={
             selectedEntry.tokens === 1
               ? {

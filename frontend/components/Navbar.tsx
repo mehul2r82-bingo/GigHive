@@ -146,12 +146,35 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={() => setTokenOpen((prev) => !prev)}
-                    className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 hover:bg-purple-500/20 transition-all text-xs font-semibold"
+                    className={`flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full border transition-all text-xs font-semibold ${
+                      badgeType === 'MASTER' || (totalTokens !== null && totalTokens >= 5)
+                        ? 'bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20'
+                        : badgeType === 'RECRUITER' || totalTokens === 4
+                        ? 'bg-purple-500/10 border-purple-500/30 text-purple-300 hover:bg-purple-500/20'
+                        : badgeType === 'HUSTLER' || totalTokens === 3
+                        ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/20'
+                        : badgeType === 'ACTIVE' || totalTokens === 2
+                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20'
+                        : 'bg-zinc-500/10 border-zinc-500/30 text-zinc-300 hover:bg-zinc-500/20'
+                    }`}
                     aria-label="View token balance"
                   >
-                    <span className="text-purple-400 font-bold">◈</span>
+                    <Coins
+                      size={13}
+                      className={
+                        badgeType === 'MASTER' || (totalTokens !== null && totalTokens >= 5)
+                          ? 'text-amber-400'
+                          : badgeType === 'RECRUITER' || totalTokens === 4
+                          ? 'text-purple-400'
+                          : badgeType === 'HUSTLER' || totalTokens === 3
+                          ? 'text-indigo-400'
+                          : badgeType === 'ACTIVE' || totalTokens === 2
+                          ? 'text-emerald-400'
+                          : 'text-zinc-400'
+                      }
+                    />
                     <span className="font-mono">{availableTokens ?? '—'}</span>
-                    <span className="text-[10px] text-purple-400/70 hidden sm:inline">creds</span>
+                    <span className="text-[10px] opacity-70 hidden sm:inline">creds</span>
                   </button>
 
                   <TokenDetailsModal
@@ -165,6 +188,7 @@ export default function Navbar() {
                     nextChallenge={nextChallenge}
                     todayPosted={todayPosted}
                     todayCompleted={todayCompleted}
+                    isLeaderboardView={false}
                   />
                 </div>
               )}
@@ -375,24 +399,32 @@ export default function Navbar() {
                 </button>
               </div>
 
-              {/* Token Stats Card */}
+              {/* Token Stats Card: Only Ready and Staked, compact */}
               <div
                 onClick={() => {
                   setMobileProfileOpen(false);
                   setTokenOpen(true);
                 }}
-                className="p-3.5 bg-black/40 border border-white/5 hover:border-purple-500/30 rounded-2xl flex items-center justify-between cursor-pointer transition-all"
+                className="p-3 bg-black/40 border border-white/5 hover:border-white/15 rounded-xl flex items-center justify-between cursor-pointer transition-all"
               >
-                <div className="flex items-center gap-2.5">
-                  <Coins size={18} className="text-purple-400" />
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                    <Coins size={16} />
+                  </div>
                   <div>
-                    <p className="text-xs font-semibold text-white">Hive Creds</p>
-                    <p className="text-[11px] text-zinc-400">Protects active claimed gigs</p>
+                    <p className="text-xs font-bold text-white">Hive Creds</p>
+                    <p className="text-[10px] text-zinc-400 font-medium">Click to view challenges</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-mono font-bold text-emerald-400">{availableTokens ?? '0'} Ready</p>
-                  <p className="text-[10px] text-zinc-500 font-mono">{lockedTokens ?? '0'} Staked</p>
+                <div className="flex items-center gap-2">
+                  <div className="text-right px-2 py-0.5 rounded-lg bg-white/[0.03] border border-white/5">
+                    <span className="text-[9px] uppercase font-bold text-zinc-400 block leading-none">Ready</span>
+                    <span className="text-xs font-mono font-bold text-emerald-400 leading-tight">{availableTokens ?? 0}</span>
+                  </div>
+                  <div className="text-right px-2 py-0.5 rounded-lg bg-white/[0.03] border border-white/5">
+                    <span className="text-[9px] uppercase font-bold text-zinc-400 block leading-none">Staked</span>
+                    <span className="text-xs font-mono font-bold text-purple-300 leading-tight">{lockedTokens ?? 0}</span>
+                  </div>
                 </div>
               </div>
 
