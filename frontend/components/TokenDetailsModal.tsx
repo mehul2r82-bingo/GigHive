@@ -87,6 +87,54 @@ export default function TokenDetailsModal({
     return 'bg-zinc-800 border-zinc-600 text-zinc-300';
   };
 
+  const getTierShowcase = (tier: string, tokens: number) => {
+    if (tier === 'MASTER' || tokens >= 5) {
+      return {
+        label: 'Master Tier',
+        tagline: 'Elite Campus Legend · Maximum Clout & Master Perks Active',
+        icon: <Crown size={32} className="text-amber-400 drop-shadow-[0_0_14px_rgba(245,158,11,0.9)]" />,
+        glowClass: 'border-amber-400/50 bg-gradient-to-b from-amber-500/25 via-amber-500/[0.08] to-transparent shadow-[0_0_30px_rgba(245,158,11,0.3)]',
+        badgePillClass: 'text-amber-300 border-amber-400/60 bg-amber-500/25 shadow-[0_0_14px_rgba(245,158,11,0.45)]',
+      };
+    }
+    if (tier === 'RECRUITER' || tokens === 4) {
+      return {
+        label: 'Recruiter Tier',
+        tagline: 'Campus Network Pioneer · High Priority Gig Access',
+        icon: <Flame size={32} className="text-purple-400 drop-shadow-[0_0_14px_rgba(168,85,247,0.9)]" />,
+        glowClass: 'border-purple-400/50 bg-gradient-to-b from-purple-500/25 via-purple-500/[0.08] to-transparent shadow-[0_0_30px_rgba(168,85,247,0.3)]',
+        badgePillClass: 'text-purple-200 border-purple-400/60 bg-purple-500/25 shadow-[0_0_14px_rgba(168,85,247,0.4)]',
+      };
+    }
+    if (tier === 'HUSTLER' || tokens === 3) {
+      return {
+        label: 'Hustler Tier',
+        tagline: 'Verified Campus Mover · Same-Day Completion Achieved',
+        icon: <Zap size={32} className="text-indigo-400 fill-indigo-400/40 drop-shadow-[0_0_14px_rgba(99,102,241,0.9)]" />,
+        glowClass: 'border-indigo-400/50 bg-gradient-to-b from-indigo-500/25 via-indigo-500/[0.08] to-transparent shadow-[0_0_30px_rgba(99,102,241,0.3)]',
+        badgePillClass: 'text-indigo-200 border-indigo-400/60 bg-indigo-500/25 shadow-[0_0_14px_rgba(99,102,241,0.4)]',
+      };
+    }
+    if (tier === 'ACTIVE' || tokens === 2) {
+      return {
+        label: 'Active Tier',
+        tagline: 'Active Campus Solver · Verified Task Participation',
+        icon: <Sparkles size={32} className="text-emerald-300 drop-shadow-[0_0_14px_rgba(16,185,129,0.9)]" />,
+        glowClass: 'border-emerald-400/50 bg-gradient-to-b from-emerald-500/25 via-emerald-500/[0.08] to-transparent shadow-[0_0_30px_rgba(16,185,129,0.3)]',
+        badgePillClass: 'text-emerald-300 border-emerald-400/60 bg-emerald-500/25 shadow-[0_0_14px_rgba(16,185,129,0.4)]',
+      };
+    }
+    return {
+      label: 'Rookie Tier',
+      tagline: 'Campus Starter · Verified Account Ready to Hustle',
+      icon: <Shield size={32} className="text-zinc-300 drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]" />,
+      glowClass: 'border-zinc-500/40 bg-gradient-to-b from-white/10 via-white/[0.04] to-transparent shadow-[0_0_20px_rgba(255,255,255,0.12)]',
+      badgePillClass: 'text-zinc-200 border-white/20 bg-white/10',
+    };
+  };
+
+  const showcase = getTierShowcase(currentTier, totalTokens);
+
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md">
@@ -165,73 +213,101 @@ export default function TokenDetailsModal({
             </div>
           )}
 
-          {/* Next Challenge Card (Clean, Bold, Compact) */}
-          <div className="rounded-xl border border-indigo-400/40 bg-indigo-500/[0.08] p-2.5 mb-2.5">
-            <div className="flex items-center justify-between mb-1">
-              <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider text-indigo-300">
-                <Sparkles size={11} className="text-indigo-400" />
-                Next Challenge: Cred #{targetToken}
-              </span>
-              <span className="text-[9px] font-bold text-zinc-200 bg-white/10 px-1.5 py-0.5 rounded-md border border-white/10">
-                {targetToken === 3 ? 'Resets 12 AM' : 'Automatic'}
-              </span>
-            </div>
-
-            {/* Token 3 Same-Day Challenge */}
-            {targetToken === 3 ? (
-              <div className="space-y-1.5">
-                <p className="text-xs text-white font-bold tracking-tight">
-                  Same-Day Double Hustle
-                </p>
-                <div className="grid grid-cols-2 gap-1.5 text-xs font-bold">
-                  <div
-                    className={`flex items-center gap-1.5 p-1.5 rounded-lg border transition-all ${
-                      todayPosted
-                        ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.25)]'
-                        : 'border-white/15 bg-white/[0.04] text-zinc-200'
-                    }`}
-                  >
-                    <div className={`w-3.5 h-3.5 rounded flex items-center justify-center shrink-0 ${todayPosted ? 'bg-emerald-500 text-black font-black' : 'border border-zinc-400'}`}>
-                      {todayPosted && <Check size={10} className="stroke-[3.5]" />}
-                    </div>
-                    <span className="truncate">Post any gig</span>
-                  </div>
-
-                  <div
-                    className={`flex items-center gap-1.5 p-1.5 rounded-lg border transition-all ${
-                      todayCompleted
-                        ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.25)]'
-                        : 'border-white/15 bg-white/[0.04] text-zinc-200'
-                    }`}
-                  >
-                    <div className={`w-3.5 h-3.5 rounded flex items-center justify-center shrink-0 ${todayCompleted ? 'bg-emerald-500 text-black font-black' : 'border border-zinc-400'}`}>
-                      {todayCompleted && <Check size={10} className="stroke-[3.5]" />}
-                    </div>
-                    <span className="truncate">Accept & complete gig</span>
-                  </div>
+          {/* ======================================================== */}
+          {/* LEADERBOARD VIEW: Glowing Badge & Tier Showcase */}
+          {/* (Removes challenge details; showcases status & clout!) */}
+          {/* ======================================================== */}
+          {isLeaderboardView ? (
+            <div className={`rounded-2xl border p-3.5 mb-2.5 text-center transition-all ${showcase.glowClass}`}>
+              <div className="flex justify-center mb-2">
+                <div className="w-12 h-12 rounded-2xl bg-black/50 border border-white/15 flex items-center justify-center">
+                  {showcase.icon}
                 </div>
-                <p className="text-[10px] text-zinc-300 font-semibold leading-snug">
-                  Posted gig just needs to be published; accepted gig must be completed today.
-                </p>
               </div>
-            ) : targetToken === 5 ? (
-              <p className="text-xs text-zinc-200 font-semibold">
-                Reach ₹250 campus volume to unlock the 5th Golden Cred and both Master perks.
+
+              <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-1.5 border ${showcase.badgePillClass}`}>
+                {showcase.label}
+              </div>
+
+              <p className="text-xs text-white font-black tracking-tight">
+                {totalTokens} of 5 Hive Creds Unlocked
               </p>
-            ) : targetToken === 4 ? (
-              <p className="text-xs text-zinc-200 font-semibold">
-                Refer a classmate who posts their first gig on GigHive to unlock Cred #4.
+
+              <p className="text-[11px] text-zinc-300 font-semibold mt-1 leading-snug max-w-[270px] mx-auto">
+                {showcase.tagline}
               </p>
-            ) : totalTokens >= 5 ? (
-              <p className="text-xs text-amber-300 font-bold">
-                Master Status Achieved! All elite perks are active on your account.
-              </p>
-            ) : (
-              <p className="text-xs text-zinc-200 font-semibold">
-                Post your first gig or accept an open task on campus to unlock Cred #2.
-              </p>
-            )}
-          </div>
+            </div>
+          ) : (
+            /* ======================================================== */
+            /* USER OWN ACCOUNT VIEW: Actionable Next Challenge Card */
+            /* ======================================================== */
+            <div className="rounded-xl border border-indigo-400/40 bg-indigo-500/[0.08] p-2.5 mb-2.5">
+              <div className="flex items-center justify-between mb-1">
+                <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider text-indigo-300">
+                  <Sparkles size={11} className="text-indigo-400" />
+                  Next Challenge: Cred #{targetToken}
+                </span>
+                <span className="text-[9px] font-bold text-zinc-200 bg-white/10 px-1.5 py-0.5 rounded-md border border-white/10">
+                  {targetToken === 3 ? 'Resets 12 AM' : 'Automatic'}
+                </span>
+              </div>
+
+              {/* Token 3 Same-Day Challenge */}
+              {targetToken === 3 ? (
+                <div className="space-y-1.5">
+                  <p className="text-xs text-white font-bold tracking-tight">
+                    Same-Day Double Hustle
+                  </p>
+                  <div className="grid grid-cols-2 gap-1.5 text-xs font-bold">
+                    <div
+                      className={`flex items-center gap-1.5 p-1.5 rounded-lg border transition-all ${
+                        todayPosted
+                          ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.25)]'
+                          : 'border-white/15 bg-white/[0.04] text-zinc-200'
+                      }`}
+                    >
+                      <div className={`w-3.5 h-3.5 rounded flex items-center justify-center shrink-0 ${todayPosted ? 'bg-emerald-500 text-black font-black' : 'border border-zinc-400'}`}>
+                        {todayPosted && <Check size={10} className="stroke-[3.5]" />}
+                      </div>
+                      <span className="truncate">Post any gig</span>
+                    </div>
+
+                    <div
+                      className={`flex items-center gap-1.5 p-1.5 rounded-lg border transition-all ${
+                        todayCompleted
+                          ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.25)]'
+                          : 'border-white/15 bg-white/[0.04] text-zinc-200'
+                      }`}
+                    >
+                      <div className={`w-3.5 h-3.5 rounded flex items-center justify-center shrink-0 ${todayCompleted ? 'bg-emerald-500 text-black font-black' : 'border border-zinc-400'}`}>
+                        {todayCompleted && <Check size={10} className="stroke-[3.5]" />}
+                      </div>
+                      <span className="truncate">Accept & complete gig</span>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-zinc-300 font-semibold leading-snug">
+                    Posted gig just needs to be published; accepted gig must be completed today.
+                  </p>
+                </div>
+              ) : targetToken === 5 ? (
+                <p className="text-xs text-zinc-200 font-semibold">
+                  Reach ₹250 campus volume to unlock the 5th Golden Cred and both Master perks.
+                </p>
+              ) : targetToken === 4 ? (
+                <p className="text-xs text-zinc-200 font-semibold">
+                  Refer a classmate who posts their first gig on GigHive to unlock Cred #4.
+                </p>
+              ) : totalTokens >= 5 ? (
+                <p className="text-xs text-amber-300 font-bold">
+                  Master Status Achieved! All elite perks are active on your account.
+                </p>
+              ) : (
+                <p className="text-xs text-zinc-200 font-semibold">
+                  Post your first gig or accept an open task on campus to unlock Cred #2.
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Horizontal 5-Step Roadmap Tracker (Compact & High Contrast) */}
           <div className="pt-2 border-t border-white/10 mb-2.5">
