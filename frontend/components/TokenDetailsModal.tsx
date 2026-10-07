@@ -42,11 +42,11 @@ interface TokenDetailsModalProps {
 }
 
 const ROADMAP_STEPS = [
-  { num: 1, label: 'Rookie', color: 'text-zinc-400 border-zinc-600 bg-zinc-800/40' },
-  { num: 2, label: 'Active', color: 'text-emerald-300 border-emerald-500/50 bg-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.3)]' },
-  { num: 3, label: 'Hustler', color: 'text-indigo-300 border-indigo-500/50 bg-indigo-500/20 shadow-[0_0_10px_rgba(99,102,241,0.3)]' },
-  { num: 4, label: 'Recruiter', color: 'text-purple-300 border-purple-500/50 bg-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.3)]' },
-  { num: 5, label: 'Master', color: 'text-amber-300 border-amber-400/60 bg-amber-500/20 shadow-[0_0_12px_rgba(245,158,11,0.4)]' },
+  { num: 1, label: 'Rookie', color: 'text-zinc-200 border-zinc-500/70 bg-zinc-800/80 font-bold' },
+  { num: 2, label: 'Active', color: 'text-emerald-300 border-emerald-400/70 bg-emerald-500/25 shadow-[0_0_10px_rgba(16,185,129,0.35)] font-bold' },
+  { num: 3, label: 'Hustler', color: 'text-indigo-300 border-indigo-400/70 bg-indigo-500/25 shadow-[0_0_10px_rgba(99,102,241,0.35)] font-bold' },
+  { num: 4, label: 'Recruiter', color: 'text-purple-300 border-purple-400/70 bg-purple-500/25 shadow-[0_0_10px_rgba(168,85,247,0.35)] font-bold' },
+  { num: 5, label: 'Master', color: 'text-amber-300 border-amber-400/80 bg-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.45)] font-bold' },
 ];
 
 export default function TokenDetailsModal({
@@ -71,171 +71,171 @@ export default function TokenDetailsModal({
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md">
         <motion.div
-          initial={{ opacity: 0, scale: 0.92, y: 12 }}
+          initial={{ opacity: 0, scale: 0.94, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.94, y: 12 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 320 }}
-          className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#0E0E13] p-5 shadow-[0_0_50px_rgba(0,0,0,0.8)] text-left"
+          exit={{ opacity: 0, scale: 0.95, y: 10 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 340 }}
+          className="relative w-full max-w-sm rounded-2xl border border-white/15 bg-[#0E0E13] p-4 shadow-[0_0_50px_rgba(0,0,0,0.85)] text-left"
         >
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white transition-colors cursor-pointer"
+            className="absolute top-3.5 right-3.5 w-6 h-6 rounded-full bg-white/10 border border-white/15 flex items-center justify-center text-zinc-300 hover:text-white transition-colors cursor-pointer"
             aria-label="Close"
           >
-            <X size={15} />
+            <X size={14} className="stroke-[2.5]" />
           </button>
 
           {/* Top Bar: Title & Status */}
-          <div className="flex items-center gap-2.5 mb-3 pr-8">
-            <div className="w-8 h-8 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0">
-              <Coins size={16} />
+          <div className="flex items-center gap-2 mb-2.5 pr-7">
+            <div className="w-7 h-7 rounded-lg bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-300 shrink-0 shadow-[0_0_10px_rgba(99,102,241,0.25)]">
+              <Coins size={15} />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-white tracking-tight">
+              <div className="flex items-center gap-1.5">
+                <h3 className="text-sm font-extrabold text-white tracking-tight">
                   Hive Creds
                 </h3>
                 <GamificationBadge type={currentTier} size="sm" />
               </div>
-              <p className="text-[11px] font-mono text-zinc-400">
+              <p className="text-[11px] font-bold text-zinc-300">
                 {totalTokens} of 5 Hive Creds Held
               </p>
             </div>
           </div>
 
           {/* Mini Balances Row */}
-          <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl border border-white/10 bg-white/[0.02] mb-3.5 text-center font-mono">
+          <div className="grid grid-cols-3 gap-1.5 p-2 rounded-xl border border-white/10 bg-white/[0.03] mb-2.5 text-center">
             <div>
-              <span className="text-[10px] text-zinc-400 block uppercase">Ready</span>
-              <span className="text-sm font-extrabold text-emerald-400">{availableTokens}</span>
+              <span className="text-[9px] text-zinc-400 block uppercase font-bold tracking-wider">Ready</span>
+              <span className="text-xs font-black text-emerald-400">{availableTokens}</span>
             </div>
             <div className="border-x border-white/10">
-              <span className="text-[10px] text-zinc-400 block uppercase">Staked</span>
-              <span className="text-sm font-extrabold text-purple-300">{lockedTokens}</span>
+              <span className="text-[9px] text-zinc-400 block uppercase font-bold tracking-wider">Staked</span>
+              <span className="text-xs font-black text-purple-300">{lockedTokens}</span>
             </div>
             <div>
-              <span className="text-[10px] text-zinc-400 block uppercase">Volume</span>
-              <span className="text-sm font-extrabold text-amber-300">₹{totalVolume}</span>
+              <span className="text-[9px] text-zinc-400 block uppercase font-bold tracking-wider">Volume</span>
+              <span className="text-xs font-black text-amber-300">₹{totalVolume}</span>
             </div>
           </div>
 
-          {/* ₹250 Campus Volume Bar (Highlighted & Clean) */}
-          <div className="rounded-xl border border-amber-500/30 bg-amber-500/[0.04] p-3 mb-3.5 space-y-1.5">
-            <div className="flex justify-between items-center text-xs font-mono">
-              <span className="text-amber-200 font-bold flex items-center gap-1.5">
-                <Crown size={13} className="text-amber-400" />
+          {/* ₹250 Campus Volume Bar (Highlighted & Compact) */}
+          <div className="rounded-xl border border-amber-500/35 bg-amber-500/[0.05] p-2.5 mb-2.5 space-y-1">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-amber-200 font-extrabold flex items-center gap-1.5">
+                <Crown size={12} className="text-amber-400" />
                 Campus Volume Goal
               </span>
-              <span className="text-emerald-400 font-extrabold">
-                ₹{totalVolume} / ₹250 <span className="text-[10px] text-zinc-400 font-normal">({volumeProgress}%)</span>
+              <span className="text-emerald-400 font-black">
+                ₹{totalVolume} / ₹250 <span className="text-[10px] text-zinc-300 font-bold">({volumeProgress}%)</span>
               </span>
             </div>
             
-            <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden p-0.5 border border-white/5">
+            <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden p-0.5 border border-white/10">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 shadow-[0_0_10px_rgba(245,158,11,0.6)] transition-all duration-700"
+                className="h-full rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 shadow-[0_0_10px_rgba(245,158,11,0.7)] transition-all duration-700"
                 style={{ width: `${volumeProgress}%` }}
               />
             </div>
 
-            <div className="flex justify-between items-center text-[10px] text-zinc-400 pt-0.5">
+            <div className="flex justify-between items-center text-[10px] text-zinc-300 font-semibold pt-0.5">
               <span>Perk 1: Free Homework Pass (₹100)</span>
               <span>Perk 2: +₹50 Bounty Boost</span>
             </div>
           </div>
 
-          {/* Next Challenge Card (Clean, Simple, 0 Clutter) */}
-          <div className="rounded-xl border border-indigo-400/35 bg-indigo-500/[0.06] p-3 mb-4">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-300">
+          {/* Next Challenge Card (Clean, Bold, Compact) */}
+          <div className="rounded-xl border border-indigo-400/40 bg-indigo-500/[0.08] p-2.5 mb-2.5">
+            <div className="flex items-center justify-between mb-1">
+              <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider text-indigo-300">
                 <Sparkles size={11} className="text-indigo-400" />
                 Next Challenge: Cred #{targetToken}
               </span>
-              <span className="text-[10px] font-mono text-zinc-400">
+              <span className="text-[9px] font-bold text-zinc-200 bg-white/10 px-1.5 py-0.5 rounded-md border border-white/10">
                 {targetToken === 3 ? 'Resets 12 AM' : 'Automatic'}
               </span>
             </div>
 
             {/* Token 3 Same-Day Challenge */}
             {targetToken === 3 ? (
-              <div className="space-y-2">
-                <p className="text-xs text-white font-medium leading-snug">
+              <div className="space-y-1.5">
+                <p className="text-xs text-white font-bold tracking-tight">
                   Same-Day Double Hustle
                 </p>
-                <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
+                <div className="grid grid-cols-2 gap-1.5 text-xs font-bold">
                   <div
-                    className={`flex items-center gap-1.5 p-1.5 rounded-lg border ${
+                    className={`flex items-center gap-1.5 p-1.5 rounded-lg border transition-all ${
                       todayPosted
-                        ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
-                        : 'border-white/10 bg-white/[0.02] text-zinc-400'
+                        ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.25)]'
+                        : 'border-white/15 bg-white/[0.04] text-zinc-200'
                     }`}
                   >
-                    <div className={`w-3.5 h-3.5 rounded flex items-center justify-center shrink-0 ${todayPosted ? 'bg-emerald-500 text-black' : 'border border-zinc-600'}`}>
-                      {todayPosted && <Check size={10} className="stroke-[3]" />}
+                    <div className={`w-3.5 h-3.5 rounded flex items-center justify-center shrink-0 ${todayPosted ? 'bg-emerald-500 text-black font-black' : 'border border-zinc-400'}`}>
+                      {todayPosted && <Check size={10} className="stroke-[3.5]" />}
                     </div>
                     <span className="truncate">Post any gig</span>
                   </div>
 
                   <div
-                    className={`flex items-center gap-1.5 p-1.5 rounded-lg border ${
+                    className={`flex items-center gap-1.5 p-1.5 rounded-lg border transition-all ${
                       todayCompleted
-                        ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
-                        : 'border-white/10 bg-white/[0.02] text-zinc-400'
+                        ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.25)]'
+                        : 'border-white/15 bg-white/[0.04] text-zinc-200'
                     }`}
                   >
-                    <div className={`w-3.5 h-3.5 rounded flex items-center justify-center shrink-0 ${todayCompleted ? 'bg-emerald-500 text-black' : 'border border-zinc-600'}`}>
-                      {todayCompleted && <Check size={10} className="stroke-[3]" />}
+                    <div className={`w-3.5 h-3.5 rounded flex items-center justify-center shrink-0 ${todayCompleted ? 'bg-emerald-500 text-black font-black' : 'border border-zinc-400'}`}>
+                      {todayCompleted && <Check size={10} className="stroke-[3.5]" />}
                     </div>
-                    <span className="truncate">Solve a gig</span>
+                    <span className="truncate">Accept & complete gig</span>
                   </div>
                 </div>
-                <p className="text-[10px] text-zinc-400 leading-tight">
+                <p className="text-[10px] text-zinc-300 font-semibold leading-snug">
                   Posted gig just needs to be published; accepted gig must be completed today.
                 </p>
               </div>
             ) : targetToken === 5 ? (
-              <p className="text-xs text-zinc-300">
+              <p className="text-xs text-zinc-200 font-semibold">
                 Reach ₹250 campus volume to unlock the 5th Golden Cred and both Master perks.
               </p>
             ) : targetToken === 4 ? (
-              <p className="text-xs text-zinc-300">
+              <p className="text-xs text-zinc-200 font-semibold">
                 Refer a classmate who posts their first gig on GigHive to unlock Cred #4.
               </p>
             ) : totalTokens >= 5 ? (
-              <p className="text-xs text-amber-200 font-semibold">
+              <p className="text-xs text-amber-300 font-bold">
                 Master Status Achieved! All elite perks are active on your account.
               </p>
             ) : (
-              <p className="text-xs text-zinc-300">
+              <p className="text-xs text-zinc-200 font-semibold">
                 Post your first gig or accept an open task on campus to unlock Cred #2.
               </p>
             )}
           </div>
 
-          {/* Horizontal 5-Step Roadmap Tracker (Compact 32px height) */}
-          <div className="pt-2 border-t border-white/10 mb-4">
-            <div className="flex items-center justify-between text-[10px] font-mono mb-2 text-zinc-400">
+          {/* Horizontal 5-Step Roadmap Tracker (Compact & High Contrast) */}
+          <div className="pt-2 border-t border-white/10 mb-2.5">
+            <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider mb-1.5 text-zinc-300">
               <span>Cred Roadmap</span>
-              <span className="text-white font-bold">{totalTokens}/5 Complete</span>
+              <span className="text-white font-black">{totalTokens}/5 Complete</span>
             </div>
 
-            <div className="grid grid-cols-5 gap-1.5">
+            <div className="grid grid-cols-5 gap-1">
               {ROADMAP_STEPS.map((step) => {
                 const isUnlocked = totalTokens >= step.num;
                 return (
                   <div
                     key={step.num}
-                    className={`p-1.5 rounded-xl border text-center transition-all ${
+                    className={`py-1 px-0.5 rounded-lg border text-center transition-all ${
                       isUnlocked
                         ? step.color
-                        : 'border-white/5 bg-white/[0.02] text-zinc-600'
+                        : 'border-white/10 bg-white/[0.03] text-zinc-400 font-semibold'
                     }`}
                   >
-                    <div className="text-[11px] font-mono font-bold leading-none mb-0.5">
+                    <div className="text-[10px] font-black leading-none mb-0.5">
                       #{step.num}
                     </div>
-                    <div className="text-[9px] font-mono truncate leading-none">
+                    <div className="text-[9px] font-bold truncate leading-none">
                       {step.label}
                     </div>
                   </div>
@@ -247,7 +247,7 @@ export default function TokenDetailsModal({
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="w-full py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs font-mono tracking-wider transition-all cursor-pointer text-center"
+            className="w-full py-2 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-black text-xs tracking-wider transition-all cursor-pointer text-center active:scale-95"
           >
             CLOSE
           </button>

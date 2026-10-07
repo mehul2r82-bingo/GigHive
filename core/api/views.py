@@ -493,12 +493,12 @@ class TokenAccountView(generics.GenericAPIView):
                 "target_token": 3,
                 "tier": "HUSTLER",
                 "title": "Same-Day Dual Hustle",
-                "note": "Same-Day Dual Challenge: Post any gig (just publish, no need to be finished today) AND complete an accepted gig as solver on the SAME DAY.",
+                "note": "Same-Day Dual Challenge: Post any gig (just publish, no need to be finished today) AND accept & complete a gig on the SAME DAY.",
                 "reward": "+1 Hive Cred (Hustler Tier)",
                 "today_posted": today_posted,
                 "today_completed": today_completed,
                 "action_url": "/" if today_posted else "/create-task",
-                "action_label": "Solve Gigs" if today_posted else "Post a Gig",
+                "action_label": "Accept & Complete Gigs" if today_posted else "Post a Gig",
             }
         elif tokens == 3:
             next_challenge = {

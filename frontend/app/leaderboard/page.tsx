@@ -202,7 +202,7 @@ export default function LeaderboardPage() {
                   target_token: 3,
                   tier: 'HUSTLER',
                   title: 'Same-Day Dual Hustle',
-                  note: 'Same-Day Dual Challenge: Post any gig (no need to be finished today) AND complete an accepted gig as solver on the SAME DAY.',
+                  note: 'Same-Day Dual Challenge: Post any gig (no need to be finished today) AND accept & complete a gig on the SAME DAY.',
                   reward: '+1 Hive Cred (Hustler Tier)',
                 }
               : selectedEntry.tokens === 3
