@@ -109,6 +109,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         value = str(value).strip()
         if not value:
             raise serializers.ValidationError("Registration number is required.")
+        if not value.isdigit() or len(value) != 8:
+            raise serializers.ValidationError("Registration number must be exactly 8 digits.")
         if UserProfile.objects.filter(registration_number__iexact=value).exists():
             raise serializers.ValidationError("An account with this student registration number already exists.")
         return value
@@ -116,8 +118,11 @@ class RegisterSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data["password"] != data["confirm_password"]:
             raise serializers.ValidationError("Passwords do not match")
-        if not data.get("email"):
+        email = data.get("email", "").strip()
+        if not email:
             raise serializers.ValidationError("Email is required.")
+        if User.objects.filter(email__iexact=email).exists():
+            raise serializers.ValidationError("An account with this email address already exists.")
         return data
 
     def create(self, validated_data):

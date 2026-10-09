@@ -24,7 +24,10 @@ export default function SignupPage() {
 ) => {
   e.preventDefault();
 
-  console.log("SUBMIT CLICKED");
+  if (registrationNumber.trim().length !== 8) {
+    setError("Student registration number must be exactly 8 digits.");
+    return;
+  }
 
   setLoading(true);
   setError("");
@@ -136,16 +139,21 @@ export default function SignupPage() {
         {/* Student Registration Number */}
         <div className="mb-4">
           <label className="block text-sm font-semibold text-zinc-200 mb-1.5">
-            Student Registration Number <span className="text-xs text-zinc-500 font-normal ml-1">(UID / Reg No.)</span>
+            Student Registration Number <span className="text-xs text-zinc-500 font-normal ml-1">(8-digit UID)</span>
           </label>
           <input
             type="text"
+            inputMode="numeric"
+            maxLength={8}
             value={registrationNumber}
-            onChange={(e) => setRegistrationNumber(e.target.value)}
+            onChange={(e) => setRegistrationNumber(e.target.value.replace(/\D/g, '').slice(0, 8))}
             placeholder="e.g. 12408281"
-            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
+            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 font-mono tracking-wider"
             required
           />
+          {registrationNumber && registrationNumber.length < 8 && (
+            <p className="text-xs text-amber-400 mt-1">Must be exactly 8 digits ({registrationNumber.length}/8)</p>
+          )}
         </div>
 
         {/* Email Address */}
