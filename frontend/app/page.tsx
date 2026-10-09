@@ -170,7 +170,7 @@ return (
         )}
 
         {/* EMPTY STATE */}
-          {!loading && tasks.filter((task) => task.state === "OPEN").length === 0 && (
+          {!loading && tasks.filter((task) => task.state === "OPEN" && (!task.deadline || new Date(task.deadline).getTime() > Date.now())).length === 0 && (
           <div className="rounded-2xl border border-white/10 px-6 py-20 text-center max-w-lg mx-auto">
             <svg
               width="120"
@@ -210,7 +210,7 @@ return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
           {tasks
-          .filter((task) => task.state === "OPEN")
+          .filter((task) => task.state === "OPEN" && (!task.deadline || new Date(task.deadline).getTime() > Date.now()))
           .map((task, index) => (
 
             <div

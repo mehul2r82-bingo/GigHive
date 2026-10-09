@@ -705,6 +705,9 @@ class Task(models.Model):
 
         task._ensure_state(TaskState.OPEN)
 
+        if task.deadline and task.deadline < timezone.now():
+            raise ValidationError("This task has expired and can no longer be accepted.")
+
         # Step 7 — require payout address
         if not actor.profile.earnings_upi_id:
             raise ValidationError("Add your Earnings UPI to receive payments")

@@ -198,10 +198,12 @@ export default function MyTasksPage() {
   // ---------- Presentation-only helpers (no business logic, no new state) ----------
 
   const statusStyles: Record<string, string> = {
+    OPEN: "bg-blue-500/10 text-blue-300 border-blue-500/30",
     ACCEPTED: "bg-indigo-500/10 text-indigo-300 border-indigo-500/30",
     SUBMITTED: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
     COMPLETED: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
     FAILED: "bg-red-500/10 text-red-300 border-red-500/30",
+    CANCELLED: "bg-zinc-500/10 text-zinc-400 border-zinc-500/30",
   };
 
   const getStatusStyle = (state: string) =>

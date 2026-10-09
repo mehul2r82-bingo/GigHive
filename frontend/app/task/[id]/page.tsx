@@ -98,6 +98,11 @@ export default function TaskDetailPage() {
     currentUser.trim().toLowerCase() === task.giver.trim().toLowerCase()
   );
 
+  // Check if task deadline has passed
+  const isDeadlineExpired = Boolean(
+    task?.deadline && new Date(task.deadline).getTime() < Date.now()
+  );
+
   // UPI modal local UI state
   const [upiInput, setUpiInput] = useState("");
   const [upiMode, setUpiMode] = useState<"view" | "edit">("edit");
@@ -256,6 +261,10 @@ export default function TaskDetailPage() {
   }, [errorModal]);
 
   function handleAcceptButtonClick() {
+    if (isDeadlineExpired) {
+      setErrorModal("expired");
+      return;
+    }
     if (isOwnTask) {
       setErrorModal("own_task");
       return;
@@ -286,9 +295,9 @@ export default function TaskDetailPage() {
         "This task has already been accepted by another student.",
     },
     expired: {
-      title: "Task no longer available",
+      title: "Deadline Expired",
       description:
-        "This task is no longer available.",
+        "The deadline for this task has passed. It can no longer be accepted.",
     },
   };
 
@@ -521,7 +530,7 @@ export default function TaskDetailPage() {
               </motion.div>
 
               {/* ACCEPT BUTTON */}
-            {task.state === "OPEN" ? (
+            {task.state === "OPEN" && !isDeadlineExpired ? (
               isOwnTask ? (
                 <div>
                   <button
@@ -559,6 +568,15 @@ export default function TaskDetailPage() {
                   </p>
                 </div>
               )
+            ) : isDeadlineExpired ? (
+              <div className="rounded-xl border border-red-500/20 bg-red-500/[0.04] p-4 text-center">
+                <p className="text-sm font-semibold text-red-400">
+                  Deadline Expired
+                </p>
+                <p className="text-xs text-zinc-500 mt-1.5">
+                  The deadline for this task has passed. It can no longer be accepted.
+                </p>
+              </div>
             ) : (
               <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 text-center">
                 <p className="text-sm font-semibold text-zinc-300">

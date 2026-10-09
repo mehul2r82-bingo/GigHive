@@ -25,6 +25,7 @@ from .serializers import (
     NotificationSerializer,
 )
 from core.notifications import send_user_notification, broadcast_push_notification
+from core.services.deadline_processor import check_and_expire_deadlines
 
 class TaskListView(generics.ListCreateAPIView):
     queryset = Task.objects.all()
@@ -43,11 +44,14 @@ class TaskListView(generics.ListCreateAPIView):
         self.request.user.profile.sync_tokens()
 
     def get_queryset(self):
+        check_and_expire_deadlines()
         return (
             Task.objects
             .filter(
+                state=TaskState.OPEN,
                 published_at__isnull=False,
                 taker__isnull=True,
+                deadline__gt=timezone.now(),
             )
             .select_related(
                 "giver",
@@ -60,6 +64,10 @@ class TaskDetailView(generics.RetrieveAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        check_and_expire_deadlines()
+        return super().get(request, *args, **kwargs)
 
 # core/api/views.py
 class RegisterView(generics.CreateAPIView):
@@ -94,7 +102,14 @@ class TaskAcceptView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
+        check_and_expire_deadlines()
         task = get_object_or_404(Task, pk=pk)
+
+        if task.deadline and task.deadline < timezone.now():
+            return Response(
+                {"detail": "This task has expired and can no longer be accepted."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         serializer = self.get_serializer(
             data={},
@@ -434,11 +449,18 @@ class PaymentRefundView(generics.GenericAPIView):
         if not request.user.is_staff:
             raise PermissionDenied("Only admins can issue refunds")
 
-        if task.state != TaskState.FAILED:
-            raise ValidationError("Task has not failed")
+        if task.state not in [TaskState.FAILED, TaskState.CANCELLED]:
+            raise ValidationError("Task has not failed or been cancelled")
 
         payment.status = Payment.Status.REFUNDED
         payment.save(update_fields=["status"])
+
+        send_user_notification(
+            user=task.giver,
+            title="💰 Refund Completed",
+            message=f"Your refund of ₹{payment.amount} for task '{task.title}' has been processed.",
+            url="/my-tasks"
+        )
 
         return Response(
             {"detail": "Payment refunded to giver."},
@@ -461,6 +483,7 @@ class MyTasksView(generics.ListAPIView):
     permission_classes = []
 
     def get_queryset(self):
+        check_and_expire_deadlines()
         return Task.objects.filter(
             Q(giver=self.request.user) |
             Q(taker=self.request.user)
@@ -633,36 +656,12 @@ def fail_expired_tasks_api(request):
     ):
         return JsonResponse({"error": "Unauthorized"}, status=401)
 
-    now = timezone.now()
-
-    expired_tasks = Task.objects.filter(
-        state=TaskState.ACCEPTED,
-        deadline__lt=now,
-    )
-
-    processed = 0
-
-    for task in expired_tasks:
-        try:
-            task.fail()
-            processed += 1
-
-            send_telegram_message(
-                f"⚠️ GigHive — Deadline Failure\n\n"
-                f"Task ID: #{task.id}\n"
-                f"Task: {task.title}\n"
-                f"Taker: {task.taker.username}\n"
-                f"Payment: Refund Pending\n\n"
-                f"Action required: Refund the giver in Django Admin."
-            )
-
-        except Exception as e:
-            print(f"[CRON] Failed task #{task.id}: {e}")
+    processed = check_and_expire_deadlines()
 
     return JsonResponse({
         "success": True,
         "processed": processed,
-        "checked_at": now.isoformat(),
+        "checked_at": timezone.now().isoformat(),
     })
 
 

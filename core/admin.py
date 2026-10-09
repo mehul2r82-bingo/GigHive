@@ -72,6 +72,7 @@ def mark_payment_completed(modeladmin, request, queryset):
         
 @admin.action(description="Mark refund sent to giver")
 def mark_refund_completed(modeladmin, request, queryset):
+    from core.notifications import send_user_notification
 
     updated = 0
 
@@ -88,6 +89,14 @@ def mark_refund_completed(modeladmin, request, queryset):
         payment.status = Payment.Status.REFUNDED
         payment.verified = True
         payment.save(update_fields=["status", "verified"])
+
+        task_title = getattr(payment.task, "title", "your task") if hasattr(payment, "task") else "your task"
+        send_user_notification(
+            user=payment.payer,
+            title="💰 Refund Completed",
+            message=f"Your refund of ₹{payment.amount} for {task_title} has been transferred to {profile.refund_upi_id}.",
+            url="/my-tasks"
+        )
 
         updated += 1
 
