@@ -566,16 +566,33 @@ class LeaderboardView(APIView):
     def get(self, request):
         from core.models import UserProfile
 
-        profiles = (
+        profiles = list(
             UserProfile.objects.select_related("user", "user__token_account")
             .filter(user__is_active=True)
-            .order_by("-user__token_account__total_tokens", "-tasks_completed_count", "-tasks_posted_count")[:35]
+            .exclude(user__username="admin07")
+        )
+
+        for profile in profiles:
+            profile.sync_tokens()
+
+        profiles.sort(
+            key=lambda p: (
+                getattr(p.user.token_account, "total_tokens", 1) if hasattr(p.user, "token_account") else 1,
+                p.tasks_completed_count + p.tasks_posted_count,
+                p.total_volume,
+            ),
+            reverse=True
         )
 
         leaderboard = []
-        for idx, profile in enumerate(profiles, start=1):
-            profile.sync_tokens()
+        for idx, profile in enumerate(profiles[:10], start=1):
             tokens = profile.user.token_account.total_tokens if hasattr(profile.user, "token_account") else 1
+            badge = profile.badge_type
+
+            if idx == 1 and badge in ["ROOKIE", "ACTIVE"]:
+                badge = "MASTER"
+                tokens = max(tokens, 5)
+
             reg = profile.registration_number or ""
             masked_reg = f"{reg[:4]}****" if len(reg) >= 4 else (reg if reg else "LPU Student")
 
@@ -584,17 +601,21 @@ class LeaderboardView(APIView):
                 "username": profile.user.username,
                 "reg_no": masked_reg,
                 "tokens": tokens,
-                "badge_type": profile.badge_type,
+                "badge_type": badge,
                 "tasks_completed": profile.tasks_completed_count,
                 "tasks_posted": profile.tasks_posted_count,
                 "total_volume": profile.total_volume,
             })
 
-        return Response({
+        response = Response({
             "leaderboard": leaderboard,
             "speed_runners": leaderboard,
             "gold_patrons": leaderboard,
         })
+        response["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+        response["Pragma"] = "no-cache"
+        response["Expires"] = "0"
+        return response
 
 
 def fail_expired_tasks_api(request):

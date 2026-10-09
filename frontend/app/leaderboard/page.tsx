@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, Coins, CheckCircle, ShieldCheck, Sparkles, Crown } from 'lucide-react';
+import { Trophy, Coins } from 'lucide-react';
 import API from '@/services/api';
 import GamificationBadge, { BadgeType } from '@/components/GamificationBadge';
 import TokenDetailsModal from '@/components/TokenDetailsModal';
@@ -18,13 +18,16 @@ interface LeaderboardEntry {
 }
 
 const DEFAULT_LEADERBOARD: LeaderboardEntry[] = [
-  { rank: 1, username: 'Hostel7_Flash', reg_no: '1240****', tokens: 5, badge_type: 'MASTER', tasks_completed: 18, total_volume: 820 },
-  { rank: 2, username: 'CodeNinja_LPU', reg_no: '1231****', tokens: 4, badge_type: 'RECRUITER', tasks_completed: 12, total_volume: 540 },
-  { rank: 3, username: 'Block34_Ace', reg_no: '1220****', tokens: 3, badge_type: 'HUSTLER', tasks_completed: 7, total_volume: 310 },
-  { rank: 4, username: 'NightOwl_99', reg_no: '1241****', tokens: 2, badge_type: 'ACTIVE', tasks_completed: 4, total_volume: 180 },
-  { rank: 5, username: 'CampusSprinter', reg_no: '1238****', tokens: 2, badge_type: 'ACTIVE', tasks_completed: 3, total_volume: 120 },
-  { rank: 6, username: 'UniClub_Design', reg_no: '1229****', tokens: 1, badge_type: 'ROOKIE', tasks_completed: 1, total_volume: 60 },
-  { rank: 7, username: 'Fresh_Hustler', reg_no: '1245****', tokens: 1, badge_type: 'ROOKIE', tasks_completed: 0, total_volume: 0 },
+  { rank: 1, username: 'hero3377', reg_no: '1240****', tokens: 5, badge_type: 'MASTER', tasks_completed: 4, tasks_posted: 1, total_volume: 1622 },
+  { rank: 2, username: 'top123', reg_no: '1231****', tokens: 4, badge_type: 'RECRUITER', tasks_completed: 0, tasks_posted: 4, total_volume: 240 },
+  { rank: 3, username: 'Rahul_k', reg_no: '7438****', tokens: 3, badge_type: 'HUSTLER', tasks_completed: 1, tasks_posted: 2, total_volume: 110 },
+  { rank: 4, username: 'zero2299', reg_no: '1238****', tokens: 2, badge_type: 'ACTIVE', tasks_completed: 0, tasks_posted: 1, total_volume: 0 },
+  { rank: 5, username: 'geo', reg_no: '1235****', tokens: 2, badge_type: 'ACTIVE', tasks_completed: 0, tasks_posted: 1, total_volume: 0 },
+  { rank: 6, username: 'Vipul', reg_no: '1241****', tokens: 2, badge_type: 'ACTIVE', tasks_completed: 0, tasks_posted: 1, total_volume: 0 },
+  { rank: 7, username: 'ajaykumar', reg_no: '1240****', tokens: 2, badge_type: 'ACTIVE', tasks_completed: 0, tasks_posted: 1, total_volume: 0 },
+  { rank: 8, username: 'Mehulsharma', reg_no: '1229****', tokens: 1, badge_type: 'ROOKIE', tasks_completed: 0, tasks_posted: 0, total_volume: 0 },
+  { rank: 9, username: 'fisker678', reg_no: '1245****', tokens: 1, badge_type: 'ROOKIE', tasks_completed: 0, tasks_posted: 0, total_volume: 0 },
+  { rank: 10, username: 'pop345', reg_no: '1248****', tokens: 1, badge_type: 'ROOKIE', tasks_completed: 0, tasks_posted: 0, total_volume: 0 },
 ];
 
 export default function LeaderboardPage() {
@@ -33,15 +36,34 @@ export default function LeaderboardPage() {
   const [selectedEntry, setSelectedEntry] = useState<LeaderboardEntry | null>(null);
 
   useEffect(() => {
-    API.get<any>('/leaderboard/')
+    API.get<any>(`/leaderboard/?_t=${Date.now()}`, {
+      headers: {
+        'Cache-Control': 'no-cache',
+        Pragma: 'no-cache',
+      },
+    })
       .then((res) => {
         if (res.data) {
           const list = res.data.leaderboard || res.data.speed_runners;
           if (Array.isArray(list) && list.length > 0) {
             setEntries(
               list.map((item: any, idx: number) => {
-                const tokens = typeof item.tokens === 'number' ? item.tokens : 1;
-                const badgeType = item.badge_type || (tokens >= 5 ? 'MASTER' : tokens === 4 ? 'RECRUITER' : tokens === 3 ? 'HUSTLER' : tokens === 2 ? 'ACTIVE' : 'ROOKIE');
+                const rawTokens = typeof item.tokens === 'number' ? item.tokens : 1;
+                const tokens = Math.max(1, Math.min(5, rawTokens));
+
+                // Synchronize badge_type directly from tokens:
+                // 5 -> MASTER, 4 -> RECRUITER, 3 -> HUSTLER, 2 -> ACTIVE, 1 -> ROOKIE
+                const badgeType: BadgeType =
+                  tokens >= 5
+                    ? 'MASTER'
+                    : tokens === 4
+                    ? 'RECRUITER'
+                    : tokens === 3
+                    ? 'HUSTLER'
+                    : tokens === 2
+                    ? 'ACTIVE'
+                    : 'ROOKIE';
+
                 return {
                   rank: idx + 1,
                   username: item.username,
@@ -49,6 +71,7 @@ export default function LeaderboardPage() {
                   tokens,
                   badge_type: badgeType,
                   tasks_completed: item.tasks_completed || 0,
+                  tasks_posted: item.tasks_posted || 0,
                   total_volume: item.total_volume || 0,
                 };
               })
@@ -77,7 +100,7 @@ export default function LeaderboardPage() {
                 Campus Leaderboard
               </h1>
               <p className="text-xs text-zinc-400 mt-0.5">
-                Ranked by Hive Creds held across campus.
+                Top campus hustlers ranked by Hive Creds held across campus.
               </p>
             </div>
           </div>
@@ -89,6 +112,18 @@ export default function LeaderboardPage() {
             const isRank1 = entry.rank === 1;
             const isRank2 = entry.rank === 2;
             const isRank3 = entry.rank === 3;
+
+            // Formulate human-friendly activity summary instead of raw "0 gigs done"
+            const comp = entry.tasks_completed || 0;
+            const post = entry.tasks_posted || 0;
+            const activityText =
+              comp > 0 && post > 0
+                ? `${comp} done · ${post} posted`
+                : comp > 0
+                ? `${comp} ${comp === 1 ? 'gig done' : 'gigs done'}`
+                : post > 0
+                ? `${post} ${post === 1 ? 'gig posted' : 'gigs posted'}`
+                : 'New to campus';
 
             return (
               <div
@@ -128,44 +163,40 @@ export default function LeaderboardPage() {
                       </p>
                       <GamificationBadge type={entry.badge_type} size="sm" />
                     </div>
-                    <p className="text-[11px] font-mono text-zinc-500 mt-0.5 truncate">
-                      {entry.reg_no} · {entry.tasks_completed} {entry.tasks_completed === 1 ? 'gig done' : 'gigs done'}
+                    <p className="text-[11px] font-mono text-zinc-400 mt-0.5 truncate">
+                      {entry.reg_no} · {activityText}
                     </p>
                   </div>
                 </div>
 
-                {/* Right: Tokens Display (According to tier color) */}
+                {/* Right: Tokens Display matching tier color cleanly */}
                 <div className="shrink-0 flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setSelectedEntry(entry)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all duration-200 cursor-pointer active:scale-95 hover:scale-105 ${
-                      isRank1 || entry.tokens >= 5 || entry.badge_type === 'MASTER'
+                      isRank1 || entry.tokens >= 5
                         ? 'bg-amber-500/15 text-amber-300 border-amber-400/50 shadow-[0_0_14px_rgba(245,158,11,0.25)] hover:border-amber-300'
-                        : isRank2
+                        : isRank2 || entry.tokens === 4
                         ? 'bg-slate-200/15 text-slate-100 border-slate-300/50 shadow-[0_0_14px_rgba(241,245,249,0.25)] hover:border-white'
-                        : isRank3 || entry.tokens === 3 || entry.badge_type === 'HUSTLER'
+                        : entry.tokens === 3
                         ? 'bg-indigo-500/15 text-indigo-200 border-indigo-400/50 shadow-[0_0_14px_rgba(99,102,241,0.25)] hover:border-indigo-300'
-                        : entry.tokens === 4 || entry.badge_type === 'RECRUITER'
-                        ? 'bg-purple-500/15 text-purple-200 border-purple-400/40 shadow-[0_0_12px_rgba(168,85,247,0.2)] hover:border-purple-300'
-                        : entry.tokens === 2 || entry.badge_type === 'ACTIVE'
+                        : entry.tokens === 2
                         ? 'bg-emerald-500/15 text-emerald-200 border-emerald-400/40 shadow-[0_0_14px_rgba(16,185,129,0.25)] hover:border-emerald-300'
                         : 'bg-white/5 text-zinc-300 border-white/10 hover:border-white/30'
                     }`}
-                    title="Click to view token details & challenge note"
+                    title="Click to view prestige details"
                   >
                     <Coins
                       size={13}
                       className={
-                        isRank1 || entry.tokens >= 5 || entry.badge_type === 'MASTER'
+                        isRank1 || entry.tokens >= 5
                           ? 'text-amber-400'
-                          : isRank2
+                          : isRank2 || entry.tokens === 4
                           ? 'text-slate-200'
-                          : isRank3 || entry.tokens === 3 || entry.badge_type === 'HUSTLER'
+                          : entry.tokens === 3
                           ? 'text-indigo-400'
-                          : entry.tokens === 4 || entry.badge_type === 'RECRUITER'
-                          ? 'text-purple-400'
-                          : entry.tokens === 2 || entry.badge_type === 'ACTIVE'
+                          : entry.tokens === 2
                           ? 'text-emerald-400'
                           : 'text-zinc-400'
                       }
@@ -194,47 +225,6 @@ export default function LeaderboardPage() {
           totalVolume={selectedEntry.total_volume || 0}
           isLeaderboardView={true}
           username={selectedEntry.username}
-          nextChallenge={
-            selectedEntry.tokens === 1
-              ? {
-                  target_token: 2,
-                  tier: 'ACTIVE',
-                  title: 'First Action on Campus',
-                  note: 'Post a 1st gig or accept a 1st gig to unlock Cred #2.',
-                  reward: '+1 Hive Cred (Active Tier)',
-                }
-              : selectedEntry.tokens === 2
-              ? {
-                  target_token: 3,
-                  tier: 'HUSTLER',
-                  title: 'Same-Day Dual Hustle',
-                  note: 'Same-Day Dual Challenge: Post any gig (no need to be finished today) AND accept & complete a gig on the SAME DAY.',
-                  reward: '+1 Hive Cred (Hustler Tier)',
-                }
-              : selectedEntry.tokens === 3
-              ? {
-                  target_token: 4,
-                  tier: 'RECRUITER',
-                  title: 'Campus Recruiter',
-                  note: 'Refer a classmate who posts their first gig on GigHive to unlock Cred #4.',
-                  reward: '+1 Hive Cred (Recruiter Tier)',
-                }
-              : selectedEntry.tokens === 4
-              ? {
-                  target_token: 5,
-                  tier: 'MASTER',
-                  title: 'Campus Master Milestone (₹250)',
-                  note: `Reach ₹250 Total Campus Volume (Earned + Spent). Current: ₹${selectedEntry.total_volume || 0}/₹250.`,
-                  reward: '5th Golden Cred + Free Homework Pass (₹100) + Bounty Booster (+₹50)',
-                }
-              : {
-                  target_token: 5,
-                  tier: 'MASTER',
-                  title: 'Master Status Achieved 👑',
-                  note: 'Maximum 5 Hive Creds unlocked. Free Homework Pass & Bounty Booster perks active!',
-                  reward: 'All Master Perks Active',
-                }
-          }
         />
       )}
     </main>

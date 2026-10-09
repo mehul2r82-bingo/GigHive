@@ -249,7 +249,7 @@ class UserProfile(models.Model):
             current = account.total_tokens
             target = 1
             has_post = self.tasks_posted_count > 0 or self.user.given_tasks.exists()
-            has_take = self.tasks_completed_count > 0 or self.user.taken_tasks.exists()
+            has_take = self.tasks_completed_count > 0 or self.user.taken_tasks.filter(state="COMPLETED").exists()
             if has_post or has_take:
                 target = max(target, 2)
             # Token 3 Challenge: MUST both post a gig AND complete a gig on the SAME DAY!
