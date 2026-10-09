@@ -585,7 +585,7 @@ class LeaderboardView(APIView):
         )
 
         leaderboard = []
-        for idx, profile in enumerate(profiles[:10], start=1):
+        for idx, profile in enumerate(profiles, start=1):
             tokens = profile.user.token_account.total_tokens if hasattr(profile.user, "token_account") else 1
             badge = profile.badge_type
 

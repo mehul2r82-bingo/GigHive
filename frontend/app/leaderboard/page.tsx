@@ -100,7 +100,7 @@ export default function LeaderboardPage() {
                 Campus Leaderboard
               </h1>
               <p className="text-xs text-zinc-400 mt-0.5">
-                Top campus hustlers ranked by Hive Creds held across campus.
+                Every campus hustler ranked by Hive Creds held across campus.
               </p>
             </div>
           </div>
