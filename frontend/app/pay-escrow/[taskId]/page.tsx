@@ -91,6 +91,17 @@ export default function PayEscrow() {
     }
   }
 
+  const downloadQr = () => {
+    const link = document.createElement("a")
+    link.href = "/upi-qr.png"
+    link.download = "gighive-escrow-qr.png"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  const upiIntentUrl = `upi://pay?pa=7416063872@axl&pn=GigHive&am=${encodeURIComponent(amount || "")}&cu=INR&tn=${encodeURIComponent(`GigHive_Escrow_Task_${taskId}`)}`
+
   useEffect(() => {
     if (!submitted) return
 
@@ -230,14 +241,38 @@ export default function PayEscrow() {
               whileHover={{ scale: 1.01 }}
               className="rounded-2xl border border-indigo-500/20 bg-gradient-to-b from-indigo-500/[0.06] to-transparent p-6 sm:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
             >
-              <h2 className="text-lg font-semibold tracking-tight mb-5">Secure Payment</h2>
+              <h2 className="text-lg font-semibold tracking-tight mb-4">Secure Payment</h2>
 
-              <div className="flex justify-center mb-6">
+              {/* 1-Click UPI Intent Button for Mobile */}
+              <a
+                href={upiIntentUrl}
+                className="w-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-white font-bold py-3 px-4 rounded-xl shadow-[0_4px_20px_rgba(16,185,129,0.35)] transition-all flex items-center justify-center gap-2.5 text-center text-sm sm:text-base cursor-pointer mb-5 active:scale-[0.98]"
+              >
+                <span className="text-lg">📱</span>
+                <span>Pay via UPI App (GPay / PhonePe / Paytm)</span>
+              </a>
+
+              <div className="relative flex items-center justify-center mb-5">
+                <div className="border-t border-white/10 w-full" />
+                <span className="bg-[#101017] px-3 text-[11px] text-zinc-400 uppercase tracking-wider font-semibold shrink-0">
+                  Or Scan / Copy Manually
+                </span>
+                <div className="border-t border-white/10 w-full" />
+              </div>
+
+              <div className="flex flex-col items-center mb-5">
                 <img
                   src="/upi-qr.png"
                   alt="UPI QR"
-                  className="w-56 h-56 rounded-2xl border border-white/10"
+                  className="w-48 h-48 sm:w-56 sm:h-56 rounded-2xl border border-white/10 shadow-lg mb-2.5"
                 />
+                <button
+                  type="button"
+                  onClick={downloadQr}
+                  className="text-xs text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5 py-1.5 px-3 rounded-lg border border-white/15 hover:border-white/30 bg-white/[0.04] cursor-pointer"
+                >
+                  <span>📥</span> Save QR Image to Photos
+                </button>
               </div>
 
               <div className="space-y-3">
