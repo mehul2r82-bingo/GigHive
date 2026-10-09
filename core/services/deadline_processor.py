@@ -176,10 +176,10 @@ process_expired_tasks = process_expired_accepted_tasks
 
 def auto_complete_submitted_tasks():
     """
-    Auto-complete submitted tasks if giver does not respond in 2 hours.
+    Auto-complete submitted tasks if giver does not respond in 4 hours.
     Safe to run multiple times.
     """
-    cutoff = timezone.now() - timedelta(hours=2)
+    cutoff = timezone.now() - timedelta(hours=4)
 
     tasks = (
         Task.objects
@@ -220,13 +220,13 @@ def auto_complete_submitted_tasks():
                 send_user_notification(
                     user=task.taker,
                     title="✅ Work Auto-Approved",
-                    message=f"Your work for '{task.title}' was automatically approved after the 2-hour review window! Payment is queued for payout.",
+                    message=f"Your work for '{task.title}' was automatically approved after the 4-hour review window! Payment is queued for payout.",
                     url="/my-tasks",
                 )
                 send_user_notification(
                     user=task.giver,
                     title="✅ Task Completed",
-                    message=f"Task '{task.title}' was automatically completed after the 2-hour review window.",
+                    message=f"Task '{task.title}' was automatically completed after the 4-hour review window.",
                     url="/my-tasks",
                 )
 
@@ -243,7 +243,7 @@ def check_and_expire_deadlines():
     Master unified function:
     1. Expires unaccepted open tasks (refunds giver, sends notification).
     2. Fails overdue accepted tasks (penalizes taker, refunds giver, notifies both).
-    3. Auto-completes submitted tasks past 2 hours.
+    3. Auto-completes submitted tasks past 4 hours.
     Safe, idempotent, and fast to run on any request or cron.
     """
     open_count = process_expired_open_tasks()
