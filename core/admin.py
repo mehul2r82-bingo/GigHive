@@ -21,6 +21,9 @@ def verify_giver_payment(modeladmin, request, queryset):
         task.published_at = timezone.now()
         task.save(update_fields=["state", "published_at"])
 
+        if hasattr(task.giver, "profile"):
+            task.giver.profile.sync_tokens()
+
 
 @admin.action(description="Reject giver payment")
 def reject_giver_payment(modeladmin, request, queryset):

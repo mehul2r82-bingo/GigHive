@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import API from "../../services/api"
 import { Crown } from "lucide-react"
-import TokenCelebrationModal from "@/components/TokenCelebrationModal"
 
 type FormState = {
   title: string
@@ -29,8 +28,6 @@ const [nowLocal, setNowLocal] = useState("");
 const [isGoldPatron, setIsGoldPatron] = useState(false);
 const [tasksPostedCount, setTasksPostedCount] = useState(0);
 const [userTotalTokens, setUserTotalTokens] = useState(1);
-const [celebrationOpen, setCelebrationOpen] = useState(false);
-const [createdTaskId, setCreatedTaskId] = useState<number | null>(null);
 
 useEffect(() => {
   API.get('/profile/')
@@ -247,13 +244,7 @@ const res = await API.post("/tasks/", formData, {
 })
 
 const taskId = res.data.id
-
-if (tasksPostedCount === 0 || userTotalTokens <= 1) {
-  setCreatedTaskId(taskId);
-  setCelebrationOpen(true);
-} else {
-  router.push(`/pay-escrow/${taskId}`);
-}
+router.push(`/pay-escrow/${taskId}`);
 
 }catch(err:any){
 
@@ -663,17 +654,6 @@ return(
       animation: fadeUp 0.5s ease-out both;
     }
   `}</style>
-
-  <TokenCelebrationModal
-    isOpen={celebrationOpen}
-    type="TOKEN_2"
-    onClose={() => {
-      setCelebrationOpen(false);
-      if (createdTaskId) {
-        router.push(`/pay-escrow/${createdTaskId}`);
-      }
-    }}
-  />
 
 </div>
 

@@ -248,13 +248,21 @@ class UserProfile(models.Model):
                 return 0
             current = account.total_tokens
             target = 1
-            has_post = self.tasks_posted_count > 0 or self.user.given_tasks.exists()
+            has_post = self.tasks_posted_count > 0 or self.user.given_tasks.filter(
+                state__in=["OPEN", "ACCEPTED", "SUBMITTED", "COMPLETED"]
+            ).exists()
             has_take = self.tasks_completed_count > 0 or self.user.taken_tasks.filter(state="COMPLETED").exists()
             if has_post or has_take:
                 target = max(target, 2)
             # Token 3 Challenge: MUST both post a gig AND complete a gig on the SAME DAY!
             if has_post and has_take:
-                giver_dates = {dt.date() for dt in self.user.given_tasks.values_list("created_at", flat=True) if dt}
+                giver_dates = {
+                    dt.date()
+                    for dt in self.user.given_tasks.filter(
+                        state__in=["OPEN", "ACCEPTED", "SUBMITTED", "COMPLETED"]
+                    ).values_list("created_at", flat=True)
+                    if dt
+                }
                 taker_comp_dates = {dt.date() for dt in self.user.taken_tasks.filter(state="COMPLETED").values_list("updated_at", flat=True) if dt}
                 if bool(giver_dates & taker_comp_dates):
                     target = max(target, 3)

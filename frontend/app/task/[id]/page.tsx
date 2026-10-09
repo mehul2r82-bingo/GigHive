@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Coins } from "lucide-react";
 import API from "../../../services/api";
 import GamificationBadge, { BadgeType } from "@/components/GamificationBadge";
-import TokenCelebrationModal from "@/components/TokenCelebrationModal";
 
 /* ---------- Types ---------- */
 
@@ -117,10 +116,6 @@ export default function TaskDetailPage() {
   >(null);
 
   const [openingFlow, setOpeningFlow] = useState(false);
-  const [celebrationModal, setCelebrationModal] = useState<{
-    isOpen: boolean;
-    type: 'TOKEN_2' | 'TOKEN_5';
-  }>({ isOpen: false, type: 'TOKEN_2' });
 
   useEffect(() => {
     if (!id) return;
@@ -151,17 +146,8 @@ export default function TaskDetailPage() {
     setAcceptStatus("loading");
 
     try {
-      const res = await API.post(`/tasks/${task.id}/accept/`);
-      const totalTokens = res.data?.total_tokens;
-      const volume = res.data?.total_volume;
-
-      if (totalTokens === 5 || (volume && volume >= 250)) {
-        setCelebrationModal({ isOpen: true, type: "TOKEN_5" });
-      } else if (totalTokens === 2) {
-        setCelebrationModal({ isOpen: true, type: "TOKEN_2" });
-      } else {
-        setAcceptStatus("done");
-      }
+      await API.post(`/tasks/${task.id}/accept/`);
+      setAcceptStatus("done");
     } catch (err: any) {
       const message =
         err?.response?.data?.detail ||
@@ -610,47 +596,9 @@ export default function TaskDetailPage() {
                 </p>
               </div>
 
-              {/* TRUST CARD */}
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
-                <h4 className="text-sm font-semibold tracking-tight mb-3">Verified & Secure</h4>
-                <ul className="space-y-2 text-xs text-zinc-500">
-                  <li className="flex gap-2"><span className="text-indigo-400">✓</span> Payment held in escrow</li>
-                  <li className="flex gap-2"><span className="text-indigo-400">✓</span> Reward released after verification</li>
-                  <li className="flex gap-2"><span className="text-indigo-400">✓</span> GigHive protects both users</li>
-                </ul>
-              </div>
-
             </div>
           </aside>
 
-        </div>
-
-        {/* HOW GIGHIVE WORKS */}
-        <div className="mt-14 sm:mt-16">
-          <h3 className="text-xl sm:text-2xl font-bold tracking-tight mb-8 text-center">How GigHive Works</h3>
-          <div className="flex flex-col sm:flex-row items-stretch justify-between gap-4 max-w-4xl mx-auto">
-            {[
-              { icon: "✅", label: "Accept Task" },
-              { icon: "🛠️", label: "Complete Work" },
-              { icon: "📤", label: "Submit Proof" },
-              { icon: "🔍", label: "Admin Verification" },
-              { icon: "💰", label: "Payment Released" },
-            ].map((step, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.08 }}
-                className="flex-1 rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-center"
-              >
-                <div className="w-10 h-10 rounded-full bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-base mx-auto mb-3">
-                  {step.icon}
-                </div>
-                <p className="text-xs text-zinc-400">{step.label}</p>
-              </motion.div>
-            ))}
-          </div>
         </div>
 
         {/* FAQ */}
@@ -904,16 +852,6 @@ export default function TaskDetailPage() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* 5-Token Progression Milestone Celebration Modal */}
-      <TokenCelebrationModal
-        isOpen={celebrationModal.isOpen}
-        type={celebrationModal.type}
-        onClose={() => {
-          setCelebrationModal((prev) => ({ ...prev, isOpen: false }));
-          setShowAcceptedScreen(true);
-        }}
-      />
 
     </main>
   );

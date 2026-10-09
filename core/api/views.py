@@ -363,6 +363,9 @@ class PaymentVerifyView(generics.GenericAPIView):
         task.published_at = timezone.now()
         task.save(update_fields=["state", "published_at", "updated_at"])
 
+        if hasattr(task.giver, "profile"):
+            task.giver.profile.sync_tokens()
+
         # Notify giver
         send_user_notification(
             user=task.giver,
