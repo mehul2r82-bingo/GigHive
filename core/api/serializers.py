@@ -1,3 +1,4 @@
+import re
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from django.db import transaction
@@ -9,6 +10,24 @@ from core.models import UserProfile
 class TaskSerializer(serializers.ModelSerializer):
     giver = serializers.StringRelatedField(read_only=True)
     taker = serializers.StringRelatedField(read_only=True)
+
+    def validate(self, attrs):
+        title = attrs.get("title", "")
+        attachment = attrs.get("attachment")
+        restricted_patterns = [
+            r'\bca\b', r'\bca[0-9]\b', r'\bca-[0-9]\b', r'\bca_[0-9]\b',
+            r'continuous\s*assessment', r'\bexam\b', r'\bmidterm\b', r'\bendterm\b'
+        ]
+        for p in restricted_patterns:
+            if re.search(p, title, re.IGNORECASE):
+                raise serializers.ValidationError({
+                    "title": "Title contains prohibited academic keywords ('CA' or 'Exam'). Please describe the specific skill or deliverable."
+                })
+            if attachment and hasattr(attachment, "name") and re.search(p, attachment.name, re.IGNORECASE):
+                raise serializers.ValidationError({
+                    "attachment": "File name violates Academic Integrity Policy. Official exam sheets or files containing 'CA' or 'Exam' are prohibited."
+                })
+        return super().validate(attrs)
 
     payment_status = serializers.CharField(
         source="payment.status",

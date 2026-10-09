@@ -92,12 +92,35 @@ const updateField = (key: keyof FormState,value:any)=>{
 setForm(prev=>({...prev,[key]:value}))
 }
 
+const RESTRICTED_KEYWORDS_REGEX = [
+  /\bca\b/i,
+  /\bca[0-9]\b/i,
+  /\bca-[0-9]\b/i,
+  /\bca_[0-9]\b/i,
+  /continuous\s*assessment/i,
+  /\bexam\b/i,
+  /\bmidterm\b/i,
+  /\bendterm\b/i,
+];
+
+function checkRestricted(text: string): boolean {
+  return RESTRICTED_KEYWORDS_REGEX.some((re) => re.test(text));
+}
+
 const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (!file) return;
 
   if (file.size > 10 * 1024 * 1024) {
     setAttachmentError("File size exceeds 10MB limit. Please compress or choose a smaller file.");
+    setAttachmentFile(null);
+    return;
+  }
+
+  if (checkRestricted(file.name)) {
+    setAttachmentError(
+      "Restricted file name: Files containing 'CA', 'Continuous Assessment', or 'Exam' in the name are blocked under Academic Integrity Guidelines. Please upload standard coursework briefs or problem sets (e.g. 'assignment_problem_set.pdf')."
+    );
     setAttachmentFile(null);
     return;
   }
@@ -186,6 +209,11 @@ e.preventDefault()
 
 if (!form.title.trim()) {
   alert("Please enter a task title")
+  return
+}
+
+if (checkRestricted(form.title)) {
+  alert("Task title cannot contain 'CA', 'Continuous Assessment', or 'Exam'. Please describe the specific skill, topic, or deliverable needed (e.g. 'Python data analysis script' or 'Report proofreading').")
   return
 }
 
@@ -454,6 +482,17 @@ return(
                     <span className="font-semibold text-amber-200">Privacy & Academic Safety Tip:</span>
                     <p className="text-zinc-300/90 mt-0.5">
                       Before uploading, please ensure your personal Name, Registration/Roll Number, or Section are removed from the document for your own privacy.
+                    </p>
+                  </div>
+                </div>
+
+                {/* ACADEMIC INTEGRITY NOTICE */}
+                <div className="flex items-start gap-3 p-3.5 bg-rose-500/[0.08] border border-rose-500/25 rounded-xl text-xs text-rose-200/90 leading-relaxed">
+                  <span className="text-base shrink-0 mt-0.5">⚠️</span>
+                  <div>
+                    <span className="font-semibold text-rose-200">Academic Integrity Rule:</span>
+                    <p className="text-zinc-300/90 mt-0.5">
+                      Direct exam sheets or files containing &apos;CA&apos;, &apos;Continuous Assessment&apos;, or &apos;Exam&apos; in the file name or title are strictly prohibited. Upload general coursework briefs, reference problem sheets, or study materials only.
                     </p>
                   </div>
                 </div>

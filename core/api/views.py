@@ -620,7 +620,7 @@ class LeaderboardView(APIView):
                 tokens = max(tokens, 5)
 
             reg = profile.registration_number or ""
-            masked_reg = f"{reg[:4]}****" if len(reg) >= 4 else (reg if reg else "LPU Student")
+            masked_reg = f"{reg[:4]}****" if len(reg) >= 4 else (reg if reg else "Campus Student")
 
             leaderboard.append({
                 "rank": idx,

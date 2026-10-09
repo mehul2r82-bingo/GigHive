@@ -67,7 +67,7 @@ export default function LeaderboardPage() {
                 return {
                   rank: idx + 1,
                   username: item.username,
-                  reg_no: item.reg_no || 'LPU Student',
+                  reg_no: item.reg_no || 'Campus Student',
                   tokens,
                   badge_type: badgeType,
                   tasks_completed: item.tasks_completed || 0,
