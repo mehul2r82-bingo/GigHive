@@ -175,6 +175,7 @@ class TaskListSerializer(serializers.ModelSerializer):
             "taker_badge",
             "taker_streak",
             "attachment",
+            "preferences",
             "created_at",
         )
         read_only_fields = (
@@ -194,6 +195,7 @@ class TaskListSerializer(serializers.ModelSerializer):
             "taker_badge",
             "taker_streak",
             "attachment",
+            "preferences",
             "created_at",
         )
 

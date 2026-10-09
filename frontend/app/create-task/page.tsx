@@ -13,10 +13,30 @@ type FormState = {
   deadline: string
   price: number
   details: string
+  deliverable_format: string
+  scope_length: string
+  criteria: string
   location_hint: string
   availability_window: string
   bonus_tokens: number
 }
+
+const DELIVERABLE_FORMATS = [
+  { id: "Handwritten", label: "Handwritten", icon: "✍️", hint: "Sheets / Files / Registers" },
+  { id: "Typed Document", label: "Typed Doc", icon: "📄", hint: "Word / PDF / Report" },
+  { id: "Code / Script", label: "Code / Script", icon: "💻", hint: "Python, C++, Java, Web" },
+  { id: "Presentation", label: "Presentation", icon: "📊", hint: "PPT / Canva slides" },
+  { id: "Other", label: "Other", icon: "📁", hint: "Custom work" },
+];
+
+const SCOPE_SUGGESTIONS = [
+  "1–2 Pages",
+  "3–5 Pages",
+  "1–3 Questions",
+  "4–8 Questions",
+  "10–15 Slides",
+  "Full Lab File",
+];
 
 export default function CreateTaskPage() {
 
@@ -60,6 +80,9 @@ const [form, setForm] = useState<FormState>({
   deadline: "",
   price: 0,
   details: "",
+  deliverable_format: "Handwritten",
+  scope_length: "",
+  criteria: "",
   location_hint: "",
   availability_window: "",
   bonus_tokens: 0
@@ -190,13 +213,13 @@ if (!form.deadline) {
 
 // Mode-specific validation
 if (form.mode === "online") {
-  if (!attachmentFile && !form.details.trim()) {
-    alert("Please upload your assignment document or provide task instructions.")
+  if (!attachmentFile && !form.details.trim() && !form.criteria.trim()) {
+    alert("Please upload your assignment document or provide specific task criteria/instructions.")
     return
   }
 } else {
-  if (!form.details.trim()) {
-    alert("Please provide a task description.")
+  if (!form.details.trim() && !form.criteria.trim()) {
+    alert("Please provide task instructions or criteria.")
     return
   }
   if (!form.location_hint.trim()) {
@@ -223,7 +246,14 @@ formData.append("mode", form.mode || "online")
 formData.append("deadline", form.deadline)
 formData.append("price", String(form.price))
 
-const finalDetails = form.details.trim() || (attachmentFile ? `Assignment Document: ${attachmentFile.name}` : "")
+const specs = {
+  deliverable_format: form.deliverable_format || "Unspecified",
+  scope_length: form.scope_length.trim() || "See attached brief",
+  criteria: form.criteria.trim() || form.details.trim() || "Follow assignment brief and guidelines",
+}
+formData.append("preferences", JSON.stringify(specs))
+
+const finalDetails = form.criteria.trim() || form.details.trim() || (attachmentFile ? `Assignment Document: ${attachmentFile.name}` : "")
 formData.append("details", finalDetails)
 
 if (form.mode === "offline" || form.mode === "hybrid") {
@@ -349,9 +379,85 @@ return(
               </div>
             </div>
 
+            {/* STRUCTURED TASK SPECS & SCOPE */}
+            <div className="space-y-4 pt-3 border-t border-white/5">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs text-zinc-400 font-medium">
+                    Deliverable Format <span className="text-indigo-400">*</span>
+                  </label>
+                  <span className="text-[11px] text-zinc-500">How solver must deliver</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                  {DELIVERABLE_FORMATS.map((fmt) => {
+                    const isSelected = form.deliverable_format === fmt.id;
+                    return (
+                      <button
+                        key={fmt.id}
+                        type="button"
+                        onClick={() => updateField("deliverable_format", fmt.id)}
+                        className={`p-3 rounded-xl border text-left transition-all ${
+                          isSelected
+                            ? "bg-indigo-600/15 border-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.25)] scale-[1.01]"
+                            : "bg-black/30 border-white/10 text-zinc-400 hover:border-white/20 hover:text-zinc-200"
+                        }`}
+                      >
+                        <div className="text-xl mb-1">{fmt.icon}</div>
+                        <div className="text-xs font-semibold">{fmt.label}</div>
+                        <div className="text-[10px] text-zinc-500 mt-0.5 truncate">{fmt.hint}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs text-zinc-400 font-medium">
+                    Work Scope / Volume <span className="text-zinc-500">(e.g. pages, questions, slides)</span>
+                  </label>
+                  <span className="text-[11px] text-zinc-500">Clear expectations</span>
+                </div>
+                <input
+                  type="text"
+                  placeholder="e.g. 3 Questions / ~4 Pages, or 10 Slides..."
+                  className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-sm text-white placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
+                  value={form.scope_length}
+                  onChange={(e) => updateField("scope_length", e.target.value)}
+                />
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {SCOPE_SUGGESTIONS.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => updateField("scope_length", s)}
+                      className={`text-[11px] px-2.5 py-1 rounded-lg border transition-all ${
+                        form.scope_length === s
+                          ? "bg-indigo-500/20 border-indigo-500/50 text-indigo-300 font-medium"
+                          : "bg-white/[0.03] border-white/10 text-zinc-400 hover:text-zinc-200 hover:border-white/20"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             {/* CONDITIONAL: ONLINE (FILE UPLOAD) vs OFFLINE / HYBRID (DESCRIPTION + LOCATION) */}
             {form.mode === "online" ? (
               <div className="space-y-5 pt-3 border-t border-white/5">
+                {/* PRIVACY & ACADEMIC SAFETY BANNER */}
+                <div className="flex items-start gap-3 p-3.5 bg-amber-500/[0.08] border border-amber-500/25 rounded-xl text-xs text-amber-200/95 leading-relaxed">
+                  <span className="text-base shrink-0 mt-0.5">🛡️</span>
+                  <div>
+                    <span className="font-semibold text-amber-200">Privacy & Academic Safety Tip:</span>
+                    <p className="text-zinc-300/90 mt-0.5">
+                      Before uploading, please ensure your personal Name, Registration/Roll Number, or Section are removed from the document for your own privacy.
+                    </p>
+                  </div>
+                </div>
+
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label className="block text-xs text-zinc-400 font-medium">
@@ -411,17 +517,17 @@ return(
 
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="block text-xs text-zinc-500">
-                      Additional notes or instructions (optional)
+                    <label className="block text-xs text-zinc-400 font-medium">
+                      Specific Criteria & Instructions <span className="text-indigo-400">*</span>
                     </label>
-                    <span className="text-xs text-zinc-600">{form.details.length} chars</span>
+                    <span className="text-xs text-zinc-500">{form.criteria.length} chars</span>
                   </div>
                   <textarea
-                    placeholder="e.g. Please solve questions 1 to 5, format as requested in the PDF..."
+                    placeholder="e.g. Include step-by-step working, neat diagrams, comment code thoroughly, follow professor's format guidelines..."
                     rows={3}
-                    className="w-full p-4 bg-black/40 border border-white/10 rounded-xl text-base placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 resize-none"
-                    value={form.details}
-                    onChange={(e)=>updateField("details",e.target.value)}
+                    className="w-full p-4 bg-black/40 border border-white/10 rounded-xl text-sm text-white placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 resize-none"
+                    value={form.criteria}
+                    onChange={(e)=>updateField("criteria",e.target.value)}
                   />
                 </div>
               </div>
@@ -429,27 +535,27 @@ return(
               <div className="space-y-5 pt-3 border-t border-white/5">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="block text-xs text-zinc-500">
-                      Task description <span className="text-indigo-400">*</span>
+                    <label className="block text-xs text-zinc-400 font-medium">
+                      Specific Criteria & Instructions <span className="text-indigo-400">*</span>
                     </label>
-                    <span className="text-xs text-zinc-600">{form.details.length} characters</span>
+                    <span className="text-xs text-zinc-500">{form.criteria.length} characters</span>
                   </div>
                   <textarea
-                    placeholder="Describe what needs to be done..."
+                    placeholder="Describe specific task instructions, format requirements, and guidelines..."
                     rows={4}
-                    className="w-full p-4 bg-black/40 border border-white/10 rounded-xl text-base placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 resize-none"
-                    value={form.details}
-                    onChange={(e)=>updateField("details",e.target.value)}
+                    className="w-full p-4 bg-black/40 border border-white/10 rounded-xl text-sm text-white placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 resize-none"
+                    value={form.criteria}
+                    onChange={(e)=>updateField("criteria",e.target.value)}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs text-zinc-500 mb-2">
+                  <label className="block text-xs text-zinc-400 font-medium mb-2">
                     Campus Location <span className="text-indigo-400">*</span>
                   </label>
                   <input
                     placeholder="e.g. Block 34, Central Library, 2nd floor"
-                    className="w-full p-4 bg-black/40 border border-white/10 rounded-xl text-base placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
+                    className="w-full p-4 bg-black/40 border border-white/10 rounded-xl text-sm text-white placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
                     value={form.location_hint}
                     onChange={(e)=>updateField("location_hint",e.target.value)}
                   />

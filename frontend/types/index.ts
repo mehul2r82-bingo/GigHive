@@ -33,6 +33,7 @@ export interface Task {
 
   deadline?: string;
   details?: string;
+  preferences?: string;
 
   location_hint?: string;
   availability_window?: string;
@@ -47,6 +48,12 @@ export interface Task {
   taker_streak?: number;
   attachment?: string | null;
   created_at?: string;
+}
+
+export interface TaskSpecs {
+  deliverable_format?: string;
+  scope_length?: string;
+  criteria?: string;
 }
 
 // ---------- LEADERBOARD ----------

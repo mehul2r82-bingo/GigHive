@@ -18,8 +18,8 @@ interface Task {
   price: number;
   deadline: string;
   details?: string;
+  preferences?: string;
   state?: string;
-
 }
 
 
@@ -47,6 +47,28 @@ function formatDeadline(iso: string) {
     year: "numeric",
   });
   return date;
+}
+
+function getDeliverableFormat(preferences?: string) {
+  if (!preferences) return null;
+  try {
+    if (preferences.trim().startsWith("{")) {
+      const data = JSON.parse(preferences);
+      if (data.deliverable_format && data.deliverable_format !== "Unspecified") {
+        return data.deliverable_format;
+      }
+    }
+  } catch (e) {}
+  return null;
+}
+
+function getFormatIcon(format?: string) {
+  if (!format) return "📁";
+  if (format.includes("Handwritten")) return "✍️";
+  if (format.includes("Typed")) return "📄";
+  if (format.includes("Code")) return "💻";
+  if (format.includes("Presentation")) return "📊";
+  return "📁";
 }
 
 export default function MarketplacePage() {
@@ -235,7 +257,7 @@ return (
 
               {/* BADGES */}
 
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex flex-wrap items-center gap-2 mb-4">
                 <span
                   className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${MODE[task.mode].color}`}
                 >
@@ -246,6 +268,12 @@ return (
                 >
                   {BAND[task.band].label}
                 </span>
+                {getDeliverableFormat(task.preferences) && (
+                  <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ring-indigo-500/30 bg-indigo-500/10 text-indigo-300">
+                    <span>{getFormatIcon(getDeliverableFormat(task.preferences)!)}</span>
+                    <span>{getDeliverableFormat(task.preferences)}</span>
+                  </span>
+                )}
               </div>
 
               {/* DEADLINE */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -72,6 +72,15 @@ function deadlineUrgencyColor(iso: string) {
   return "text-emerald-400";
 }
 
+function getFormatIcon(format?: string) {
+  if (!format) return "📁";
+  if (format.includes("Handwritten")) return "✍️";
+  if (format.includes("Typed")) return "📄";
+  if (format.includes("Code")) return "💻";
+  if (format.includes("Presentation")) return "📊";
+  return "📁";
+}
+
 /* ---------- Page ---------- */
 
 export default function TaskDetailPage() {
@@ -90,6 +99,22 @@ export default function TaskDetailPage() {
   const [earningsUpi, setEarningsUpi] = useState<string>("");
   const [currentUser, setCurrentUser] = useState<string>("");
   const [profileLoading, setProfileLoading] = useState(true);
+
+  // Parsed structured specs & criteria
+  const parsedSpecs = useMemo(() => {
+    if (!task?.preferences) return null;
+    try {
+      if (task.preferences.trim().startsWith("{")) {
+        const data = JSON.parse(task.preferences);
+        return {
+          deliverable_format: data.deliverable_format,
+          scope_length: data.scope_length,
+          criteria: data.criteria,
+        };
+      }
+    } catch (e) {}
+    return { criteria: task.preferences };
+  }, [task?.preferences]);
 
   // Check if viewing own task
   const isOwnTask = Boolean(
@@ -488,18 +513,43 @@ export default function TaskDetailPage() {
               </motion.div>
             )}
 
-            {/* REQUIREMENTS — mapped from task.preferences, the closest real field */}
-            {task.preferences && (
+            {/* TASK SPECIFICATIONS & CRITERIA */}
+            {parsedSpecs && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 sm:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
+                className="rounded-2xl border border-indigo-500/20 bg-indigo-500/[0.03] p-5 sm:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.3)] space-y-4"
               >
-                <h3 className="text-lg font-semibold tracking-tight mb-3">Requirements</h3>
-                <p className="text-zinc-300 leading-relaxed whitespace-pre-wrap">
-                  {task.preferences}
-                </p>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-3">
+                  <h3 className="text-base font-semibold tracking-tight text-white flex items-center gap-2">
+                    <span>📋</span> Task Specifications & Criteria
+                  </h3>
+                  {parsedSpecs.deliverable_format && parsedSpecs.deliverable_format !== "Unspecified" && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 w-fit">
+                      <span>{getFormatIcon(parsedSpecs.deliverable_format)}</span>
+                      <span>{parsedSpecs.deliverable_format}</span>
+                    </span>
+                  )}
+                </div>
+
+                {parsedSpecs.scope_length && (
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-3.5 rounded-xl bg-black/30 border border-white/5 text-xs sm:text-sm">
+                    <span className="text-zinc-400 font-medium">Estimated Scope / Volume:</span>
+                    <span className="font-semibold text-white font-mono bg-white/5 px-2.5 py-1 rounded-md border border-white/10 w-fit">
+                      {parsedSpecs.scope_length}
+                    </span>
+                  </div>
+                )}
+
+                {parsedSpecs.criteria && (
+                  <div>
+                    <p className="text-xs font-medium text-zinc-400 mb-1.5">Specific Guidelines & Criteria:</p>
+                    <p className="text-zinc-300 leading-relaxed whitespace-pre-wrap text-sm bg-black/30 p-3.5 rounded-xl border border-white/5">
+                      {parsedSpecs.criteria}
+                    </p>
+                  </div>
+                )}
               </motion.div>
             )}
 
