@@ -76,8 +76,10 @@ function getFormatIcon(format?: string) {
   if (!format) return "📁";
   if (format.includes("Handwritten")) return "✍️";
   if (format.includes("Typed")) return "📄";
-  if (format.includes("Code")) return "💻";
   if (format.includes("Presentation")) return "📊";
+  if (format.includes("Code")) return "💻";
+  if (format.includes("Video")) return "🎥";
+  if (format.includes("Simulation")) return "📁";
   return "📁";
 }
 
