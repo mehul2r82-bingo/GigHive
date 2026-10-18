@@ -131,7 +131,7 @@ return (
         </h1>
 
         <p className="text-xs sm:text-sm text-zinc-400 max-w-lg mx-auto leading-relaxed text-balance">
-          The campus peer marketplace. Delegate everyday project formatting and design, or monetize your skills between classes.
+          The campus peer marketplace. Delegate tasks on demand, or monetize your skills with verified escrow protection.
         </p>
 
         {!isAuthenticated && (
