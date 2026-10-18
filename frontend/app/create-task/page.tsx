@@ -30,14 +30,6 @@ const DELIVERABLE_FORMATS = [
   { id: "Other", label: "Simulation / Other", icon: "📁", hint: "MATLAB, CAD, Custom" },
 ];
 
-const SCOPE_SUGGESTIONS = [
-  "1–2 Pages",
-  "3–5 Pages",
-  "1–3 Questions",
-  "4–8 Questions",
-  "10–15 Slides",
-  "Full Lab File",
-];
 
 export default function CreateTaskPage() {
 
@@ -424,70 +416,36 @@ return(
               </div>
             </div>
 
-            {/* STRUCTURED TASK SPECS & SCOPE */}
-            <div className="space-y-4 pt-3 border-t border-white/5">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-xs text-zinc-400 font-medium">
-                    Deliverable Format <span className="text-indigo-400">*</span>
-                  </label>
-                  <span className="text-[11px] text-zinc-500">How solver must deliver</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-                  {DELIVERABLE_FORMATS.map((fmt) => {
-                    const isSelected = form.deliverable_format === fmt.id;
-                    return (
-                      <button
-                        key={fmt.id}
-                        type="button"
-                        onClick={() => updateField("deliverable_format", fmt.id)}
-                        className={`p-3 rounded-xl border text-left transition-all ${
-                          isSelected
-                            ? "bg-indigo-600/15 border-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.25)] scale-[1.01]"
-                            : "bg-black/30 border-white/10 text-zinc-400 hover:border-white/20 hover:text-zinc-200"
-                        }`}
-                      >
-                        <div className="text-xl mb-1">{fmt.icon}</div>
-                        <div className="text-xs font-semibold">{fmt.label}</div>
-                        <div className="text-[10px] text-zinc-500 mt-0.5 truncate">{fmt.hint}</div>
-                      </button>
-                    );
-                  })}
-                </div>
+            {/* COMPACT DELIVERABLE FORMAT (FAST PACE) */}
+            <div className="pt-3 border-t border-white/5">
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs text-zinc-400 font-medium">
+                  Deliverable Format <span className="text-zinc-500 font-normal">(optional)</span>
+                </label>
+                <span className="text-[11px] text-zinc-500">How solver must deliver</span>
               </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-xs text-zinc-400 font-medium">
-                    Work Scope / Volume <span className="text-zinc-500">(e.g. pages, questions, slides)</span>
-                  </label>
-                  <span className="text-[11px] text-zinc-500">Clear expectations</span>
-                </div>
-                <input
-                  type="text"
-                  placeholder="e.g. 3 Questions / ~4 Pages, or 10 Slides..."
-                  className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-sm text-white placeholder:text-zinc-600 outline-none transition-all focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20"
-                  value={form.scope_length}
-                  onChange={(e) => updateField("scope_length", e.target.value)}
-                />
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {SCOPE_SUGGESTIONS.map((s) => (
+              <div className="flex flex-wrap gap-2">
+                {DELIVERABLE_FORMATS.map((fmt) => {
+                  const isSelected = form.deliverable_format === fmt.id;
+                  return (
                     <button
-                      key={s}
+                      key={fmt.id}
                       type="button"
-                      onClick={() => updateField("scope_length", s)}
-                      className={`text-[11px] px-2.5 py-1 rounded-lg border transition-all ${
-                        form.scope_length === s
-                          ? "bg-indigo-500/20 border-indigo-500/50 text-indigo-300 font-medium"
-                          : "bg-white/[0.03] border-white/10 text-zinc-400 hover:text-zinc-200 hover:border-white/20"
+                      onClick={() => updateField("deliverable_format", isSelected ? "" : fmt.id)}
+                      className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all flex items-center gap-1.5 ${
+                        isSelected
+                          ? "bg-indigo-600/20 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.3)]"
+                          : "bg-black/30 border-white/10 text-zinc-400 hover:border-white/20 hover:text-zinc-200"
                       }`}
                     >
-                      {s}
+                      <span>{fmt.icon}</span>
+                      <span>{fmt.label}</span>
                     </button>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
             </div>
+
 
             {/* CONDITIONAL: ONLINE (FILE UPLOAD) vs OFFLINE / HYBRID (DESCRIPTION + LOCATION) */}
             {form.mode === "online" ? (
