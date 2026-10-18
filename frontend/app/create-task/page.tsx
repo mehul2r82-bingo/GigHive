@@ -161,7 +161,7 @@ const MODES = [
    Display copy per your brief. displayMin matches BANDS[].min exactly (50/60/120/250). */
 
 const BAND_INFO: Record<string, { title: string; range: string; examples: string; displayMin: number }> = {
-  short: { title: "Short", range: "Up to 2 hours", examples: "Notes, Assignments, Quick edits", displayMin: shortMin },
+  short: { title: "Short", range: "Up to 2 hours", examples: "Notes, Formatting, Quick edits", displayMin: shortMin },
   medium: { title: "Medium", range: "2–6 hours", examples: "Presentation, Website edits, Research", displayMin: 120 },
   long: { title: "Long", range: "1–3 days", examples: "Large projects, Design work, Development", displayMin: 250 },
 }

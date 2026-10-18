@@ -126,12 +126,12 @@ return (
       {/* HERO */}
       <section className="max-w-2xl mx-auto px-4 pt-6 pb-3 sm:pt-8 sm:pb-5 text-center animate-hero">
         <h1 className="text-base sm:text-2xl md:text-3xl font-bold tracking-tight text-white leading-snug mb-2 text-balance">
-          <span className="block sm:inline">Too lazy to do your assignment?</span>{" "}
-          <span className="block sm:inline">Too broke to say no?</span>
+          <span className="block sm:inline">Outsource the grind.</span>{" "}
+          <span className="block sm:inline">Earn on campus.</span>
         </h1>
 
         <p className="text-xs sm:text-sm text-zinc-400 max-w-lg mx-auto leading-relaxed text-balance">
-          Do the math: Outsource the work draining your time, or monetize your skills and earn on campus.
+          The campus peer marketplace. Delegate everyday project formatting and design, or monetize your skills between classes.
         </p>
 
         {!isAuthenticated && (
