@@ -21,14 +21,6 @@ type FormState = {
   bonus_tokens: number
 }
 
-const DELIVERABLE_FORMATS = [
-  { id: "Handwritten", label: "Handwritten", icon: "✍️", hint: "Sheets / Files / Registers" },
-  { id: "Typed Document", label: "Typed Doc", icon: "📄", hint: "Word / PDF / Report" },
-  { id: "Presentation", label: "Presentation", icon: "📊", hint: "PPT / Canva slides" },
-  { id: "Code / Script", label: "Code / Script", icon: "💻", hint: "Python, C++, Java, Web" },
-  { id: "Video", label: "Video Pitch", icon: "🎥", hint: "Explainer / Speaking video" },
-  { id: "Other", label: "Simulation / Other", icon: "📁", hint: "MATLAB, CAD, Custom" },
-];
 
 
 export default function CreateTaskPage() {
@@ -416,35 +408,7 @@ return(
               </div>
             </div>
 
-            {/* COMPACT DELIVERABLE FORMAT (FAST PACE) */}
-            <div className="pt-3 border-t border-white/5">
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-xs text-zinc-400 font-medium">
-                  Deliverable Format <span className="text-zinc-500 font-normal">(optional)</span>
-                </label>
-                <span className="text-[11px] text-zinc-500">How solver must deliver</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {DELIVERABLE_FORMATS.map((fmt) => {
-                  const isSelected = form.deliverable_format === fmt.id;
-                  return (
-                    <button
-                      key={fmt.id}
-                      type="button"
-                      onClick={() => updateField("deliverable_format", isSelected ? "" : fmt.id)}
-                      className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all flex items-center gap-1.5 ${
-                        isSelected
-                          ? "bg-indigo-600/20 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.3)]"
-                          : "bg-black/30 border-white/10 text-zinc-400 hover:border-white/20 hover:text-zinc-200"
-                      }`}
-                    >
-                      <span>{fmt.icon}</span>
-                      <span>{fmt.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+
 
 
             {/* CONDITIONAL: ONLINE (FILE UPLOAD) vs OFFLINE / HYBRID (DESCRIPTION + LOCATION) */}
